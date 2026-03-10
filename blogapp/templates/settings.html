@@ -1,0 +1,1849 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="settings-container">
+    <!-- Header -->
+    <div class="settings-header">
+        <h1>⚙️ Settings & Preferences</h1>
+        <p>Customize your experience and manage your account</p>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="settings-tabs">
+        <button class="tab-btn active" data-tab="theme">🎨 Theme</button>
+        <button class="tab-btn" data-tab="profile">👤 Profile</button>
+        <button class="tab-btn" data-tab="account">🔐 Account</button>
+    </div>
+
+    <!-- Theme Settings Tab -->
+    <div class="settings-tab-content active" id="theme-tab">
+        <div class="settings-card theme-settings-card">
+            <div class="settings-card-header">
+                <h2>Theme Customization</h2>
+                <p>Choose how UCD GreenLife looks for you</p>
+            </div>
+            
+            <form method="POST" action="{{ url_for('main.update_theme') }}" id="themeForm" class="ajax-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <!-- Theme Mode -->
+                <div class="setting-group">
+                    <h3>Theme Mode</h3>
+                    <div class="theme-options">
+                        <label class="theme-option">
+                            <input type="radio" name="theme" value="light" 
+                                   {% if session.get('theme', 'light') == 'light' %}checked{% endif %}>
+                            <div class="theme-preview light">
+                                <div class="preview-header"></div>
+                                <div class="preview-content">
+                                    <div class="preview-card"></div>
+                                    <div class="preview-card"></div>
+                                </div>
+                            </div>
+                            <span class="theme-label">Light</span>
+                        </label>
+                        
+                        <label class="theme-option">
+                            <input type="radio" name="theme" value="dark"
+                                   {% if session.get('theme') == 'dark' %}checked{% endif %}>
+                            <div class="theme-preview dark">
+                                <div class="preview-header"></div>
+                                <div class="preview-content">
+                                    <div class="preview-card"></div>
+                                    <div class="preview-card"></div>
+                                </div>
+                            </div>
+                            <span class="theme-label">Dark</span>
+                        </label>
+                        
+                        <label class="theme-option">
+                            <input type="radio" name="theme" value="auto"
+                                   {% if session.get('theme') == 'auto' %}checked{% endif %}>
+                            <div class="theme-preview auto">
+                                <div class="preview-icon">🌗</div>
+                            </div>
+                            <span class="theme-label">Auto</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Color Scheme -->
+                <div class="setting-group">
+                    <h3>Color Scheme</h3>
+                    <div class="color-options">
+                        <label class="color-option">
+                            <input type="radio" name="color_scheme" value="green"
+                                   {% if session.get('color_scheme', 'green') == 'green' %}checked{% endif %}>
+                            <div class="color-preview green"></div>
+                            <span class="color-option-text">Green</span>
+                        </label>
+                        
+                        <label class="color-option">
+                            <input type="radio" name="color_scheme" value="blue"
+                                   {% if session.get('color_scheme') == 'blue' %}checked{% endif %}>
+                            <div class="color-preview blue"></div>
+                            <span class="color-option-text">Blue</span>
+                        </label>
+                        
+                        <label class="color-option">
+                            <input type="radio" name="color_scheme" value="earth"
+                                   {% if session.get('color_scheme') == 'earth' %}checked{% endif %}>
+                            <div class="color-preview earth"></div>
+                            <span class="color-option-text">Earth</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-actions">
+                    <button type="button" class="btn-reset" id="resetThemeBtn">Reset to Default</button>
+                    <button type="submit" class="btn-save" id="saveThemeBtn">
+                        <span class="btn-text">Save Theme Settings</span>
+                        <span class="btn-loading" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Saving...
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Settings Tab - Simplified Version -->
+    <div class="settings-tab-content" id="profile-tab">
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <h2>Profile Settings</h2>
+                <p>Update your personal information</p>
+            </div>
+            
+            <form method="POST" action="{{ url_for('main.update_profile') }}" id="profileForm" class="ajax-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <!-- User Information -->
+                <div class="setting-group">
+                    <h3>Account Information</h3>
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" value="{{ current_user.username }}" readonly>
+                        <small>Username cannot be changed</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" 
+                               value="{{ current_user.email }}" 
+                               placeholder="Enter your email address"
+                               required>
+                        <small>Used for account recovery and notifications</small>
+                        <!-- Email verification hint -->
+                        <div class="email-hint" id="emailHint"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="user_type">Account Type</label>
+                        <input type="text" id="user_type" 
+                               value="{{ current_user.user_type|title }}" readonly>
+                        <small>Contact admin to change account type</small>
+                    </div>
+                </div>
+
+                <div class="settings-actions">
+                    <button type="submit" class="btn-save" id="saveProfileBtn">
+                        <span class="btn-text">Save Profile Changes</span>
+                        <span class="btn-loading" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Saving...
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Account Management Tab -->
+    <div class="settings-tab-content" id="account-tab">
+        <div class="settings-card danger-zone">
+            <div class="settings-card-header">
+                <h2>⚠️ Account Management</h2>
+                <p>Important actions for your account</p>
+            </div>
+
+            <!-- Export Data -->
+            <div class="setting-group">
+                <h3>Export Your Data</h3>
+                <p>Download all your sustainability data in CSV format</p>
+                <div class="export-options">
+                    <a href="{{ url_for('main.export_data', format='csv') }}" class="btn-export">
+                        <i class="fas fa-download"></i>
+                        Export as CSV
+                    </a>
+                    <a href="{{ url_for('main.export_data', format='json') }}" class="btn-export">
+                        <i class="fas fa-download"></i>
+                        Export as JSON
+                    </a>
+                </div>
+            </div>
+
+            <!-- Delete Account -->
+            <div class="setting-group danger-section">
+                <h3 class="danger-title">⚠️ Delete Account</h3>
+                <div class="danger-warning">
+                    <div class="warning-icon">🚨</div>
+                    <div class="warning-content">
+                        <h4>This action cannot be undone</h4>
+                        <p>Deleting your account will permanently:</p>
+                        <ul>
+                            <li>Remove all your sustainability activity records</li>
+                            <li>Cancel your event registrations</li>
+                            <li>Delete any events you've created (if staff)</li>
+                            <li>Remove your profile and achievements</li>
+                        </ul>
+                        <p class="final-warning"><strong>All your data will be lost forever.</strong></p>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('main.delete_account') }}" id="deleteForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <div class="delete-confirmation">
+                        <p>To confirm deletion, please type:</p>
+                        <div class="confirmation-text">
+                            <code>DELETE {{ current_user.username }}</code>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="confirm_text" name="confirm_text" 
+                                   placeholder="Type the exact text above" 
+                                   class="confirm-input"
+                                   autocomplete="off">
+                            <div class="confirmation-match" id="confirmationMatch">
+                                <i class="fas fa-times"></i>
+                                <span>Confirmation text doesn't match</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="final-actions">
+                        <button type="button" class="btn-cancel" id="cancelDeleteBtn">Cancel</button>
+                        <button type="submit" class="btn-delete" id="deleteAccountBtn" disabled>
+                            <i class="fas fa-trash"></i>
+                            <span class="btn-text">Permanently Delete My Account</span>
+                            <span class="btn-loading" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Deleting...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ============================================
+   Base Styles (Default Light Mode)
+   ============================================ */
+
+/* Settings Container */
+.settings-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.settings-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.settings-header h1 {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.settings-header p {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+}
+
+/* Tabs Navigation */
+.settings-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
+}
+
+.tab-btn {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    border-radius: 8px 8px 0 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #7f8c8d;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tab-btn:hover {
+    background: #f8f9fa;
+    color: var(--primary-color);
+}
+
+.tab-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-bottom: 3px solid var(--primary-color);
+}
+
+/* Settings Card */
+.settings-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f0f0f0;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.theme-settings-card {
+    background: white;
+}
+
+.settings-card.danger-zone {
+    border-color: #f8d7da;
+    box-shadow: 0 4px 20px rgba(220, 53, 69, 0.1);
+}
+
+.settings-card-header {
+    padding: 2rem 2rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.settings-card-header h2 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.settings-card-header p {
+    color: #7f8c8d;
+    font-size: 0.95rem;
+}
+
+/* Tab Content */
+.settings-tab-content {
+    display: none;
+}
+
+.settings-tab-content.active {
+    display: block;
+}
+
+/* Setting Groups */
+.setting-group {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.setting-group:last-child {
+    border-bottom: none;
+}
+
+.setting-group h3 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Theme Options */
+.theme-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.theme-option {
+    cursor: pointer;
+    text-align: center;
+}
+
+.theme-option input {
+    display: none;
+}
+
+.theme-preview {
+    width: 100%;
+    height: 120px;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.theme-option input:checked + .theme-preview {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.2);
+}
+
+.theme-preview.light {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+}
+
+.theme-preview.light .preview-header {
+    height: 30px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.theme-preview.light .preview-content {
+    padding: 10px;
+}
+
+.theme-preview.light .preview-card {
+    height: 20px;
+    background: #f8f9fa;
+    margin-bottom: 5px;
+    border-radius: 4px;
+}
+
+.theme-preview.dark {
+    background: #1a1a1a;
+}
+
+.theme-preview.dark .preview-header {
+    height: 30px;
+    background: #2d2d2d;
+    border-bottom: 1px solid #404040;
+}
+
+.theme-preview.dark .preview-content {
+    padding: 10px;
+}
+
+.theme-preview.dark .preview-card {
+    height: 20px;
+    background: #2d2d2d;
+    margin-bottom: 5px;
+    border-radius: 4px;
+}
+
+.theme-preview.auto {
+    background: linear-gradient(135deg, #ffffff 50%, #1a1a1a 50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e9ecef;
+}
+
+.theme-preview.auto .preview-icon {
+    font-size: 2rem;
+    background: white;
+    padding: 10px;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.theme-label {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Color Options */
+.color-options {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.color-option {
+    cursor: pointer;
+    text-align: center;
+}
+
+.color-option input {
+    display: none;
+}
+
+.color-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 0.5rem;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.color-option input:checked + .color-preview {
+    border-color: var(--primary-color);
+    transform: scale(1.1);
+}
+
+.color-preview.green {
+    background: linear-gradient(135deg, #2E8B57, #4CAF50);
+}
+
+.color-preview.blue {
+    background: linear-gradient(135deg, #2196F3, #03A9F4);
+}
+
+.color-preview.earth {
+    background: linear-gradient(135deg, #8B4513, #228B22);
+}
+
+.color-option-text {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+.form-group input:read-only {
+    background: #f8f9fa;
+    cursor: not-allowed;
+}
+
+.form-group small {
+    display: block;
+    color: #7f8c8d;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+/* Email verification hint style */
+.email-hint {
+    display: block;
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    margin-left: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.email-hint.valid {
+    color: #28a745;
+}
+
+.email-hint.invalid {
+    color: #dc3545;
+}
+
+/* Error input style */
+.input-error {
+    border-color: #dc3545 !important;
+    background-color: #fff5f5 !important;
+}
+
+.input-error:focus {
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+/* Export Options */
+.export-options {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn-export {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-export:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+/* Danger Zone */
+.danger-section {
+    background: #fff5f5;
+    border-radius: 12px;
+    border: 2px solid #f8d7da;
+}
+
+.danger-title {
+    color: #dc3545 !important;
+}
+
+.danger-warning {
+    display: flex;
+    gap: 1.5rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid #dc3545;
+    margin-bottom: 2rem;
+}
+
+.warning-icon {
+    font-size: 3rem;
+    color: #dc3545;
+}
+
+.warning-content h4 {
+    color: #dc3545;
+    margin-bottom: 1rem;
+}
+
+.warning-content ul {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+    color: #721c24;
+}
+
+.warning-content li {
+    margin-bottom: 0.5rem;
+}
+
+.final-warning {
+    color: #721c24;
+    font-weight: 600;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8d7da;
+    border-radius: 6px;
+}
+
+/* Delete Confirmation */
+.delete-confirmation {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    margin-bottom: 2rem;
+}
+
+.confirmation-text {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 6px;
+    margin: 1rem 0;
+    text-align: center;
+    font-family: monospace;
+    font-size: 1.1rem;
+    color: #dc3545;
+    font-weight: bold;
+    border: 1px dashed #dc3545;
+}
+
+.confirm-input {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #dc3545;
+    border-radius: 6px;
+    font-size: 1rem;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.confirmation-match {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    color: #dc3545;
+    font-size: 0.9rem;
+}
+
+.confirmation-match i {
+    font-size: 0.8rem;
+}
+
+.confirmation-match.matched {
+    color: #28a745;
+}
+
+.confirmation-match.matched i {
+    content: "✓";
+}
+
+/* Settings Actions */
+.settings-actions {
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.btn-save {
+    padding: 0.75rem 2rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.btn-save:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+}
+
+.btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-save .btn-text,
+.btn-save .btn-loading {
+    display: inline-block;
+}
+
+.btn-save .btn-loading {
+    display: none;
+}
+
+.btn-save.loading .btn-text {
+    display: none;
+}
+
+.btn-save.loading .btn-loading {
+    display: inline-block;
+}
+
+.btn-reset {
+    padding: 0.75rem 2rem;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-reset:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+/* Final Actions for Delete */
+.final-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 2rem;
+    border-top: 1px solid #f8d7da;
+}
+
+.btn-cancel {
+    padding: 0.75rem 2rem;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: #5a6268;
+}
+
+.btn-delete {
+    padding: 1rem 2rem;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+}
+
+.btn-delete:hover:not(:disabled) {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-delete:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   Dark Mode Styles
+   ============================================ */
+
+/* Base variables for dark mode */
+[data-theme="dark"] {
+    --dark-bg-primary: #121212;
+    --dark-bg-secondary: #1a1a1a;
+    --dark-bg-card: #2d2d2d;
+    --dark-bg-theme-card: #121212;
+    --dark-text-primary: #ffffff;
+    --dark-text-secondary: #cccccc;
+    --dark-text-muted: #aaaaaa;
+    --dark-border: #333333;
+    --dark-border-light: #404040;
+    --dark-danger: #dc3545;
+    --dark-danger-hover: #c82333;
+}
+
+/* Global styles for dark mode */
+[data-theme="dark"] body {
+    background: var(--dark-bg-primary);
+    color: var(--dark-text-primary);
+}
+
+/* Settings container in dark mode */
+[data-theme="dark"] .settings-container {
+    background: var(--dark-bg-primary);
+}
+
+[data-theme="dark"] .settings-header h1 {
+    color: var(--primary-color);
+}
+
+[data-theme="dark"] .settings-header p {
+    color: var(--dark-text-secondary);
+}
+
+/* Tabs navigation in dark mode */
+[data-theme="dark"] .settings-tabs {
+    border-bottom-color: var(--dark-border);
+}
+
+[data-theme="dark"] .tab-btn {
+    color: var(--dark-text-secondary);
+}
+
+[data-theme="dark"] .tab-btn:hover {
+    background: var(--dark-bg-secondary);
+    color: var(--primary-color);
+}
+
+[data-theme="dark"] .tab-btn.active {
+    background: var(--primary-color);
+    color: var(--dark-text-primary);
+    border-bottom-color: var(--primary-color);
+}
+
+/* ========== Card styles in dark mode ========== */
+[data-theme="dark"] .settings-card {
+    background: var(--dark-bg-card);
+    border-color: var(--dark-border);
+    color: var(--dark-text-primary);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .theme-settings-card {
+    background: var(--dark-bg-theme-card) !important;
+    border-color: var(--dark-border) !important;
+}
+
+[data-theme="dark"] .settings-card.danger-zone {
+    background: #2a1e1e;
+    border-color: #5c3a3a;
+    box-shadow: 0 4px 20px rgba(220, 53, 69, 0.2);
+}
+
+[data-theme="dark"] .settings-card-header {
+    border-bottom-color: var(--dark-border);
+}
+
+[data-theme="dark"] .settings-card-header h2 {
+    color: var(--dark-text-primary) !important;
+}
+
+[data-theme="dark"] .settings-card-header p {
+    color: var(--dark-text-secondary) !important;
+}
+
+/* Setting groups in dark mode */
+[data-theme="dark"] .setting-group {
+    border-bottom-color: var(--dark-border);
+}
+
+[data-theme="dark"] .setting-group h3 {
+    color: var(--dark-text-primary) !important;
+}
+
+/* Theme preview in dark mode */
+[data-theme="dark"] .theme-option input:checked + .theme-preview {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.3) !important;
+}
+
+[data-theme="dark"] .theme-preview.light {
+    border-color: var(--dark-border-light);
+}
+
+[data-theme="dark"] .theme-preview.dark {
+    border-color: var(--dark-border-light);
+}
+
+[data-theme="dark"] .theme-preview.auto {
+    border-color: var(--dark-border-light);
+}
+
+/* Theme option text in dark mode */
+[data-theme="dark"] .theme-label {
+    color: var(--dark-text-primary) !important;
+}
+
+[data-theme="dark"] .color-option-text {
+    color: var(--dark-text-primary) !important;
+}
+
+/* Color options in dark mode */
+[data-theme="dark"] .color-option input:checked + .color-preview {
+    border-color: var(--primary-color) !important;
+}
+
+/* Form elements in dark mode */
+[data-theme="dark"] .form-group label {
+    color: var(--dark-text-primary) !important;
+}
+
+[data-theme="dark"] .form-group input {
+    background: var(--dark-bg-secondary);
+    border-color: var(--dark-border-light);
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .form-group input:read-only {
+    background: var(--dark-bg-card);
+}
+
+[data-theme="dark"] .form-group input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+[data-theme="dark"] .form-group small {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Email verification hint style - dark mode */
+[data-theme="dark"] .email-hint.valid {
+    color: #4CAF50;
+}
+
+[data-theme="dark"] .email-hint.invalid {
+    color: #f44336;
+}
+
+[data-theme="dark"] .input-error {
+    border-color: #f44336 !important;
+    background-color: #3d2d2d !important;
+}
+
+/* Buttons in dark mode */
+[data-theme="dark"] .btn-save {
+    background: var(--primary-color);
+}
+
+[data-theme="dark"] .btn-save:hover {
+    background: var(--primary-dark);
+}
+
+[data-theme="dark"] .btn-reset,
+[data-theme="dark"] .btn-cancel {
+    background: #6c757d;
+}
+
+[data-theme="dark"] .btn-reset:hover,
+[data-theme="dark"] .btn-cancel:hover {
+    background: #5a6268;
+}
+
+/* Export buttons in dark mode */
+[data-theme="dark"] .btn-export {
+    background: var(--primary-color);
+}
+
+[data-theme="dark"] .btn-export:hover {
+    background: var(--primary-dark);
+}
+
+/* Danger zone in dark mode */
+[data-theme="dark"] .danger-section {
+    background: #2a1e1e;
+    border-color: #5c3a3a;
+}
+
+[data-theme="dark"] .danger-warning {
+    background: #3d2d2d;
+    border-left-color: var(--dark-danger);
+}
+
+[data-theme="dark"] .warning-content h4 {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .warning-content ul {
+    color: var(--dark-text-secondary);
+}
+
+[data-theme="dark"] .final-warning {
+    background: #5c3a3a;
+    color: var(--dark-text-secondary);
+}
+
+[data-theme="dark"] .delete-confirmation {
+    background: var(--dark-bg-secondary);
+    border-color: var(--dark-border);
+}
+
+[data-theme="dark"] .confirmation-text {
+    background: var(--dark-bg-card);
+    border-color: var(--dark-danger);
+    color: var(--dark-danger);
+}
+
+[data-theme="dark"] .confirm-input {
+    background: var(--dark-bg-secondary);
+    border-color: var(--dark-danger);
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .btn-delete {
+    background: var(--dark-danger);
+}
+
+[data-theme="dark"] .btn-delete:hover:not(:disabled) {
+    background: var(--dark-danger-hover);
+}
+
+/* Action area borders in dark mode */
+[data-theme="dark"] .settings-actions {
+    border-top-color: var(--dark-border);
+}
+
+[data-theme="dark"] .final-actions {
+    border-top-color: var(--dark-border);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .settings-container {
+        padding: 1rem;
+    }
+    
+    .settings-tabs {
+        flex-direction: column;
+    }
+    
+    .tab-btn {
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .theme-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .color-options {
+        justify-content: center;
+    }
+    
+    .export-options {
+        flex-direction: column;
+    }
+    
+    .final-actions {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .btn-cancel, .btn-delete {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .danger-warning {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Page loaded, initializing settings...');
+    
+    // ============================================
+    // 1. Global AJAX Form Handler
+    // ============================================
+    function setupAjaxForm(formId) {
+        const form = document.getElementById(formId);
+        if (!form) {
+            console.warn(`Form ${formId} not found`);
+            return;
+        }
+        
+        console.log(`Setting up AJAX form: ${formId}`);
+        
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault(); // Prevent default form submission
+            
+            console.log(`Submitting form: ${formId}`);
+            
+            // Get submit button
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                // Show loading state
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+            }
+            
+            try {
+                // Collect form data
+                let formData = {};
+                
+                if (formId === 'profileForm') {
+                    // Get email input
+                    const emailInput = document.getElementById('email');
+                    const email = emailInput.value.trim();
+                    
+                    // Validate email
+                    const emailValidation = validateEmail(email);
+                    if (!emailValidation.valid) {
+                        showNotification(emailValidation.message, 'error');
+                        
+                        // Add error style
+                        emailInput.classList.add('input-error');
+                        setTimeout(() => emailInput.classList.remove('input-error'), 2000);
+                        
+                        throw new Error(emailValidation.message);
+                    }
+                    
+                    // Only include email
+                    formData = {
+                        email: email
+                    };
+                } else if (formId === 'themeForm') {
+                    // Theme form
+                    const formDataObj = new FormData(this);
+                    for (let [key, value] of formDataObj.entries()) {
+                        formData[key] = value;
+                    }
+                } else {
+                    // Other form handling
+                    const formDataObj = new FormData(this);
+                    for (let [key, value] of formDataObj.entries()) {
+                        formData[key] = value;
+                    }
+                }
+                
+                console.log('Form data:', formData);
+                
+                // Get CSRF token
+                const csrfToken = document.querySelector('input[name="csrf_token"]')?.value;
+                
+                // For theme form, apply changes immediately
+                if (formId === 'themeForm') {
+                    if (formData.theme) {
+                        applyTheme(formData.theme);
+                    }
+                    if (formData.color_scheme) {
+                        applyColorScheme(formData.color_scheme);
+                    }
+                }
+                
+                // Send AJAX request
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken || ''
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                let result;
+                try {
+                    result = await response.json();
+                } catch (jsonError) {
+                    console.warn('Response is not JSON, assuming success');
+                    result = { success: true, message: 'Settings saved successfully!' };
+                }
+                
+                console.log('Server response:', result);
+                
+                if (result.success || response.ok) {
+                    showNotification(result.message || 'Settings saved successfully!', 'success');
+                    
+                    // If email is updated, update the displayed email immediately
+                    if (formId === 'profileForm' && result.email) {
+                        document.getElementById('email').value = result.email;
+                    }
+                    
+                    // Update localStorage (ensure sync with server)
+                    if (formData.theme) {
+                        localStorage.setItem('theme', formData.theme);
+                    }
+                    if (formData.color_scheme) {
+                        localStorage.setItem('color_scheme', formData.color_scheme);
+                    }
+                } else {
+                    showNotification(result.message || 'Failed to save settings', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Form submission error:', error);
+                if (!error.message.includes('Email is valid')) {
+                    showNotification('Network error. Please check your connection.', 'error');
+                }
+            } finally {
+                // Restore button state
+                if (submitBtn) {
+                    submitBtn.classList.remove('loading');
+                    submitBtn.disabled = false;
+                }
+            }
+        });
+        
+        // Add real-time validation for email input
+        if (formId === 'profileForm') {
+            const emailInput = document.getElementById('email');
+            if (emailInput) {
+                emailInput.addEventListener('blur', function() {
+                    const email = this.value.trim();
+                    const hint = document.getElementById('emailHint');
+                    
+                    if (email) {
+                        const validation = validateEmail(email);
+                        
+                        if (!validation.valid) {
+                            this.classList.add('input-error');
+                            hint.textContent = validation.message;
+                            hint.className = 'email-hint invalid';
+                        } else {
+                            this.classList.remove('input-error');
+                            hint.textContent = '✓ Email format is valid';
+                            hint.className = 'email-hint valid';
+                        }
+                    } else {
+                        hint.textContent = '';
+                        hint.className = 'email-hint';
+                    }
+                });
+                
+                emailInput.addEventListener('input', function() {
+                    this.classList.remove('input-error');
+                    const hint = document.getElementById('emailHint');
+                    hint.textContent = '';
+                    hint.className = 'email-hint';
+                });
+            }
+        }
+    }
+    
+    // ============================================
+    // 2. Theme Management Functions
+    // ============================================
+    
+    // Apply Theme Function
+    function applyTheme(theme) {
+        console.log('🎨 Applying theme:', theme);
+        
+        const root = document.documentElement;
+        
+        // Clear old attributes
+        root.removeAttribute('data-theme');
+        root.removeAttribute('data-theme-mode');
+        
+        if (theme === 'auto') {
+            // Auto mode: follow system settings
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            root.setAttribute('data-theme', systemTheme);
+            root.setAttribute('data-theme-mode', 'auto');
+            console.log('🌓 Auto mode detected system theme:', systemTheme);
+        } else if (theme === 'dark' || theme === 'light') {
+            // Manual mode
+            root.setAttribute('data-theme', theme);
+            root.setAttribute('data-theme-mode', theme);
+            console.log('🎯 Manual mode:', theme);
+        } else {
+            // Invalid value, use default
+            root.setAttribute('data-theme', 'light');
+            root.setAttribute('data-theme-mode', 'light');
+            console.warn('⚠️ Invalid theme value, defaulting to light:', theme);
+            theme = 'light';
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('theme', theme);
+        console.log('💾 Saved to localStorage:', theme);
+        
+        // Update radio buttons in form
+        updateThemeRadioButtons(theme);
+        
+        // Broadcast theme change
+        broadcastThemeChange(theme);
+    }
+    
+    // Apply Color Scheme Function
+    function applyColorScheme(colorScheme) {
+        console.log('🎨 Applying color scheme:', colorScheme);
+        
+        const root = document.documentElement;
+        root.setAttribute('data-color-scheme', colorScheme);
+        localStorage.setItem('color_scheme', colorScheme);
+        
+        // Update CSS variables
+        updateColorVariables(colorScheme);
+        
+        // Broadcast color scheme change
+        broadcastColorSchemeChange(colorScheme);
+    }
+    
+    // Update CSS Color Variables
+    function updateColorVariables(colorScheme) {
+        const root = document.documentElement;
+        
+        // Remove all old variables
+        root.style.removeProperty('--primary-color');
+        root.style.removeProperty('--primary-light');
+        root.style.removeProperty('--primary-dark');
+        root.style.removeProperty('--primary-rgb');
+        
+        switch(colorScheme) {
+            case 'green':
+                root.style.setProperty('--primary-color', '#2E8B57');
+                root.style.setProperty('--primary-light', '#4CAF50');
+                root.style.setProperty('--primary-dark', '#267c4d');
+                root.style.setProperty('--primary-rgb', '46, 139, 87');
+                break;
+            case 'blue':
+                root.style.setProperty('--primary-color', '#2196F3');
+                root.style.setProperty('--primary-light', '#03A9F4');
+                root.style.setProperty('--primary-dark', '#0b7dda');
+                root.style.setProperty('--primary-rgb', '33, 150, 243');
+                break;
+            case 'earth':
+                root.style.setProperty('--primary-color', '#8B4513');
+                root.style.setProperty('--primary-light', '#228B22');
+                root.style.setProperty('--primary-dark', '#5D2906');
+                root.style.setProperty('--primary-rgb', '139, 69, 19');
+                break;
+            default:
+                // Default to green
+                root.style.setProperty('--primary-color', '#2E8B57');
+                root.style.setProperty('--primary-light', '#4CAF50');
+                root.style.setProperty('--primary-dark', '#267c4d');
+                root.style.setProperty('--primary-rgb', '46, 139, 87');
+        }
+    }
+    
+    // Update Radio Buttons State in Form
+    function updateThemeRadioButtons(theme) {
+        const themeInput = document.querySelector(`input[name="theme"][value="${theme}"]`);
+        if (themeInput) {
+            themeInput.checked = true;
+            
+            // Update preview borders
+            document.querySelectorAll('.theme-option').forEach(option => {
+                const preview = option.querySelector('.theme-preview');
+                preview.style.borderColor = 'transparent';
+            });
+            
+            const selectedPreview = themeInput.closest('.theme-option')?.querySelector('.theme-preview');
+            if (selectedPreview) {
+                selectedPreview.style.borderColor = 'var(--primary-color)';
+            }
+        }
+    }
+    
+    // Broadcast Theme Change
+    function broadcastThemeChange(theme) {
+        // Storage event (for sync across same-origin tabs)
+        const storageEvent = new StorageEvent('storage', {
+            key: 'theme',
+            newValue: theme,
+            oldValue: localStorage.getItem('theme'),
+            url: window.location.href
+        });
+        window.dispatchEvent(storageEvent);
+        
+        // Custom event
+        const customEvent = new CustomEvent('themeChanged', {
+            detail: { theme: theme }
+        });
+        window.dispatchEvent(customEvent);
+    }
+    
+    // Broadcast Color Scheme Change
+    function broadcastColorSchemeChange(colorScheme) {
+        const storageEvent = new StorageEvent('storage', {
+            key: 'color_scheme',
+            newValue: colorScheme,
+            oldValue: localStorage.getItem('color_scheme'),
+            url: window.location.href
+        });
+        window.dispatchEvent(storageEvent);
+    }
+    
+    // ============================================
+    // 3. Email Validation Function
+    // ============================================
+    function validateEmail(email) {
+        console.log('🔍 Validating email:', email);
+        
+        // Basic check
+        if (!email) {
+            return { valid: false, message: 'Email is required' };
+        }
+        
+        const emailStr = String(email).trim().toLowerCase();
+        
+        // Length check
+        if (emailStr.length > 254) {
+            return { valid: false, message: 'Email is too long (max 254 characters)' };
+        }
+        
+        // Format check
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(emailStr)) {
+            return { valid: false, message: 'Please enter a valid email address' };
+        }
+        
+        // Local part check
+        const localPart = emailStr.split('@')[0];
+        if (localPart.length > 64) {
+            return { valid: false, message: 'Email username is too long' };
+        }
+        
+        // Check for consecutive dots
+        if (/\.\./.test(localPart)) {
+            return { valid: false, message: 'Email cannot contain consecutive dots' };
+        }
+        
+        // Check for leading or trailing dots
+        if (/^\.|\.$/.test(localPart)) {
+            return { valid: false, message: 'Email cannot start or end with a dot' };
+        }
+        
+        // Check for dot followed by @
+        if (/\.@/.test(emailStr)) {
+            return { valid: false, message: 'Invalid email format' };
+        }
+        
+        // Domain part check
+        const domainPart = emailStr.split('@')[1];
+        if (domainPart.startsWith('-') || domainPart.endsWith('-')) {
+            return { valid: false, message: 'Invalid domain name' };
+        }
+        
+        // TLD length check
+        const tld = domainPart.split('.').pop();
+        if (tld.length < 2 || tld.length > 10) {
+            return { valid: false, message: 'Invalid domain extension' };
+        }
+        
+        return { valid: true, message: 'Email is valid' };
+    }
+    
+    // ============================================
+    // 4. Initialize AJAX Forms (only theme and profile forms)
+    // ============================================
+    setupAjaxForm('themeForm');
+    setupAjaxForm('profileForm');
+    // Note: Do not initialize deleteForm, use traditional form submission
+    
+    // ============================================
+    // 5. Load Saved Theme Settings
+    // ============================================
+    function loadSavedSettings() {
+        console.log('📥 Loading saved settings...');
+        
+        // Priority: localStorage > session > default
+        const savedTheme = localStorage.getItem('theme') || 
+                          '{{ session.get("theme", "light") }}' || 
+                          'light';
+        
+        const savedColorScheme = localStorage.getItem('color_scheme') || 
+                                '{{ session.get("color_scheme", "green") }}' || 
+                                'green';
+        
+        console.log('📊 Retrieved settings:', {
+            theme: savedTheme,
+            colorScheme: savedColorScheme
+        });
+        
+        // Apply settings
+        applyTheme(savedTheme);
+        applyColorScheme(savedColorScheme);
+        
+        // Update form state
+        setTimeout(() => {
+            const themeInput = document.querySelector(`input[name="theme"][value="${savedTheme}"]`);
+            const colorInput = document.querySelector(`input[name="color_scheme"][value="${savedColorScheme}"]`);
+            
+            if (themeInput) {
+                themeInput.checked = true;
+                console.log('✅ Theme radio updated:', savedTheme);
+                
+                // Update preview border
+                const themeOption = themeInput.closest('.theme-option');
+                if (themeOption) {
+                    themeOption.querySelector('.theme-preview').style.borderColor = 'var(--primary-color)';
+                }
+            }
+            
+            if (colorInput) {
+                colorInput.checked = true;
+                console.log('✅ Color scheme radio updated:', savedColorScheme);
+                
+                // Update color preview
+                const colorOption = colorInput.closest('.color-option');
+                if (colorOption) {
+                    colorOption.querySelector('.color-preview').style.transform = 'scale(1.1)';
+                }
+            }
+        }, 100);
+    }
+    
+    // ============================================
+    // 6. Initialize Tab Switching
+    // ============================================
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.settings-tab-content');
+    
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            
+            // Update tab buttons
+            tabBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Show corresponding content
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === `${tabId}-tab`) {
+                    content.classList.add('active');
+                }
+            });
+        });
+    });
+    
+    // ============================================
+    // 7. Theme Preview Interaction
+    // ============================================
+    const themeOptions = document.querySelectorAll('.theme-option');
+    themeOptions.forEach(option => {
+        option.addEventListener('click', function(e) {
+            // Prevent double trigger when clicking radio
+            if (e.target.type === 'radio') return;
+            
+            const input = this.querySelector('input[type="radio"]');
+            if (input) {
+                input.checked = true;
+                
+                // Apply theme immediately (real-time preview)
+                applyTheme(input.value);
+                
+                // Update all preview borders
+                themeOptions.forEach(o => {
+                    o.querySelector('.theme-preview').style.borderColor = 'transparent';
+                });
+                this.querySelector('.theme-preview').style.borderColor = 'var(--primary-color)';
+            }
+        });
+    });
+    
+    // ============================================
+    // 8. Color Scheme Interaction
+    // ============================================
+    const colorOptions = document.querySelectorAll('.color-option');
+    colorOptions.forEach(option => {
+        option.addEventListener('click', function(e) {
+            if (e.target.type === 'radio') return;
+            
+            const input = this.querySelector('input[type="radio"]');
+            if (input) {
+                input.checked = true;
+                
+                // Apply color scheme immediately
+                applyColorScheme(input.value);
+                
+                // Update all color previews
+                colorOptions.forEach(o => {
+                    o.querySelector('.color-preview').style.transform = 'scale(1)';
+                });
+                this.querySelector('.color-preview').style.transform = 'scale(1.1)';
+            }
+        });
+    });
+    
+    // ============================================
+    // 9. Reset Button
+    // ============================================
+    const resetBtn = document.getElementById('resetThemeBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            // Reset to default values
+            const defaultTheme = 'light';
+            const defaultColorScheme = 'green';
+            
+            console.log('🔄 Resetting to defaults:', { defaultTheme, defaultColorScheme });
+            
+            // Update form
+            document.querySelector('input[name="theme"][value="light"]').checked = true;
+            document.querySelector('input[name="color_scheme"][value="green"]').checked = true;
+            
+            // Apply changes
+            applyTheme(defaultTheme);
+            applyColorScheme(defaultColorScheme);
+            
+            // Update previews
+            themeOptions.forEach(o => {
+                const preview = o.querySelector('.theme-preview');
+                preview.style.borderColor = 'transparent';
+            });
+            
+            colorOptions.forEach(o => {
+                const preview = o.querySelector('.color-preview');
+                preview.style.transform = 'scale(1)';
+            });
+            
+            // Highlight selected previews
+            const selectedThemeOption = document.querySelector('input[name="theme"][value="light"]').closest('.theme-option');
+            const selectedColorOption = document.querySelector('input[name="color_scheme"][value="green"]').closest('.color-option');
+            
+            if (selectedThemeOption) {
+                selectedThemeOption.querySelector('.theme-preview').style.borderColor = 'var(--primary-color)';
+            }
+            if (selectedColorOption) {
+                selectedColorOption.querySelector('.color-preview').style.transform = 'scale(1.1)';
+            }
+            
+            showNotification('Theme settings reset to default', 'success');
+            
+            // Auto save
+            setTimeout(() => {
+                const saveBtn = document.getElementById('saveThemeBtn');
+                if (saveBtn) saveBtn.click();
+            }, 500);
+        });
+    }
+    
+    // ============================================
+    // 10. Listen for System Theme Changes (only when set to auto)
+    // ============================================
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    darkModeMediaQuery.addEventListener('change', function(e) {
+        const currentMode = document.documentElement.getAttribute('data-theme-mode');
+        if (currentMode === 'auto') {
+            const newTheme = e.matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            console.log('🌓 System theme changed, updating to:', newTheme);
+        }
+    });
+    
+    // ============================================
+    // 11. Account Deletion Confirmation - Use Traditional Form Submission to Ensure Redirect
+    // ============================================
+    const confirmInput = document.getElementById('confirm_text');
+    const confirmationMatch = document.getElementById('confirmationMatch');
+    const deleteBtn = document.getElementById('deleteAccountBtn');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    const deleteForm = document.getElementById('deleteForm');
+    
+    if (confirmInput && confirmationMatch && deleteBtn && deleteForm) {
+        const requiredText = `DELETE {{ current_user.username }}`;
+        
+        // Input validation
+        confirmInput.addEventListener('input', function() {
+            const typedText = this.value.trim();
+            
+            if (typedText === requiredText) {
+                confirmationMatch.style.display = 'flex';
+                confirmationMatch.classList.add('matched');
+                confirmationMatch.innerHTML = '<i class="fas fa-check"></i><span>Confirmation text matches!</span>';
+                deleteBtn.disabled = false;
+            } else if (typedText) {
+                confirmationMatch.style.display = 'flex';
+                confirmationMatch.classList.remove('matched');
+                confirmationMatch.innerHTML = '<i class="fas fa-times"></i><span>Confirmation text doesn\'t match</span>';
+                deleteBtn.disabled = true;
+            } else {
+                confirmationMatch.style.display = 'none';
+                deleteBtn.disabled = true;
+            }
+        });
+        
+        // Cancel deletion button
+        if (cancelDeleteBtn) {
+            cancelDeleteBtn.addEventListener('click', function() {
+                // Clear input field
+                confirmInput.value = '';
+                confirmationMatch.style.display = 'none';
+                deleteBtn.disabled = true;
+                showNotification('Account deletion cancelled', 'info');
+            });
+        }
+        
+        // Delete form submission handling - Use traditional form submission
+        deleteForm.addEventListener('submit', function(e) {
+            const typedText = confirmInput.value.trim();
+            
+            // Validate input
+            if (typedText !== requiredText) {
+                e.preventDefault();
+                showNotification('Please type the confirmation text exactly as shown', 'error');
+                confirmInput.focus();
+                return false;
+            }
+            
+            // Final confirmation
+            const confirmation = confirm(
+                '⚠️ ACCOUNT DELETION CONFIRMATION\n\n' +
+                'Are you sure you want to permanently delete your account?\n\n' +
+                'This will:\n' +
+                '• Permanently delete all your data\n' +
+                '• Remove all activity records\n' +
+                '• Cancel all event registrations\n' +
+                '• Delete any events you created (if staff)\n\n' +
+                'This action cannot be undone!'
+            );
+            
+            if (!confirmation) {
+                e.preventDefault();
+                showNotification('Account deletion cancelled', 'info');
+                return false;
+            }
+            
+            // Show loading state
+            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting Account...';
+            deleteBtn.disabled = true;
+            
+            // Disable cancel button
+            if (cancelDeleteBtn) {
+                cancelDeleteBtn.disabled = true;
+            }
+            
+            // Allow normal form submission, server will handle redirect
+            console.log('🗑️ Account deletion confirmed, submitting form...');
+            return true;
+        });
+        
+        // Handle Enter key in input field
+        confirmInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !deleteBtn.disabled) {
+                e.preventDefault();
+                deleteForm.dispatchEvent(new Event('submit'));
+            }
+        });
+    } else {
+        console.warn('⚠️ Delete account elements not found on this page');
+    }
+    
+    // ============================================
+    // 12. Load Settings
+    // ============================================
+    loadSavedSettings();
+    
+    // ============================================
+    // 13. Notification Function
+    // ============================================
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#d1ecf1'};
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            max-width: 350px;
+            border-left: 4px solid ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#2E8B57'};
+            color: ${type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#0c5460'};
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.opacity = '1';
+            notification.style.transform = 'translateY(0)';
+        }, 10);
+        
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}

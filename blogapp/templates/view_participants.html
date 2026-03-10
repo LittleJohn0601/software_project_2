@@ -1,0 +1,1253 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container participants-page">
+
+    <!-- Top Title & Event Information -->
+    <div class="participants-header">
+        <h1 class="participants-title">
+            Participants for "{{ event.title }}"
+        </h1>
+
+        <div class="participants-meta">
+            <div class="meta-row">
+                <span class="meta-pill meta-pill-muted">Date</span>
+                <span class="meta-text">
+                    {{ event.display_date }}
+                </span>
+                <span class="meta-dot">•</span>
+                <span class="meta-text">
+                    {{ event.location }}
+                </span>
+            </div>
+
+            <div class="meta-row">
+                <span class="status-pill status-{{ event.status }}">
+                    {{ event.status|title }}
+                </span>
+                <span class="meta-text">
+                    {{ event.time_range }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration List Card -->
+    <div class="participants-card">
+        <div class="participants-card-header">
+            <h2>Registered Participants ({{ registrations|length }})</h2>
+        </div>
+
+        {% if registrations %}
+            <div class="table-responsive participants-table-wrapper">
+                <table class="table participants-table mb-0" id="participantsTable">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="col-index text-center">#</th>
+                            <th scope="col" class="col-student text-center">Student</th>
+                            <th scope="col" class="col-email text-center">Email</th>
+                            <th scope="col" class="col-registered text-center">Registered At</th>
+                            <th scope="col" class="col-actions text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="participantsTableBody">
+                        {% for reg in registrations %}
+                        <tr id="participant-row-{{ reg.id }}" data-registration-id="{{ reg.id }}">
+                            <td class="col-index text-center">{{ loop.index }}</td>
+                            <td class="cell-student text-center">
+                                {{ reg.user.username }}
+                            </td>
+                            <td class="cell-email text-center">
+                                {{ reg.user.email }}
+                            </td>
+                            <td class="cell-registered text-center">
+                                {{ reg.registered_at.strftime('%b %d, %Y %H:%M') }}
+                            </td>
+                            <td class="col-actions text-center">
+                                <button type="button"
+                                        class="btn-remove-participant"
+                                        data-registration-id="{{ reg.id }}"
+                                        data-student-name="{{ reg.user.username }}">
+                                    Remove
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Custom Confirmation Modal (Only Rendered When There Are Registrations) -->
+            <div id="removeConfirmOverlay" class="remove-confirm-overlay">
+                <div class="remove-confirm-card">
+                    <div class="remove-confirm-header">
+                        <span class="dot dot-danger"></span>
+                        <div>
+                            <h5 class="mb-1">Remove Participant</h5>
+                            <p class="text-muted mb-0">
+                                This action will remove the student from this event.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="remove-confirm-body">
+                        <p class="mb-2">
+                            Are you sure you want to remove <strong id="confirmStudentName">this student</strong> from
+                            <strong>"{{ event.title }}"</strong>?
+                        </p>
+                        <p class="text-muted small mb-0">
+                            This will <strong>not</strong> delete the event itself,
+                            only the student's registration.
+                        </p>
+                    </div>
+
+                    <div class="remove-confirm-actions">
+                        <button type="button"
+                                class="btn-outline-secondary btn-pill"
+                                id="cancelRemoveBtn">
+                            Cancel
+                        </button>
+                        <button type="button"
+                                class="btn-danger-soft btn-pill"
+                                id="confirmRemoveBtn">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- Empty State When No Participants -->
+            <div class="participants-empty-card">
+                <h4>No participants yet</h4>
+                <p class="text-muted mb-0">
+                    Invite students to join this event so they appear here.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Back Link -->
+    <a href="{{ url_for('main.events') }}" class="back-link">
+        ← Back to Events
+    </a>
+</div>
+
+<style>
+/* ============================================
+   Base Styles (Default Light Mode)
+   ============================================ */
+
+/* Page Overall Layout */
+.participants-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 3rem;
+    background: transparent;
+}
+
+/* Header Information */
+.participants-header {
+    margin-bottom: 2rem;
+}
+
+.participants-title {
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #1f2933;
+    margin-bottom: 0.75rem;
+}
+
+.participants-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.95rem;
+}
+
+.meta-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.meta-text {
+    color: #6b7280;
+}
+
+.meta-dot {
+    color: #d1d5db;
+    margin: 0 0.25rem;
+}
+
+.meta-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.meta-pill-muted {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+/* Status Pill, Keep Consistent with Events Page Style */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.status-upcoming,
+.status-ongoing {
+    background: #e8f5e8;
+    color: #2E8B57;
+}
+
+.status-completed {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* Card */
+.participants-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 35px rgba(15, 23, 42, 0.08);
+    border: 1px solid #edf1f5;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.participants-card-header {
+    padding: 1.25rem 1.75rem;
+    border-bottom: 1px solid #edf1f5;
+}
+
+.participants-card-header h2 {
+    font-size: 1.1rem;
+    margin: 0;
+    font-weight: 600;
+    color: #111827;
+}
+
+/* Table */
+.participants-table-wrapper {
+    padding: 1.1rem 1.75rem 1.75rem;
+}
+
+.participants-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.participants-table thead th {
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9ca3af;
+    font-weight: 600;
+    padding: 0.65rem 0.75rem;
+    background-color: #f9fafb;
+}
+
+.participants-table tbody td {
+    vertical-align: middle;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.92rem;
+    color: #374151;
+    padding: 0.7rem 0.75rem;
+}
+
+.participants-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Row Hover Effect */
+.participants-table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+/* Column Width and Alignment */
+.col-index {
+    width: 60px;
+}
+
+.col-student {
+    width: 180px;
+}
+
+.col-email {
+    width: 260px;
+}
+
+.col-registered {
+    min-width: 190px;
+}
+
+.col-actions {
+    width: 130px;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.text-end {
+    text-align: right !important;
+}
+
+/* Remove Small Button (The One in the Table) */
+.btn-remove-participant {
+    border-radius: 999px;
+    padding: 0.3rem 1.1rem;
+    font-size: 0.82rem;
+    border: 1px solid #dc2626;
+    color: #b91c1c;
+    background: #ffffff;
+    font-weight: 600;
+    transition: all 0.18s ease;
+    cursor: pointer;
+}
+
+.btn-remove-participant:hover {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+/* Empty State Card */
+.participants-empty-card {
+    padding: 3rem 2rem;
+    text-align: center;
+    border-top: 1px dashed #e5e7eb;
+    background: #f9fafb;
+}
+
+.participants-empty-card h4 {
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+/* Back Link */
+.back-link {
+    display: inline-block;
+    margin-top: 1.75rem;
+    color: #6d28d9;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+    color: #5b21b6;
+}
+
+/* Confirmation Modal Overlay: Hidden by Default */
+.remove-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.35);
+    display: none;              /* Not Displayed by Default */
+    align-items: flex-end;      /* Bottom Drawer Effect */
+    justify-content: center;
+    z-index: 1050;
+    backdrop-filter: blur(4px);
+}
+
+/* Display Only When JS Adds is-visible */
+.remove-confirm-overlay.is-visible {
+    display: flex;
+}
+
+/* Modal Card */
+.remove-confirm-card {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto 1.75rem;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+    padding: 1.5rem 2rem 1.75rem;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Header */
+.remove-confirm-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+}
+
+.dot-danger {
+    background: #fee2e2;
+    box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.3);
+}
+
+.remove-confirm-header h5 {
+    color: #111827;
+    margin: 0;
+}
+
+/* Content & Buttons */
+.remove-confirm-body {
+    margin-bottom: 1.4rem;
+}
+
+.remove-confirm-body p {
+    color: #374151;
+    margin: 0;
+}
+
+.remove-confirm-body .text-muted {
+    color: #6b7280 !important;
+}
+
+.remove-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+/* General Pill Button Shape */
+.btn-pill {
+    border-radius: 999px;
+    padding: 0.45rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+/* Cancel Button */
+.btn-outline-secondary {
+    background: transparent;
+    border: 1px solid #d1d5db;
+    color: #6b7280;
+}
+
+.btn-outline-secondary:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+/* Red "Remove" Button (In Modal) */
+.btn-danger-soft {
+    border: none;
+    background: #fee2e2;
+    color: #b91c1c;
+    font-weight: 600;
+    transition: all 0.18s ease;
+}
+
+.btn-danger-soft:hover {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+/* Delete Row Animation */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+}
+
+.participant-row-removing {
+    animation: fadeOut 0.3s ease forwards;
+    background-color: #fee2e2 !important;
+}
+
+/* Success Message Style */
+.alert-success {
+    background-color: #d1fae5;
+    border: 1px solid #10b981;
+    color: #065f46;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: none;
+}
+
+.alert-success.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ============================================
+   Dark Mode Styles
+   ============================================ */
+
+/* Dark Mode Variables */
+[data-theme="dark"] {
+    --dark-bg-primary: #121212;
+    --dark-bg-secondary: #1a1a1a;
+    --dark-bg-card: #2d2d2d;
+    --dark-bg-card-hover: #333333;
+    --dark-bg-table-header: #252525;
+    --dark-bg-table-row: #2d2d2d;
+    --dark-bg-table-row-hover: #333333;
+    --dark-bg-empty: #2d2d2d;
+    --dark-bg-confirm: #2d2d2d;
+    --dark-text-primary: #ffffff;
+    --dark-text-secondary: #cccccc;
+    --dark-text-muted: #aaaaaa;
+    --dark-text-green: #4CAF50;
+    --dark-border: #333333;
+    --dark-border-light: #404040;
+    --dark-border-dashed: #444444;
+    --dark-primary: #4CAF50;
+    --dark-primary-hover: #45a049;
+    --dark-danger: #dc2626;
+    --dark-danger-hover: #b91c1c;
+    --dark-danger-light: #5c1a1a;
+    --dark-danger-border: #742a2a;
+    --dark-danger-bg: #5c1a1a;
+    --dark-purple: #8b5cf6;
+    --dark-purple-hover: #7c3aed;
+    --dark-shadow: rgba(0, 0, 0, 0.3);
+    --dark-shadow-hover: rgba(0, 0, 0, 0.4);
+    --dark-overlay: rgba(0, 0, 0, 0.5);
+}
+
+/* Dark Mode Global */
+[data-theme="dark"] .participants-page {
+    background: var(--dark-bg-primary);
+    color: var(--dark-text-primary);
+}
+
+/* Dark Mode Title */
+[data-theme="dark"] .participants-title {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .meta-text {
+    color: var(--dark-text-secondary);
+}
+
+[data-theme="dark"] .meta-dot {
+    color: var(--dark-border-light);
+}
+
+/* Dark Mode Badge */
+[data-theme="dark"] .meta-pill-muted {
+    background: var(--dark-border);
+    color: var(--dark-text-secondary);
+}
+
+[data-theme="dark"] .status-upcoming,
+[data-theme="dark"] .status-ongoing {
+    background: #1a4332;
+    color: #9ae6b4;
+}
+
+[data-theme="dark"] .status-completed {
+    background: var(--dark-border);
+    color: var(--dark-text-muted);
+}
+
+/* Dark Mode Card */
+[data-theme="dark"] .participants-card {
+    background: var(--dark-bg-card);
+    border-color: var(--dark-border);
+    box-shadow: 0 10px 35px var(--dark-shadow);
+}
+
+[data-theme="dark"] .participants-card-header {
+    border-bottom-color: var(--dark-border);
+}
+
+[data-theme="dark"] .participants-card-header h2 {
+    color: var(--dark-text-primary);
+}
+
+/* Dark Mode Table */
+[data-theme="dark"] .participants-table thead th {
+    background-color: var(--dark-bg-table-header);
+    border-bottom-color: var(--dark-border);
+    color: var(--dark-text-muted);
+}
+
+[data-theme="dark"] .participants-table tbody td {
+    color: var(--dark-text-secondary);
+    border-bottom-color: var(--dark-border);
+}
+
+[data-theme="dark"] .participants-table tbody tr:last-child td {
+    border-bottom-color: transparent;
+}
+
+[data-theme="dark"] .participants-table tbody tr:hover {
+    background-color: var(--dark-bg-table-row-hover);
+}
+
+/* Dark Mode Delete Button */
+[data-theme="dark"] .btn-remove-participant {
+    background: var(--dark-bg-card);
+    border-color: var(--dark-danger-border);
+    color: var(--dark-danger);
+}
+
+[data-theme="dark"] .btn-remove-participant:hover {
+    background: var(--dark-danger);
+    color: white;
+}
+
+/* Dark Mode Empty State */
+[data-theme="dark"] .participants-empty-card {
+    background: var(--dark-bg-empty);
+    border-top-color: var(--dark-border-dashed);
+}
+
+[data-theme="dark"] .participants-empty-card h4 {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .participants-empty-card .text-muted {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Dark Mode Back Link */
+[data-theme="dark"] .back-link {
+    color: var(--dark-purple);
+}
+
+[data-theme="dark"] .back-link:hover {
+    color: var(--dark-purple-hover);
+}
+
+/* Dark Mode Confirmation Modal */
+[data-theme="dark"] .remove-confirm-overlay {
+    background: var(--dark-overlay);
+}
+
+[data-theme="dark"] .remove-confirm-card {
+    background: var(--dark-bg-confirm);
+    border-color: var(--dark-border);
+    box-shadow: 0 18px 40px var(--dark-shadow-hover);
+}
+
+[data-theme="dark"] .remove-confirm-header h5 {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .remove-confirm-header .text-muted {
+    color: var(--dark-text-muted) !important;
+}
+
+[data-theme="dark"] .dot-danger {
+    background: var(--dark-danger-light);
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.2);
+}
+
+[data-theme="dark"] .remove-confirm-body p {
+    color: var(--dark-text-secondary);
+}
+
+[data-theme="dark"] .remove-confirm-body .text-muted {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Dark Mode Modal Buttons */
+[data-theme="dark"] .btn-outline-secondary {
+    background: transparent;
+    border-color: var(--dark-border-light);
+    color: var(--dark-text-secondary);
+}
+
+[data-theme="dark"] .btn-outline-secondary:hover {
+    background: var(--dark-bg-secondary);
+    border-color: var(--dark-border);
+}
+
+[data-theme="dark"] .btn-danger-soft {
+    background: var(--dark-danger-light);
+    color: var(--dark-danger);
+}
+
+[data-theme="dark"] .btn-danger-soft:hover {
+    background: var(--dark-danger);
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .participants-page {
+        padding: 1.5rem 1.25rem 2.5rem;
+    }
+
+    .participants-title {
+        font-size: 1.7rem;
+    }
+
+    .participants-card-header {
+        padding-inline: 1.25rem;
+    }
+
+    .participants-table-wrapper {
+        padding-inline: 1.25rem;
+    }
+
+    .remove-confirm-card {
+        margin: 0.75rem 1rem 1.25rem;
+        padding: 1.25rem 1.5rem 1.5rem;
+    }
+
+    .remove-confirm-actions {
+        flex-direction: row-reverse;
+        justify-content: space-between;
+    }
+    
+    /* Dark Mode Mobile Adjustment */
+    [data-theme="dark"] .participants-page {
+        padding: 1.5rem 1.25rem 2.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const overlay = document.getElementById('removeConfirmOverlay');
+    const csrfToken = "{{ csrf_token() }}";
+    const eventId = "{{ event.id}}";
+    
+    // Success Message Container
+    const successAlert = document.createElement('div');
+    successAlert.className = 'alert-success';
+    successAlert.innerHTML = '<strong>✓ Success!</strong> Participant removed.';
+    document.querySelector('.participants-card').insertBefore(successAlert, document.querySelector('.participants-card-header'));
+
+    // Overlay Won't Be Rendered in Template When There Are No Registrations, Return Directly
+    if (!overlay) {
+        return;
+    }
+
+    const cancelBtn = document.getElementById('cancelRemoveBtn');
+    const confirmBtn = document.getElementById('confirmRemoveBtn');
+    const confirmStudentName = document.getElementById('confirmStudentName');
+    
+    let registrationIdToRemove = null;
+    let studentNameToRemove = null;
+
+    // 1. Bind Remove Buttons in Table
+    document.querySelectorAll('.btn-remove-participant').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            registrationIdToRemove = this.dataset.registrationId;
+            studentNameToRemove = this.dataset.studentName;
+            
+            // Update Student Name in Confirmation Modal
+            confirmStudentName.textContent = studentNameToRemove;
+            
+            overlay.classList.add('is-visible');
+        });
+    });
+
+    // 2. Click Cancel to Close Modal
+    cancelBtn.addEventListener('click', function () {
+        overlay.classList.remove('is-visible');
+        registrationIdToRemove = null;
+        studentNameToRemove = null;
+    });
+
+    // 3. Click Blank Area of Mask to Close Modal Too
+    overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) {
+            overlay.classList.remove('is-visible');
+            registrationIdToRemove = null;
+            studentNameToRemove = null;
+        }
+    });
+
+    // 4. Confirm Remove: Send AJAX Request
+    confirmBtn.addEventListener('click', async function () {
+        if (!registrationIdToRemove) return;
+        
+        // Close Modal
+        overlay.classList.remove('is-visible');
+        
+        // Show Loading State
+        const row = document.getElementById(`participant-row-${registrationIdToRemove}`);
+        if (row) {
+            row.classList.add('participant-row-removing');
+        }
+        
+        try {
+            // Prepare FormData
+            const formData = new FormData();
+            formData.append('csrf_token', csrfToken);
+            
+            // Send AJAX Request
+            const response = await fetch(`/events/${eventId}/participants/${registrationIdToRemove}/remove`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Remove Table Row
+                if (row) {
+                    // Wait for Animation to Complete Before Removing
+                    setTimeout(() => {
+                        row.remove();
+                        
+                        // Update Row Indexes
+                        updateRowIndexes();
+                        
+                        // Update Participant Count in Title
+                        updateParticipantCount();
+                        
+                        // Show Success Message
+                        showSuccessMessage();
+                    }, 300);
+                }
+            } else {
+                // Show Error
+                alert(result.message || 'Failed to remove participant');
+                
+                // Remove Loading State
+                if (row) {
+                    row.classList.remove('participant-row-removing');
+                }
+            }
+            
+        } catch (error) {
+            console.error('Error removing participant:', error);
+            alert('An error occurred while removing the participant');
+            
+            // Remove Loading State
+            if (row) {
+                row.classList.remove('participant-row-removing');
+            }
+        }
+        
+        registrationIdToRemove = null;
+        studentNameToRemove = null;
+    });
+    
+    // Update Row Indexes
+    function updateRowIndexes() {
+        const rows = document.querySelectorAll('#participantsTableBody tr');
+        rows.forEach((row, index) => {
+            const indexCell = row.querySelector('.col-index');
+            if (indexCell) {
+                indexCell.textContent = index + 1;
+            }
+        });
+    }
+    
+    // Update Participant Count
+    function updateParticipantCount() {
+        const rows = document.querySelectorAll('#participantsTableBody tr');
+        const header = document.querySelector('.participants-card-header h2');
+        if (header) {
+            header.textContent = `Registered Participants (${rows.length})`;
+        }
+        
+        // Show Empty State If No Participants Left
+        if (rows.length === 0) {
+            showEmptyState();
+        }
+    }
+    
+    // Show Empty State
+    function showEmptyState() {
+        const tableWrapper = document.querySelector('.participants-table-wrapper');
+        if (tableWrapper) {
+            tableWrapper.innerHTML = `
+                <div class="participants-empty-card">
+                    <h4>No participants yet</h4>
+                    <p class="text-muted mb-0">
+                        Invite students to join this event so they appear here.
+                    </p>
+                </div>
+            `;
+        }
+    }
+    
+    // Show Success Message
+    function showSuccessMessage() {
+        successAlert.classList.add('show');
+        
+        // Automatically Hide After 3 Seconds
+        setTimeout(() => {
+            successAlert.classList.remove('show');
+        }, 3000);
+    }
+    
+    // ============================================
+    // Theme Management - Consistent with settings.html
+    // ============================================
+    
+    function applyTheme(theme) {
+        const root = document.documentElement;
+        
+        // Remove All Theme Attributes and Reset
+        root.removeAttribute('data-theme');
+        root.removeAttribute('data-theme-mode');
+        
+        if (theme === 'auto') {
+            // Use System Theme
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            root.setAttribute('data-theme', systemTheme);
+            root.setAttribute('data-theme-mode', 'auto');
+        } else {
+            // Use Specified Theme
+            root.setAttribute('data-theme', theme);
+            root.setAttribute('data-theme-mode', theme);
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('theme', theme);
+        
+        // Update Participants Page Styles
+        updateParticipantsForTheme(theme === 'auto' ? 
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : 
+            theme
+        );
+    }
+    
+    // Update Participants Page Visual State
+    function updateParticipantsForTheme(theme) {
+        const participantsCard = document.querySelector('.participants-card');
+        const tableHeaders = document.querySelectorAll('.participants-table thead th');
+        const tableRows = document.querySelectorAll('.participants-table tbody tr');
+        const tableCells = document.querySelectorAll('.participants-table tbody td');
+        const removeButtons = document.querySelectorAll('.btn-remove-participant');
+        const emptyCard = document.querySelector('.participants-empty-card');
+        const confirmCard = overlay ? overlay.querySelector('.remove-confirm-card') : null;
+        const pageTitle = document.querySelector('.participants-title');
+        const backLink = document.querySelector('.back-link');
+        const statusPills = document.querySelectorAll('.status-pill');
+        const metaPills = document.querySelectorAll('.meta-pill');
+        
+        if (theme === 'dark') {
+            // Dark Mode: Force Update Styles
+            if (participantsCard) {
+                participantsCard.style.backgroundColor = '#2d2d2d';
+                participantsCard.style.borderColor = '#333333';
+                participantsCard.style.boxShadow = '0 10px 35px rgba(0, 0, 0, 0.3)';
+            }
+            
+            if (participantsCard.querySelector('.participants-card-header')) {
+                participantsCard.querySelector('.participants-card-header').style.borderBottomColor = '#333333';
+            }
+            
+            if (participantsCard.querySelector('.participants-card-header h2')) {
+                participantsCard.querySelector('.participants-card-header h2').style.color = '#ffffff';
+            }
+            
+            // Update Table Headers
+            tableHeaders.forEach(th => {
+                th.style.backgroundColor = '#252525';
+                th.style.borderBottomColor = '#333333';
+                th.style.color = '#aaaaaa';
+            });
+            
+            // Update Table Rows
+            tableRows.forEach(row => {
+                row.style.backgroundColor = '#2d2d2d';
+                
+                row.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#333333';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '#2d2d2d';
+                });
+            });
+            
+            // Update Table Cells
+            tableCells.forEach(cell => {
+                cell.style.color = '#cccccc';
+                cell.style.borderBottomColor = '#333333';
+            });
+            
+            // Update Delete Buttons
+            removeButtons.forEach(btn => {
+                btn.style.backgroundColor = '#2d2d2d';
+                btn.style.borderColor = '#742a2a';
+                btn.style.color = '#dc2626';
+            });
+            
+            // Update Empty State Card
+            if (emptyCard) {
+                emptyCard.style.backgroundColor = '#2d2d2d';
+                emptyCard.style.borderTopColor = '#444444';
+                
+                const emptyTitle = emptyCard.querySelector('h4');
+                if (emptyTitle) emptyTitle.style.color = '#ffffff';
+                
+                const emptyText = emptyCard.querySelector('p');
+                if (emptyText) emptyText.style.color = '#aaaaaa';
+            }
+            
+            // Update Confirmation Modal
+            if (confirmCard) {
+                confirmCard.style.backgroundColor = '#2d2d2d';
+                confirmCard.style.borderColor = '#333333';
+                
+                const confirmTitle = confirmCard.querySelector('h5');
+                if (confirmTitle) confirmTitle.style.color = '#ffffff';
+                
+                const confirmTexts = confirmCard.querySelectorAll('p');
+                confirmTexts.forEach(p => {
+                    if (p.classList.contains('text-muted')) {
+                        p.style.color = '#aaaaaa !important';
+                    } else {
+                        p.style.color = '#cccccc';
+                    }
+                });
+                
+                const cancelBtn = confirmCard.querySelector('.btn-outline-secondary');
+                if (cancelBtn) {
+                    cancelBtn.style.backgroundColor = 'transparent';
+                    cancelBtn.style.borderColor = '#404040';
+                    cancelBtn.style.color = '#cccccc';
+                }
+                
+                const confirmBtn = confirmCard.querySelector('.btn-danger-soft');
+                if (confirmBtn) {
+                    confirmBtn.style.backgroundColor = '#5c1a1a';
+                    confirmBtn.style.color = '#dc2626';
+                }
+            }
+            
+            // Update Page Title
+            if (pageTitle) {
+                pageTitle.style.color = '#ffffff';
+            }
+            
+            // Update Back Link
+            if (backLink) {
+                backLink.style.color = '#8b5cf6';
+            }
+            
+            // Update Status Badges
+            statusPills.forEach(pill => {
+                if (pill.classList.contains('status-upcoming') || pill.classList.contains('status-ongoing')) {
+                    pill.style.backgroundColor = '#1a4332';
+                    pill.style.color = '#9ae6b4';
+                } else if (pill.classList.contains('status-completed')) {
+                    pill.style.backgroundColor = '#333333';
+                    pill.style.color = '#aaaaaa';
+                }
+            });
+            
+            // Update Metadata Badges
+            metaPills.forEach(pill => {
+                if (pill.classList.contains('meta-pill-muted')) {
+                    pill.style.backgroundColor = '#333333';
+                    pill.style.color = '#cccccc';
+                }
+            });
+            
+        } else {
+            // Light Mode: Reset Styles
+            if (participantsCard) {
+                participantsCard.style.backgroundColor = '';
+                participantsCard.style.borderColor = '';
+                participantsCard.style.boxShadow = '';
+            }
+            
+            if (participantsCard.querySelector('.participants-card-header')) {
+                participantsCard.querySelector('.participants-card-header').style.borderBottomColor = '';
+            }
+            
+            if (participantsCard.querySelector('.participants-card-header h2')) {
+                participantsCard.querySelector('.participants-card-header h2').style.color = '';
+            }
+            
+            tableHeaders.forEach(th => {
+                th.style.backgroundColor = '';
+                th.style.borderBottomColor = '';
+                th.style.color = '';
+            });
+            
+            tableRows.forEach(row => {
+                row.style.backgroundColor = '';
+                
+                // Remove Event Listeners
+                const newRow = row.cloneNode(true);
+                row.parentNode.replaceChild(newRow, row);
+            });
+            
+            tableCells.forEach(cell => {
+                cell.style.color = '';
+                cell.style.borderBottomColor = '';
+            });
+            
+            removeButtons.forEach(btn => {
+                btn.style.backgroundColor = '';
+                btn.style.borderColor = '';
+                btn.style.color = '';
+            });
+            
+            if (emptyCard) {
+                emptyCard.style.backgroundColor = '';
+                emptyCard.style.borderTopColor = '';
+                
+                const emptyTitle = emptyCard.querySelector('h4');
+                if (emptyTitle) emptyTitle.style.color = '';
+                
+                const emptyText = emptyCard.querySelector('p');
+                if (emptyText) emptyText.style.color = '';
+            }
+            
+            if (confirmCard) {
+                confirmCard.style.backgroundColor = '';
+                confirmCard.style.borderColor = '';
+                
+                const confirmTitle = confirmCard.querySelector('h5');
+                if (confirmTitle) confirmTitle.style.color = '';
+                
+                const confirmTexts = confirmCard.querySelectorAll('p');
+                confirmTexts.forEach(p => {
+                    p.style.color = '';
+                });
+                
+                const cancelBtn = confirmCard.querySelector('.btn-outline-secondary');
+                if (cancelBtn) {
+                    cancelBtn.style.backgroundColor = '';
+                    cancelBtn.style.borderColor = '';
+                    cancelBtn.style.color = '';
+                }
+                
+                const confirmBtn = confirmCard.querySelector('.btn-danger-soft');
+                if (confirmBtn) {
+                    confirmBtn.style.backgroundColor = '';
+                    confirmBtn.style.color = '';
+                }
+            }
+            
+            if (pageTitle) {
+                pageTitle.style.color = '';
+            }
+            
+            if (backLink) {
+                backLink.style.color = '';
+            }
+            
+            statusPills.forEach(pill => {
+                pill.style.backgroundColor = '';
+                pill.style.color = '';
+            });
+            
+            metaPills.forEach(pill => {
+                pill.style.backgroundColor = '';
+                pill.style.color = '';
+            });
+        }
+    }
+    
+    // Apply Saved Theme When Page Loads
+    function loadSavedTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else {
+            applyTheme('light');
+        }
+    }
+    
+    // Listen for System Theme Changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        const root = document.documentElement;
+        const currentMode = root.getAttribute('data-theme-mode');
+        
+        if (currentMode === 'auto') {
+            const newTheme = e.matches ? 'dark' : 'light';
+            root.setAttribute('data-theme', newTheme);
+            updateParticipantsForTheme(newTheme);
+        }
+    });
+    
+    // Listen for Theme Changes (From Other Tabs/Windows)
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'theme') {
+            applyTheme(e.newValue);
+        }
+    });
+    
+    // Listen for Messages from Other Pages
+    window.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'themeChanged') {
+            applyTheme(e.data.theme);
+            localStorage.setItem('theme', e.data.theme);
+        }
+    });
+    
+    // Initial Theme Load
+    loadSavedTheme();
+    
+    // Delay Update to Ensure DOM is Fully Loaded
+    setTimeout(() => {
+        const root = document.documentElement;
+        const currentTheme = root.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            updateParticipantsForTheme('dark');
+        }
+    }, 100);
+    
+    // Listen for Theme Changes (If Other Scripts Modify Theme)
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'data-theme') {
+                const theme = document.documentElement.getAttribute('data-theme');
+                updateParticipantsForTheme(theme);
+            }
+        });
+    });
+    
+    // Start Observing Changes to Document Element
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+    });
+});
+</script>
+{% endblock %}

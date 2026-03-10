@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header" style="margin-bottom: 1.5rem;">
+    <h1>Admin – System Log File</h1>
+    <p>
+        Log messages are written to:
+        <code>{{ log_file }}</code>
+    </p>
+    <p style="font-size:0.9rem; color:#555;">
+        Messages are grouped by <strong>INFO</strong>, <strong>WARNING</strong> and <strong>ERROR</strong>.
+        Only admins can view this page.
+    </p>
+</div>
+
+<div class="logs-container" style="display:flex; flex-wrap:wrap; gap:1rem;">
+    <!-- Add data-card-type attribute to identify different types of cards -->
+    <div class="log-card error-card" 
+         data-card-type="error"
+         style="flex:1 1 300px; background:#f7fbff; border-radius:10px; padding:1rem; max-height:500px; overflow:auto;">
+        <h3 style="margin-top:0; color:#2e86de;">Errors</h3>
+        {% if error_logs %}
+            <pre style="white-space:pre-wrap; font-size:0.8rem; line-height:1.4;">{% for line in error_logs %}{{ line }}
+{% endfor %}</pre>
+        {% else %}
+            <p style="font-size:0.85rem; color:#555;">No ERROR messages recorded yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="log-card warning-card" 
+         data-card-type="warning"
+         style="flex:1 1 300px; background:#fff9e8; border-radius:10px; padding:1rem; max-height:500px; overflow:auto;">
+        <h3 style="margin-top:0; color:#e67e22;">Warnings</h3>
+        {% if warning_logs %}
+            <pre style="white-space:pre-wrap; font-size:0.8rem; line-height:1.4;">{% for line in warning_logs %}{{ line }}
+{% endfor %}</pre>
+        {% else %}
+            <p style="font-size:0.85rem; color:#555;">No WARNING messages recorded yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="log-card info-card" 
+         data-card-type="info"
+         style="flex:1 1 300px; background:#f3fcf5; border-radius:10px; padding:1rem; max-height:500px; overflow:auto;">
+        <h3 style="margin-top:0; color:#27ae60;">Info</h3>
+        {% if info_logs %}
+            <pre style="white-space:pre-wrap; font-size:0.8rem; line-height:1.4;">{% for line in info_logs %}{{ line }}
+{% endfor %}</pre>
+        {% else %}
+            <p style="font-size:0.85rem; color:#555;">No INFO messages recorded yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* Base styles */
+.logs-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.log-card {
+    flex: 1 1 300px;
+    border-radius: 10px;
+    padding: 1rem;
+    max-height: 500px;
+    overflow: auto;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.error-card {
+    background: #f7fbff;
+    border: 1px solid #d1e3ff;
+}
+
+.warning-card {
+    background: #fff9e8;
+    border: 1px solid #ffecc7;
+}
+
+.info-card {
+    background: #f3fcf5;
+    border: 1px solid #d4f1de;
+}
+
+.log-card h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.error-card h3 {
+    color: #2e86de;
+}
+
+.warning-card h3 {
+    color: #e67e22;
+}
+
+.info-card h3 {
+    color: #27ae60;
+}
+
+.log-card pre {
+    white-space: pre-wrap;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.log-card p {
+    font-size: 0.85rem;
+    margin: 0;
+    color: #555;
+}
+
+/* ============================================
+   Dark mode styles - consistent with settings.html
+   ============================================ */
+
+/* Dark mode variables */
+[data-theme="dark"] {
+    --dark-bg-primary: #121212;
+    --dark-bg-secondary: #1a1a1a;
+    --dark-bg-card: #2d2d2d;
+    --dark-bg-error: #1a2533;
+    --dark-bg-warning: #2a2400;
+    --dark-bg-info: #1a291f;
+    --dark-text-primary: #ffffff;
+    --dark-text-secondary: #cccccc;
+    --dark-text-muted: #aaaaaa;
+    --dark-border: #333333;
+    --dark-border-error: #2a4365;
+    --dark-border-warning: #5c3a00;
+    --dark-border-info: #22543d;
+    --dark-error-color: #63b3ed;
+    --dark-warning-color: #f6ad55;
+    --dark-info-color: #68d391;
+}
+
+/* Page title in dark mode */
+[data-theme="dark"] .page-header h1 {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .page-header p {
+    color: var(--dark-text-secondary);
+}
+
+[data-theme="dark"] .page-header code {
+    background: var(--dark-bg-card);
+    color: var(--dark-text-secondary);
+    border: 1px solid var(--dark-border);
+}
+
+/* Log cards in dark mode */
+[data-theme="dark"] .log-card {
+    border-width: 1px;
+    border-style: solid;
+    color: var(--dark-text-primary);
+}
+
+/* Error card - dark mode */
+[data-theme="dark"] .error-card {
+    background: var(--dark-bg-error) !important;
+    border-color: var(--dark-border-error) !important;
+}
+
+[data-theme="dark"] .error-card h3 {
+    color: var(--dark-error-color) !important;
+}
+
+[data-theme="dark"] .error-card pre {
+    color: var(--dark-text-secondary);
+}
+
+[data-theme="dark"] .error-card p {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Warning card - dark mode */
+[data-theme="dark"] .warning-card {
+    background: var(--dark-bg-warning) !important;
+    border-color: var(--dark-border-warning) !important;
+}
+
+[data-theme="dark"] .warning-card h3 {
+    color: var(--dark-warning-color) !important;
+}
+
+[data-theme="dark"] .warning-card pre {
+    color: var(--dark-text-secondary);
+}
+
+[data-theme="dark"] .warning-card p {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Info card - dark mode */
+[data-theme="dark"] .info-card {
+    background: var(--dark-bg-info) !important;
+    border-color: var(--dark-border-info) !important;
+}
+
+[data-theme="dark"] .info-card h3 {
+    color: var(--dark-info-color) !important;
+}
+
+[data-theme="dark"] .info-card pre {
+    color: var(--dark-text-secondary);
+}
+
+[data-theme="dark"] .info-card p {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .logs-container {
+        flex-direction: column;
+    }
+    
+    .log-card {
+        flex: 1 1 auto;
+        max-height: 300px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Theme management function - consistent with settings.html
+    function applyTheme(theme) {
+        const root = document.documentElement;
+        
+        // Remove all theme attributes and reset
+        root.removeAttribute('data-theme');
+        root.removeAttribute('data-theme-mode');
+        
+        if (theme === 'auto') {
+            // Use system theme
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            root.setAttribute('data-theme', systemTheme);
+            root.setAttribute('data-theme-mode', 'auto');
+        } else {
+            // Use specified theme
+            root.setAttribute('data-theme', theme);
+            root.setAttribute('data-theme-mode', theme);
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('theme', theme);
+        
+        // Update visual state of all relevant elements
+        updateCardsForTheme(theme === 'auto' ? 
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : 
+            theme
+        );
+    }
+    
+    // Update card visual state
+    function updateCardsForTheme(theme) {
+        const cards = document.querySelectorAll('.log-card');
+        
+        cards.forEach(card => {
+            if (theme === 'dark') {
+                // In dark mode, ensure inline styles do not override CSS styles
+                card.style.backgroundColor = '';
+                card.style.borderColor = '';
+                
+                // Apply specific styles based on card type
+                const cardType = card.getAttribute('data-card-type');
+                if (cardType) {
+                    card.classList.add('dark-mode');
+                }
+            } else {
+                // In light mode, remove dark mode classes
+                card.classList.remove('dark-mode');
+            }
+        });
+    }
+    
+    // Apply saved theme on page load
+    function loadSavedTheme() {
+        // 1. First check localStorage
+        const savedTheme = localStorage.getItem('theme');
+        
+        // 2. If no theme in localStorage, check session (if available)
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else {
+            // 3. Use default theme or system theme
+            applyTheme('light');
+        }
+    }
+    
+    // Listen for system theme changes (when theme is set to auto)
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        const root = document.documentElement;
+        const currentMode = root.getAttribute('data-theme-mode');
+        
+        if (currentMode === 'auto') {
+            const newTheme = e.matches ? 'dark' : 'light';
+            root.setAttribute('data-theme', newTheme);
+            updateCardsForTheme(newTheme);
+        }
+    });
+    
+    // Initial theme load
+    loadSavedTheme();
+    
+    // If inline styles interfere, ensure theme is applied correctly after page load
+    setTimeout(() => {
+        const root = document.documentElement;
+        const currentTheme = root.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            updateCardsForTheme('dark');
+        }
+    }, 100);
+    
+    // Helper function: Check current theme
+    function isDarkMode() {
+        const root = document.documentElement;
+        return root.getAttribute('data-theme') === 'dark';
+    }
+    
+    // Listen for theme changes (if other scripts modify the theme)
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'data-theme') {
+                const theme = document.documentElement.getAttribute('data-theme');
+                updateCardsForTheme(theme);
+            }
+        });
+    });
+    
+    // Start observing changes to the document element
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+    });
+});
+</script>
+
+{% endblock %}

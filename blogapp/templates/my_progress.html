@@ -1,0 +1,752 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>🏆 My Progress</h1>
+        <p>Track your sustainability journey and achievements</p>
+    </div>
+
+    <!-- Progress Overview -->
+    <div class="progress-overview">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🌍</div>
+                <div class="stat-content">
+                    <h3>{{ "%.1f"|format(user_stats.total_carbon_saved) }} kg</h3>
+                    <p>Total CO₂ Saved</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <div class="stat-content">
+                    <h3>{{ user_stats.activity_count }}</h3>
+                    <p>Activities Logged</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏅</div>
+                <div class="stat-content">
+                    <h3>{{ user_stats.rank }}</h3>
+                    <p>Current Rank</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📈</div>
+                <div class="stat-content">
+                    <h3>{{ user_stats.progress_percentage }}%</h3>
+                    <p>Profile Completion</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Section -->
+    <div class="achievements-section">
+        <h2>Your Achievements</h2>
+        <div class="achievements-grid">
+            <div class="achievement-card {{ 'unlocked' if user_stats.achievements.eco_starter else 'locked' }}">
+                <div class="achievement-icon">🌱</div>
+                <div class="achievement-info">
+                    <h4>Eco Starter</h4>
+                    <p>Log your first sustainability activity</p>
+                    {% if user_stats.achievements.eco_starter %}
+                    <span class="achievement-badge">Unlocked</span>
+                    {% else %}
+                    <span class="achievement-progress">0/1 activities</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="achievement-card {{ 'unlocked' if user_stats.achievements.green_commuter else 'locked' }}">
+                <div class="achievement-icon">🚲</div>
+                <div class="achievement-info">
+                    <h4>Green Commuter</h4>
+                    <p>Save 50kg CO₂ through transportation</p>
+                    {% if user_stats.achievements.green_commuter %}
+                    <span class="achievement-badge">Unlocked</span>
+                    {% else %}
+                    <span class="achievement-progress">{{ "%.1f"|format(user_stats.total_carbon_saved) }}/50.0 kg CO₂</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="achievement-card {{ 'unlocked' if user_stats.achievements.energy_saver else 'locked' }}">
+                <div class="achievement-icon">💡</div>
+                <div class="achievement-info">
+                    <h4>Energy Saver</h4>
+                    <p>Complete 3 energy-saving activities</p>
+                    {% if user_stats.achievements.energy_saver %}
+                    <span class="achievement-badge">Unlocked</span>
+                    {% else %}
+                    <span class="achievement-progress">{{ user_stats.activity_count }}/3 activities</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities Section -->
+    <div class="recent-activities">
+        <div class="section-header">
+            <h2>Your Sustainability Activities</h2>
+            <p>Track all your eco-friendly actions and their impact</p>
+        </div>
+        
+        <div class="activities-stats">
+            <div class="stat-item">
+                <span class="stat-value">{{ "%.1f"|format(user_stats.total_carbon_saved) }} kg</span>
+                <span class="stat-label">Total CO₂ Saved</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">{{ user_stats.activity_count }}</span>
+                <span class="stat-label">Activities Logged</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value">{{ user_stats.rank }}</span>
+                <span class="stat-label">Current Rank</span>
+            </div>
+        </div>
+        
+        {% if recent_activities %}
+        <div class="activities-list">
+            {% for activity in recent_activities %}
+            <div class="activity-item">
+                <div class="activity-header">
+                    <div class="activity-icon">
+                        {% if activity.activity_type == 'cycling' %}🚴
+                        {% elif activity.activity_type == 'recycling' %}♻️
+                        {% elif activity.activity_type == 'energy_saving' %}💡
+                        {% elif activity.activity_type == 'public_transport' %}🚆
+                        {% elif activity.activity_type == 'vegetarian_meal' %}🥗
+                        {% elif activity.activity_type == 'planting' %}🌳
+                        {% else %}🌱{% endif %}
+                    </div>
+                    <div class="activity-title">{{ activity.activity_type | replace('_', ' ') | title }}</div>
+                    <div class="activity-date">{{ activity.activity_date.strftime('%b %d, %Y') }}</div>
+                </div>
+                
+                {% if activity.notes %}
+                <div class="activity-notes">
+                    <div class="notes-label">Notes:</div>
+                    <div class="notes-content">{{ activity.notes }}</div>
+                </div>
+                {% endif %}
+                
+                <div class="activity-footer">
+                    <div class="carbon-impact">
+                        <span class="impact-icon">🌍</span>
+                        <span class="impact-value">+{{ "%.1f"|format(activity.carbon_saved) }} kg CO₂ saved</span>
+                    </div>
+                    <div class="activity-type-badge">
+                        {{ activity.activity_type | replace('_', ' ') | title }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <p>No activities logged yet</p>
+            <small>Start by logging your first sustainability action!</small>
+            <a href="{{ url_for('main.log_activity') }}" class="btn-log-activity">Log Your First Activity</a>
+        </div>
+        {% endif %}
+        
+        {% if recent_activities %}
+        <div class="view-all">
+            <a href="{{ url_for('main.log_activity') }}" class="btn-view-all">Log New Activity</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* ============================================
+   basic format
+   ============================================ */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.page-header h1 {
+    color: #2E8B57;
+    margin-bottom: 0.5rem;
+    font-size: 2.5rem;
+}
+
+.page-header p {
+    color: #7f8c8d;
+    font-size: 1.2rem;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f0f0f0;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+}
+
+.stat-content h3 {
+    color: #2E8B57;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.stat-content p {
+    color: #7f8c8d;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+}
+
+/* Achievements Section */
+.achievements-section {
+    margin-bottom: 3rem;
+}
+
+.achievements-section h2 {
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-size: 1.8rem;
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.achievement-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 2px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.achievement-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.achievement-card.unlocked {
+    border-color: #2E8B57;
+    background: linear-gradient(135deg, #f8fff8, #f0f8f0);
+}
+
+.achievement-card.locked {
+    opacity: 0.7;
+    filter: grayscale(0.3);
+}
+
+.achievement-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    opacity: 0.9;
+}
+
+.achievement-info h4 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.achievement-info p {
+    color: #7f8c8d;
+    text-align: center;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.achievement-badge {
+    display: block;
+    background: #2E8B57;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 auto;
+    max-width: 120px;
+}
+
+.achievement-progress {
+    display: block;
+    background: #e9ecef;
+    color: #7f8c8d;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 auto;
+    max-width: 200px;
+}
+
+/* Recent Activities Section */
+.recent-activities {
+    margin-bottom: 3rem;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.section-header h2 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+}
+
+.section-header p {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+}
+
+.activities-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.stat-item {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f0f0f0;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-3px);
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2E8B57;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    display: block;
+    color: #7f8c8d;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+}
+
+/* Activities List */
+.activities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.activity-item {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.activity-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.activity-icon {
+    font-size: 2rem;
+    margin-right: 1rem;
+    width: 50px;
+    text-align: center;
+}
+
+.activity-title {
+    flex: 1;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1.2rem;
+}
+
+.activity-date {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.activity-notes {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 3px solid #2E8B57;
+}
+
+.notes-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.notes-content {
+    color: #495057;
+    line-height: 1.5;
+    font-size: 1rem;
+}
+
+.activity-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f0f0;
+}
+
+.carbon-impact {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.impact-icon {
+    font-size: 1.2rem;
+}
+
+.impact-value {
+    font-weight: 600;
+    color: #2E8B57;
+    font-size: 1rem;
+}
+
+.activity-type-badge {
+    background: #e9ecef;
+    color: #7f8c8d;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 2px dashed #dee2e6;
+    margin-bottom: 2rem;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    color: #6c757d;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.empty-state small {
+    color: #adb5bd;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    display: block;
+}
+
+.btn-log-activity {
+    display: inline-block;
+    background: #2E8B57;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: 2px solid #2E8B57;
+}
+
+.btn-log-activity:hover {
+    background: #267c4d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(46, 139, 87, 0.2);
+}
+
+/* View All Button */
+.view-all {
+    text-align: center;
+}
+
+.btn-view-all {
+    display: inline-block;
+    background: white;
+    color: #2E8B57;
+    padding: 0.75rem 2rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: 2px solid #2E8B57;
+}
+
+.btn-view-all:hover {
+    background: #2E8B57;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(46, 139, 87, 0.2);
+}
+
+/* ============================================
+   dark mode format
+   ============================================ */
+
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .achievement-card,
+[data-theme="dark"] .stat-item,
+[data-theme="dark"] .activity-item {
+    background: #2d2d2d;
+    border-color: #333333;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+}
+
+[data-theme="dark"] .stat-card:hover,
+[data-theme="dark"] .achievement-card:hover,
+[data-theme="dark"] .stat-item:hover,
+[data-theme="dark"] .activity-item:hover {
+    background: #333333;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .achievement-card.unlocked {
+    background: linear-gradient(135deg, #1a4332, #22543d);
+    border-color: #4CAF50;
+}
+
+[data-theme="dark"] .activity-notes {
+    background: #333333;
+    border-left-color: #4CAF50;
+}
+
+[data-theme="dark"] .notes-label {
+    color: #ffffff;
+}
+
+[data-theme="dark"] .notes-content {
+    color: #cccccc;
+}
+
+[data-theme="dark"] .activity-header {
+    border-bottom-color: #333333;
+}
+
+[data-theme="dark"] .activity-footer {
+    border-top-color: #333333;
+}
+
+[data-theme="dark"] .activity-type-badge {
+    background: #333333;
+    color: #aaaaaa;
+}
+
+[data-theme="dark"] .empty-state {
+    background: #2d2d2d;
+    border-color: #333333;
+}
+
+[data-theme="dark"] .section-header h2 {
+    color: #bfc9d4;
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+}
+
+[data-theme="dark"]  .achievements-section h2 {
+    color: #bfc9d4;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-size: 1.8rem;
+}
+
+[data-theme="dark"] .achievement-info h4 {
+    color: #bfc9d4;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+
+[data-theme="dark"] .activity-title {
+    flex: 1;
+    font-weight: 600;
+    color: #bfc9d4;
+    font-size: 1.2rem;
+}
+
+[data-theme="dark"] .btn-log-activity {
+    background: #4CAF50;
+    border-color: #4CAF50;
+}
+
+[data-theme="dark"] .btn-log-activity:hover {
+    background: #45a049;
+}
+
+[data-theme="dark"] .btn-view-all {
+    background: #2d2d2d;
+    color: #4CAF50;
+    border-color: #4CAF50;
+}
+
+[data-theme="dark"] .btn-view-all:hover {
+    background: #4CAF50;
+    color: white;
+}
+
+/* calling design */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .stats-grid,
+    .achievements-grid,
+    .activities-stats {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+    }
+    
+    .activity-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .activity-title {
+        font-size: 1.1rem;
+    }
+    
+    .activity-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .activity-type-badge {
+        align-self: flex-start;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // simple card flaoting effect
+    const statCards = document.querySelectorAll('.stat-card');
+    const achievementCards = document.querySelectorAll('.achievement-card');
+    const activityItems = document.querySelectorAll('.activity-item');
+    
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.zIndex = '10';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.zIndex = '1';
+        });
+    });
+    
+    achievementCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.zIndex = '10';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.zIndex = '1';
+        });
+    });
+    
+    activityItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.zIndex = '10';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.zIndex = '1';
+        });
+    });
+});
+</script>
+{% endblock %}

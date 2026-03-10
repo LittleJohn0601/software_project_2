@@ -1,0 +1,259 @@
+/* ------------------------------------------------------------
+   site.css — Global Public Layout Styles
+   ------------------------------------------------------------
+   This stylesheet defines the core layout and visual styling
+   used across all public-facing pages. It provides consistent
+   typography, navigation bar appearance, buttons, hero sections,
+   and footer formatting shared throughout the web application.
+------------------------------------------------------------ */
+
+/* ------------------------------------------------------------
+   Base Page Setup
+   ------------------------------------------------------------ */
+body {
+  margin: 0;                        /* Remove default browser margin */
+  font-family: system-ui, Arial,    /* Clean, modern default font stack */
+                sans-serif;
+  background-color: #f9f9f9;        /* Light neutral background */
+  color: #222;                      /* Standard readable text color */
+}
+
+/* ------------------------------------------------------------
+   Navigation Bar Layout
+   ------------------------------------------------------------ */
+.navbar {
+  display: flex;                    /* Horizontal layout for links */
+  justify-content: space-between;   /* Space between left/right nav clusters */
+  align-items: center;              /* Vertically center items */
+  background: #fff;                 /* White background */
+  border-bottom: 1px solid #ddd;    /* Subtle divider line */
+  padding: 10px 20px;               /* Consistent spacing */
+  position: sticky;                 /* Sticks to top on scroll */
+  top: 0;
+  z-index: 10;                      /* Ensures navbar stays above content */
+}
+
+/* ------------------------------------------------------------
+   Navigation Links (Left & Right)
+   ------------------------------------------------------------ */
+.nav-left a,
+.nav-right a {
+  margin-right: 16px;               /* Space between nav items */
+  text-decoration: none;            /* Remove underline */
+  color: #333;                      /* Neutral dark text */
+}
+
+/* ------------------------------------------------------------
+   Brand / Logo Styling
+   ------------------------------------------------------------ */
+.brand {
+  font-weight: 700;                 /* Bold title for visual emphasis */
+  color: #2E8B57;                   /* Accent green for identity */
+}
+
+/* ------------------------------------------------------------
+   Primary Button Style
+   ------------------------------------------------------------ */
+.btn {
+  padding: 6px 12px;                /* Button padding */
+  border-radius: 6px;               /* Slightly rounded corners */
+  background: #2E8B57;              /* Green background */
+  color: white;                     /* White text */
+  text-decoration: none;            /* Remove default underline */
+}
+
+/* ------------------------------------------------------------
+   Hero Section (centered intro banner)
+   ------------------------------------------------------------ */
+.hero {
+  text-align: center;               /* Center all content */
+  margin-top: 2rem;                 /* Space below navbar */
+}
+
+/* ------------------------------------------------------------
+   Footer Section
+   ------------------------------------------------------------ */
+.footer {
+  text-align: center;               /* Centered footer text */
+  padding: 2rem 0;                  /* Vertical spacing */
+  color: #777;                      /* Soft gray color */
+  font-size: 0.9rem;                /* Slightly smaller text */
+}
+/* ===== Admin – User Management Table ===== */
+
+.admin-header {
+    max-width: 1100px;
+    margin: 0 auto 1.5rem auto;
+}
+
+.admin-header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.25rem;
+}
+
+.admin-header p {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.admin-card {
+    max-width: 1100px;
+    margin: 0 auto 3rem auto;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+    padding: 1.5rem 1.75rem;
+}
+
+/* basic table format */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.admin-table thead {
+    background: #f3f4f6;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 0.75rem 0.5rem;
+    text-align: center;           /* text in the middle */
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: middle;
+}
+
+.admin-table th {
+    font-weight: 600;
+    color: #4b5563;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.admin-table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+/* little badge */
+.badge-role {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-role-student {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.badge-role-teacher {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.badge-role-admin {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+.badge-status {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-status-active {
+    background: #ecfdf3;
+    color: #15803d;
+}
+
+.badge-status-banned {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.ban-reason {
+    display: block;
+    margin-top: 0.2rem;
+    color: #6b7280;
+    font-size: 0.75rem;
+}
+
+/* inline list, let input and attributes be in the same row */
+.admin-inline-form {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+/* input type for inputing wedget */
+.admin-select,
+.admin-input {
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.8rem;
+    outline: none;
+}
+
+.admin-input-small {
+    width: 3.3rem;
+    text-align: center;
+}
+
+/* buttons */
+.btn-admin {
+    border: none;
+    border-radius: 999px;
+    padding: 0.3rem 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.05s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+}
+
+.btn-admin-primary {
+    background: #16a34a;
+    color: #ffffff;
+}
+
+.btn-admin-primary:hover {
+    background: #15803d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(22, 163, 74, 0.25);
+}
+
+.btn-admin-warning {
+    background: #f97316;
+    color: #ffffff;
+}
+
+.btn-admin-warning:hover {
+    background: #ea580c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(234, 88, 12, 0.25);
+}
+
+.btn-admin-danger {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+.btn-admin-danger:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
+}
+
+.note-self {
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+

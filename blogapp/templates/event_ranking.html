@@ -1,0 +1,848 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container ranking-page">
+    
+    
+    <!-- Page Title -->
+    <div class="ranking-header">
+        <h1 class="ranking-title">
+            <i class="fas fa-trophy"></i>
+            {{ event.title }} - Leaderboard
+        </h1>
+        <p class="ranking-subtitle">
+            See how you rank among all participants
+        </p>
+    </div>
+    
+    <!-- Current User Rank Card -->
+    {% if current_user_rank_info %}
+    <div class="user-rank-card">
+        <div class="user-rank-header">
+            <h3>
+                <i class="fas fa-user"></i>
+                Your Ranking
+            </h3>
+            <div class="rank-badge-large rank-{{ current_user_rank_info.rank }}">
+                {% if current_user_rank_info.rank == 1 %}
+                <i class="fas fa-crown"></i>
+                {% elif current_user_rank_info.rank <= 3 %}
+                <i class="fas fa-medal"></i>
+                {% endif %}
+                <span class="rank-number">#{{ current_user_rank_info.rank }}</span>
+            </div>
+        </div>
+        
+        <div class="user-rank-stats">
+            <div class="stat-item">
+                <div class="stat-value">{{ current_user_rank_info.total_participants }}</div>
+                <div class="stat-label">Total Participants</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-value">{{ "%.2f"|format(current_user_rank_info.total_saved) }} kg</div>
+                <div class="stat-label">Your CO₂ Saved</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-value">{{ current_user_rank_info.activities_count }}</div>
+                <div class="stat-label">Activities Logged</div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar: Show gap to the next rank -->
+        {% if participants_ranking|length > 1 and current_user_rank_info.rank > 1 %}
+            {% set prev_participant = participants_ranking[current_user_rank_info.rank - 2] %}
+            {% set gap = prev_participant.total_saved - current_user_rank_info.total_saved %}
+            {% if gap > 0 %}
+            <div class="next-rank-info">
+                <div class="gap-info">
+                    <i class="fas fa-arrow-up"></i>
+                    Need {{ "%.2f"|format(gap) }} kg more to reach #{{ current_user_rank_info.rank - 1 }}
+                </div>
+                <div class="gap-progress">
+                    <div class="gap-progress-bar" style="width: {% if current_user_rank_info.total_saved > 0 %}{{ [current_user_rank_info.total_saved / prev_participant.total_saved * 100, 100]|min }}{% else %}0{% endif %}%;"></div>
+                </div>
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <!-- Podium: Top 3 Participants -->
+    {% if top_3 %}
+    <div class="podium-section">
+        <h3 class="section-title">
+            <i class="fas fa-award"></i>
+            Top Performers
+        </h3>
+        
+        <div class="podium">
+            <!-- Second Place -->
+            {% if top_3|length >= 2 %}
+            <div class="podium-place second-place">
+                <div class="podium-stand">
+                    <div class="podium-rank">2</div>
+                    <div class="podium-user">
+                        
+                        <div class="user-name">{{ top_3[1].username }}</div>
+                    </div>
+                </div>
+                <div class="podium-stats">
+                    <div class="co2-amount">{{ "%.2f"|format(top_3[1].total_saved) }} kg</div>
+                    <div class="activities">{{ top_3[1].activities_count }} activities</div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- First Place -->
+            {% if top_3|length >= 1 %}
+            <div class="podium-place first-place">
+                <div class="podium-stand">
+                    <div class="podium-rank">1</div>
+                    <div class="podium-user">
+                        
+                        <div class="user-name">{{ top_3[0].username }}</div>
+                    </div>
+                </div>
+                <div class="podium-stats">
+                    <div class="co2-amount">{{ "%.2f"|format(top_3[0].total_saved) }} kg</div>
+                    <div class="activities">{{ top_3[0].activities_count }} activities</div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Third Place -->
+            {% if top_3|length >= 3 %}
+            <div class="podium-place third-place">
+                <div class="podium-stand">
+                    <div class="podium-rank">3</div>
+                    <div class="podium-user">
+                        <div class="user-name">{{ top_3[2].username }}</div>
+                    </div>
+                </div>
+                <div class="podium-stats">
+                    <div class="co2-amount">{{ "%.2f"|format(top_3[2].total_saved) }} kg</div>
+                    <div class="activities">{{ top_3[2].activities_count }} activities</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Full Ranking List -->
+    <div class="full-ranking-section">
+        <div class="section-header">
+            <h3 class="section-title">
+                <i class="fas fa-list-ol"></i>
+                Full Leaderboard
+            </h3>
+            <div class="section-badge">{{ total_participants }} participants</div>
+        </div>
+        
+        <div class="ranking-table-container">
+            <table class="ranking-table">
+                <thead>
+                    <tr>
+                        <th class="rank-header">Rank</th>
+                        <th class="participant-header">Participant</th>
+                        <th class="co2-header">CO₂ Saved</th>
+                        <th class="activities-header">Activities</th>
+                        <th class="impact-header">Impact</th>
+                        <th class="trend-header">Trend</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for participant in participants_ranking %}
+                    <tr class="ranking-row {% if participant.user_id == current_user.id %}current-user{% endif %}">
+                        <td class="rank-cell">
+                            <div class="rank-display rank-{{ participant.rank }}">
+                                {% if participant.rank == 1 %}
+                                <i class="fas fa-crown"></i>
+                                {% elif participant.rank == 2 %}
+                                <i class="fas fa-medal silver"></i>
+                                {% elif participant.rank == 3 %}
+                                <i class="fas fa-medal bronze"></i>
+                                {% else %}
+                                #{{ participant.rank }}
+                                {% endif %}
+                            </div>
+                        </td>
+                        
+                        <td class="participant-cell">
+                            <div class="participant-info">
+                                <div class="user-details">
+                                    <div class="user-name">{{ participant.username }}</div>
+                                    <div class="user-status">
+                                        {% if participant.user_id == current_user.id %}
+                                        <span class="badge-you">You</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        
+                        <td class="co2-cell">
+                            <div class="co2-amount">
+                                <span class="co2-value">{{ "%.2f"|format(participant.total_saved) }}</span>
+                                <span class="co2-unit">kg</span>
+                            </div>
+                        </td>
+                        
+                        <td class="activities-cell">
+                            <div class="activity-count">
+                                <i class="fas fa-leaf"></i>
+                                {{ participant.activities_count }}
+                            </div>
+                        </td>
+                        
+                        <td class="impact-cell">
+                            {% set impact_level = (participant.total_saved / 5)|round(1) %}
+                            {% if impact_level >= 3 %}
+                                <span class="impact-badge high-impact">
+                                    <i class="fas fa-fire"></i> High
+                                </span>
+                            {% elif impact_level >= 1.5 %}
+                                <span class="impact-badge medium-impact">
+                                    <i class="fas fa-bolt"></i> Medium
+                                </span>
+                            {% else %}
+                                <span class="impact-badge low-impact">
+                                    <i class="fas fa-seedling"></i> Low
+                                </span>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="trend-cell">
+                            <!-- Trend arrow can be added here -->
+                            <div class="trend-indicator">
+                                {% if participant.rank <= 3 %}
+                                <i class="fas fa-arrow-up trend-up"></i>
+                                <span class="trend-text">Top</span>
+                                {% else %}
+                                <i class="fas fa-minus trend-neutral"></i>
+                                <span class="trend-text">-</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Bottom Statistics -->
+        <div class="ranking-footer">
+            <div class="ranking-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ total_participants }}</div>
+                        <div class="stat-label">Total Participants</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ "%.2f"|format(total_co2_saved) }} kg</div>
+                        <div class="stat-label">Total CO₂ Saved</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ (total_co2_saved / tree_equivalent_kg)|round(1) }}</div>
+                        <div class="stat-label">Trees Equivalent</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ total_activities }}</div>
+                        <div class="stat-label">Total Activities</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{{ url_for('main.log_activity') }}" class="btn-primary">
+            <i class="fas fa-plus-circle"></i>
+            Log New Activity
+        </a>
+        <a href="{{ url_for('main.events') }}" class="btn-secondary">
+            <i class="fas fa-calendar"></i>
+            Back to All Events
+        </a>
+    </div>
+</div>
+
+<style>
+/* Ranking Page Styles */
+.ranking-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.back-button {
+    margin-bottom: 2rem;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    background: rgba(var(--primary-color), 0.1);
+    color: var(--primary-color);
+}
+
+.ranking-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.ranking-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #FFD700, #FFA500, #FFD700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.ranking-title i {
+    margin-right: 1rem;
+}
+
+.ranking-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+}
+
+/* User Rank Card */
+.user-rank-card {
+    background: linear-gradient(135deg, rgba(var(--primary-color), 0.1), rgba(var(--info-color), 0.1));
+    border: 2px solid var(--primary-color);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    box-shadow: 0 10px 30px rgba(var(--primary-color), 0.1);
+}
+
+.user-rank-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.user-rank-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.rank-badge-large {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white;
+}
+
+.rank-1 {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+}
+
+.rank-2 {
+    background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+    box-shadow: 0 5px 20px rgba(192, 192, 192, 0.4);
+}
+
+.rank-3 {
+    background: linear-gradient(135deg, #CD7F32, #8B4513);
+    box-shadow: 0 5px 20px rgba(205, 127, 50, 0.4);
+}
+
+.rank-4, .rank-5, .rank-6, .rank-7, .rank-8, .rank-9, .rank-10 {
+    background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+    box-shadow: 0 5px 20px rgba(var(--primary-color), 0.4);
+}
+
+.user-rank-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.user-rank-stats .stat-item {
+    text-align: center;
+}
+
+.user-rank-stats .stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.user-rank-stats .stat-label {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.user-rank-stats .stat-divider {
+    width: 1px;
+    background: var(--border-color);
+}
+
+.next-rank-info {
+    background: rgba(var(--success-color), 0.1);
+    border: 1px solid var(--success-color);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-top: 1.5rem;
+}
+
+.gap-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--success-color);
+    margin-bottom: 0.75rem;
+}
+
+.gap-progress {
+    height: 6px;
+    background: rgba(var(--success-color), 0.2);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.gap-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--success-color), #22c55e);
+    border-radius: 3px;
+    transition: width 1s ease;
+}
+
+/* Podium */
+.podium-section {
+    margin: 3rem 0;
+}
+
+.podium {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.podium-place {
+    text-align: center;
+    flex: 1;
+    max-width: 200px;
+}
+
+.first-place {
+    order: 2;
+}
+
+.second-place {
+    order: 1;
+}
+
+.third-place {
+    order: 3;
+}
+
+.podium-stand {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 16px 16px 0 0;
+    padding: 1.5rem;
+    border: 2px solid var(--border-color);
+    border-bottom: none;
+}
+
+.first-place .podium-stand {
+    height: 220px;
+    background: linear-gradient(135deg, #FFF9C4, #FFE082);
+    border-color: #FFD700;
+}
+
+.second-place .podium-stand {
+    height: 180px;
+    background: linear-gradient(135deg, #F5F5F5, #E0E0E0);
+    border-color: #C0C0C0;
+}
+
+.third-place .podium-stand {
+    height: 160px;
+    background: linear-gradient(135deg, #FFECB3, #FFCC80);
+    border-color: #CD7F32;
+}
+
+.podium-rank {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #666666;
+    margin-bottom: 1rem;
+}
+
+.podium-user {
+    margin-bottom: 1rem;
+}
+
+.podium-user .user-avatar {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+}
+
+.podium-user .user-name {
+    font-weight: 600;
+    color: #666666;
+    font-size: 1.1rem;
+}
+
+.podium-stats {
+    padding: 1rem;
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 0 0 16px 16px;
+    border-top: none;
+}
+
+.co2-amount {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--success-color);
+    margin-bottom: 0.25rem;
+}
+
+.activities {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Full Ranking Table */
+.full-ranking-section {
+    margin: 4rem 0 3rem;
+}
+
+.ranking-table-container {
+    overflow-x: auto;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    margin: 1.5rem 0;
+}
+
+.ranking-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.ranking-table th {
+    padding: 1.25rem 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border-color);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
+}
+
+.ranking-table td {
+    padding: 1.25rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.ranking-row:hover {
+    background: rgba(var(--primary-color), 0.05);
+}
+
+.ranking-row.current-user {
+    background: linear-gradient(90deg, rgba(var(--primary-color), 0.1), transparent);
+    border-left: 4px solid var(--primary-color);
+}
+
+.rank-cell {
+    width: 80px;
+}
+
+.rank-display {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-weight: 700;
+}
+
+.rank-1, .rank-2, .rank-3 {
+    color: white;
+}
+
+.rank-1 {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+}
+
+.rank-2 {
+    background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+}
+
+.rank-3 {
+    background: linear-gradient(135deg, #CD7F32, #8B4513);
+}
+
+.rank-display i {
+    font-size: 1.2rem;
+}
+
+.participant-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-avatar.small {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.badge-you {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.trend-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.trend-up {
+    color: var(--success-color);
+}
+
+.trend-neutral {
+    color: var(--text-muted);
+}
+
+.trend-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* Statistics Card Grid */
+.ranking-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 3rem;
+    justify-content: center;
+}
+
+.btn-primary, .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--success-color), #22c55e);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(var(--success-color), 0.3);
+}
+
+.btn-secondary {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: rgba(var(--primary-color), 0.1);
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .ranking-title {
+        font-size: 2rem;
+    }
+    
+    .podium {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .podium-place {
+        max-width: 100%;
+        width: 100%;
+    }
+    
+    .first-place, .second-place, .third-place {
+        order: 0;
+    }
+    
+    .podium-stand {
+        height: 120px !important;
+    }
+    
+    .user-rank-stats {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .stat-divider {
+        display: none;
+    }
+    
+    .ranking-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .ranking-table th, .ranking-table td {
+        padding: 1rem 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .participant-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+</style>
+</div>
+{% endblock %}

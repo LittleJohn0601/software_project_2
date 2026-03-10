@@ -1,0 +1,1807 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-wrapper">
+  <div class="admin-header">
+    <h1>Admin – User Management</h1>
+    <p>View all users, update roles, apply temporary bans or delete accounts.</p>
+
+    <div class="admin-nav" style="margin-top: 10px;">
+      <a href="{{ url_for('main.admin_users') }}" class="btn-admin btn-admin-secondary">User Management</a>
+      <a href="{{ url_for('main.admin_view_logs') }}" class="btn-admin btn-admin-secondary">View Logs</a>
+      <button id="refresh-users" class="btn-admin btn-admin-secondary">🔄 Refresh</button>
+      <div id="loading-indicator" class="loading-indicator" style="display: none;">
+        <div class="spinner"></div>
+        <span>Loading...</span>
+      </div>
+    </div>
+    
+    <!-- Operation status prompt -->
+    <div id="ajax-status" class="ajax-status"></div>
+  </div>
+
+  <div class="admin-card">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Ban Status</th>
+          <th>Change Role</th>
+          <th>Ban / Unban</th>
+          <th>Danger Zone</th>
+        </tr>
+      </thead>
+      <tbody id="users-table-body">
+        {% for user in users %}
+        <tr id="user-row-{{ user.id }}" data-user-id="{{ user.id }}">
+          <!-- Basic information -->
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+
+          <!-- Current role -->
+          <td class="role-cell">
+            <span class="badge-role badge-role-{{ user.user_type }}">
+              {{ user.user_type|capitalize }}
+            </span>
+          </td>
+
+          <!-- Ban status -->
+          <td class="ban-status-cell">
+            {% if user.is_banned %}
+              <span class="badge-status badge-status-banned">
+                Banned until
+                {{ user.ban_until.strftime('%Y-%m-%d %H:%M') if user.ban_until else 'N/A' }}
+              </span><br>
+              {% if user.ban_reason %}
+                <small class="ban-reason">Reason: {{ user.ban_reason }}</small>
+              {% endif %}
+            {% else %}
+              <span class="badge-status badge-status-active">Active</span>
+            {% endif %}
+          </td>
+
+          <!-- Modify role (form) -->
+          <td class="role-form-cell">
+            {% if user.id == current_user.id %}
+              <span class="note-self">—</span>
+            {% elif user.user_type == 'admin' %}
+              <span class="note-protected" title="Admin roles cannot be modified">—</span>
+            {% else %}
+              <form class="admin-inline-form role-form"
+                  data-user-id="{{ user.id }}"
+                  data-action="update-role">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <select name="user_type" class="admin-select user-type-select">
+                  <option value="student" {{ 'selected' if user.user_type == 'student' else '' }}>student</option>
+                  <option value="teacher" {{ 'selected' if user.user_type == 'teacher' else '' }}>teacher</option>
+                </select>
+                <button type="submit" class="btn-admin btn-admin-primary">
+                  <span class="btn-text">Update</span>
+                  <span class="btn-spinner" style="display: none;">⏳</span>
+                </button>
+              <div class="form-error" style="display: none;"></div>
+              </form>
+            {% endif %}
+</td>
+
+          <!-- Ban / Unban (form) -->
+          <td class="ban-form-cell">
+            {% if user.id == current_user.id %}
+              <span class="note-self">—</span>
+            {% else %}
+              {% if user.is_banned %}
+                <!-- Unban -->
+                <form class="admin-inline-form ban-form"
+                      data-user-id="{{ user.id }}"
+                      data-action="unban">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn-admin btn-admin-warning">
+                    <span class="btn-text">Unban</span>
+                    <span class="btn-spinner" style="display: none;">⏳</span>
+                  </button>
+                  <div class="form-error" style="display: none;"></div>
+                </form>
+              {% else %}
+                <!-- Ban -->
+                <form class="admin-inline-form ban-form"
+                      data-user-id="{{ user.id }}"
+                      data-action="ban">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="number"
+                         name="duration_hours"
+                         class="admin-input admin-input-small ban-duration"
+                         value="24"
+                         min="1"
+                         max="8760"
+                         title="Ban duration (hours)">
+                  <input type="text"
+                         name="ban_reason"
+                         class="admin-input ban-reason-input"
+                         placeholder="Reason (required)"
+                         maxlength="500">
+                  <button type="submit" class="btn-admin btn-admin-warning">
+                    <span class="btn-text">Ban</span>
+                    <span class="btn-spinner" style="display: none;">⏳</span>
+                  </button>
+                  <div class="form-error" style="display: none;"></div>
+                </form>
+              {% endif %}
+            {% endif %}
+          </td>
+
+          <!-- Delete (form) -->
+          <td class="delete-form-cell">
+            {% if user.id == current_user.id %}
+              <span class="note-self">Cannot delete self</span>
+            {% else %}
+              {% if user.user_type == 'admin' %}
+                <span class="note-protected" title="Admin accounts cannot be deleted">—</span>
+              {% else %}
+                <form class="admin-inline-form delete-form"
+                    data-user-id="{{ user.id }}"
+                    data-action="delete">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn-admin btn-admin-danger">
+                      <span class="btn-text">Delete</span>
+                      <span class="btn-spinner" style="display: none;">⏳</span>
+                  </button>
+                  <div class="form-error" style="display: none;"></div>
+                </form>
+              {% endif %}
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+/* ============================================
+   Basic styles (default light mode)
+   ============================================ */
+
+.page-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.admin-header {
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.admin-header h1 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+}
+
+.admin-header p {
+  color: #7f8c8d;
+  font-size: 1rem;
+}
+
+.admin-nav {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem !important;
+  align-items: center;
+}
+
+/* AJAX status prompt */
+.ajax-status {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-width: 350px;
+  display: none;
+  animation: slideIn 0.3s ease;
+}
+
+.ajax-status.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.ajax-status.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.ajax-status.warning {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Loading indicator */
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #6c757d;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.admin-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+  overflow: hidden;
+  overflow-x: auto;
+  transition: opacity 0.3s ease;
+}
+
+.admin-card.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  transition: opacity 0.3s ease;
+}
+
+.admin-table.loading {
+  opacity: 0.6;
+}
+
+.admin-table thead {
+  background: #f8f9fa;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.admin-table th {
+  padding: 1rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-table tbody tr {
+  border-bottom: 1px solid #f1f3f4;
+  transition: background-color 0.2s ease;
+}
+
+.admin-table tbody tr.updating {
+  background-color: #fff3e0 !important;
+  position: relative;
+}
+
+.admin-table tbody tr.updating::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 193, 7, 0.1), transparent);
+  background-size: 200% 100%;
+  animation: loadingShimmer 1.5s infinite;
+}
+
+@keyframes loadingShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.admin-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.admin-table td {
+  padding: 1rem 1rem;
+  color: #34495e;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.admin-table td.updated {
+  animation: highlightUpdate 1s ease;
+}
+
+@keyframes highlightUpdate {
+  0% { background-color: #e8f5e9; }
+  100% { background-color: transparent; }
+}
+
+/* Badge styles */
+.badge-role {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.badge-role.updating {
+  opacity: 0.5;
+}
+
+.badge-role-student {
+  background: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+}
+
+.badge-role-teacher {
+  background: #f3e5f5;
+  color: #7b1fa2;
+  border: 1px solid #e1bee7;
+}
+
+.badge-role-admin {
+  background: #fff3e0;
+  color: #ef6c00;
+  border: 1px solid #ffcc80;
+}
+
+.badge-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.badge-status.updating {
+  opacity: 0.5;
+}
+
+.badge-status-active {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.badge-status-banned {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.ban-reason {
+  color: #7f8c8d;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: inline-block;
+}
+
+/* Form styles */
+.admin-inline-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.admin-inline-form.loading button {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.admin-inline-form.error {
+  animation: formErrorShake 0.5s ease-in-out;
+}
+
+.admin-select {
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  font-size: 0.9rem;
+  min-width: 100px;
+  transition: all 0.3s ease;
+}
+
+.admin-select:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.admin-input {
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  min-width: 120px;
+  transition: all 0.3s ease;
+}
+
+.admin-input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.admin-input-small {
+  max-width: 80px;
+}
+
+/* Validation related styles */
+.admin-input.error-field,
+.admin-select.error-field {
+  border-color: #dc3545 !important;
+  background-color: #fff5f5 !important;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
+  animation: fieldErrorShake 0.5s ease-in-out;
+}
+
+.admin-input.valid-field,
+.admin-select.valid-field {
+  border-color: #28a745 !important;
+  background-color: #f8fff8 !important;
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1) !important;
+}
+
+.form-error {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 5px;
+  padding: 5px 10px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  width: 100%;
+  display: none;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.form-error.show {
+  display: block;
+}
+
+/* Button styles */
+.btn-admin {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  position: relative;
+  min-width: 70px;
+}
+
+.btn-admin:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-admin-disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+.btn-admin-primary {
+  background: #2E8B57;
+  color: white;
+}
+
+.btn-admin-primary:hover:not(:disabled) {
+  background: #267c4d;
+  transform: translateY(-1px);
+}
+
+.btn-admin-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-admin-secondary:hover:not(:disabled) {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.btn-admin-warning {
+  background: #ffc107;
+  color: #212529;
+}
+
+.btn-admin-warning:hover:not(:disabled) {
+  background: #e0a800;
+  transform: translateY(-1px);
+}
+
+.btn-admin-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-admin-danger:hover:not(:disabled) {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.note-self {
+  color: #7f8c8d;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.btn-spinner {
+  font-size: 0.9rem;
+  animation: spin 1s linear infinite;
+}
+
+/* Validation animations */
+@keyframes fieldErrorShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+  20%, 40%, 60%, 80% { transform: translateX(3px); }
+}
+
+@keyframes formErrorShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   Dark mode styles
+   ============================================ */
+
+/* Dark mode variables */
+[data-theme="dark"] {
+  --dark-bg-primary: #121212;
+  --dark-bg-secondary: #1a1a1a;
+  --dark-bg-card: #2d2d2d;
+  --dark-bg-table-header: #1a1a1a;
+  --dark-bg-table-row: #2d2d2d;
+  --dark-bg-table-row-hover: #333333;
+  --dark-text-primary: #ffffff;
+  --dark-text-secondary: #cccccc;
+  --dark-text-muted: #aaaaaa;
+  --dark-border: #333333;
+  --dark-border-light: #404040;
+  --dark-primary: #4CAF50;
+  --dark-primary-hover: #45a049;
+  --dark-danger: #dc3545;
+  --dark-danger-hover: #c82333;
+  --dark-warning: #ffc107;
+  --dark-warning-hover: #e0a800;
+  --dark-success-bg: #1a4332;
+  --dark-error-bg: #5c1a1a;
+  --dark-warning-bg: #5c3700;
+  --dark-error-color: #ff6b6b;
+  --dark-success-color: #51cf66;
+  --dark-form-error-bg: #5c1a1a;
+  --dark-form-error-border: #742a2a;
+  --dark-form-error-text: #feb2b2;
+  --dark-input-error-bg: #2a1e1e;
+  --dark-input-valid-bg: #1a4332;
+}
+
+/* Dark mode global */
+[data-theme="dark"] .page-wrapper {
+  background: var(--dark-bg-primary);
+}
+
+[data-theme="dark"] .admin-header h1 {
+  color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .admin-header p {
+  color: var(--dark-text-secondary);
+}
+
+/* Dark mode status prompt */
+[data-theme="dark"] .ajax-status.success {
+  background: var(--dark-success-bg);
+  color: #9ae6b4;
+  border-color: #22543d;
+}
+
+[data-theme="dark"] .ajax-status.error {
+  background: var(--dark-error-bg);
+  color: #feb2b2;
+  border-color: #742a2a;
+}
+
+[data-theme="dark"] .ajax-status.warning {
+  background: var(--dark-warning-bg);
+  color: #fbd38d;
+  border-color: #744210;
+}
+
+[data-theme="dark"] .loading-indicator {
+  background: #2d3748;
+  border-color: #4a5568;
+  color: #cbd5e0;
+}
+
+[data-theme="dark"] .spinner {
+  border-color: #cbd5e0;
+  border-top-color: transparent;
+}
+
+/* Dark mode card */
+[data-theme="dark"] .admin-card {
+  background: var(--dark-bg-card);
+  border-color: var(--dark-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .admin-card.loading {
+  opacity: 0.5;
+}
+
+/* Dark mode table */
+[data-theme="dark"] .admin-table {
+  background: var(--dark-bg-card);
+}
+
+[data-theme="dark"] .admin-table thead {
+  background: var(--dark-bg-table-header);
+  border-bottom-color: var(--dark-border);
+}
+
+[data-theme="dark"] .admin-table th {
+  color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .admin-table tbody tr {
+  border-bottom-color: var(--dark-border);
+  background: var(--dark-bg-table-row);
+}
+
+[data-theme="dark"] .admin-table tbody tr.updating {
+  background-color: #5c3700 !important;
+}
+
+[data-theme="dark"] .admin-table tbody tr:hover {
+  background: var(--dark-bg-table-row-hover);
+}
+
+[data-theme="dark"] .admin-table td {
+  color: var(--dark-text-secondary);
+}
+
+[data-theme="dark"] .admin-table td.updated {
+  animation: darkHighlightUpdate 1s ease;
+}
+
+@keyframes darkHighlightUpdate {
+  0% { background-color: #22543d; }
+  100% { background-color: transparent; }
+}
+
+/* Dark mode badges */
+[data-theme="dark"] .badge-role-student {
+  background: #1a365d;
+  color: #90cdf4;
+  border-color: #2d3748;
+}
+
+[data-theme="dark"] .badge-role-teacher {
+  background: #322659;
+  color: #d6bcfa;
+  border-color: #44337a;
+}
+
+[data-theme="dark"] .badge-role-admin {
+  background: #5c3700;
+  color: #fbd38d;
+  border-color: #744210;
+}
+
+[data-theme="dark"] .badge-status-active {
+  background: #1a4332;
+  color: #9ae6b4;
+  border-color: #22543d;
+}
+
+[data-theme="dark"] .badge-status-banned {
+  background: #5c1a1a;
+  color: #feb2b2;
+  border-color: #742a2a;
+}
+
+[data-theme="dark"] .ban-reason {
+  color: var(--dark-text-muted);
+}
+
+/* Dark mode form elements */
+[data-theme="dark"] .admin-select,
+[data-theme="dark"] .admin-input {
+  background: var(--dark-bg-secondary);
+  border-color: var(--dark-border-light);
+  color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .admin-select:disabled,
+[data-theme="dark"] .admin-input:disabled {
+  background: #2d2d2d;
+  color: #777;
+}
+
+[data-theme="dark"] .admin-select:focus,
+[data-theme="dark"] .admin-input:focus {
+  outline: none;
+  border-color: var(--dark-primary);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+/* Dark mode validation styles */
+[data-theme="dark"] .admin-input.error-field,
+[data-theme="dark"] .admin-select.error-field {
+  border-color: var(--dark-error-color) !important;
+  background-color: var(--dark-input-error-bg) !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1) !important;
+}
+
+[data-theme="dark"] .admin-input.valid-field,
+[data-theme="dark"] .admin-select.valid-field {
+  border-color: var(--dark-success-color) !important;
+  background-color: var(--dark-input-valid-bg) !important;
+  box-shadow: 0 0 0 3px rgba(81, 207, 102, 0.1) !important;
+}
+
+[data-theme="dark"] .form-error {
+  color: var(--dark-form-error-text);
+  background-color: var(--dark-form-error-bg);
+  border-color: var(--dark-form-error-border);
+}
+
+/* Dark mode buttons */
+[data-theme="dark"] .btn-admin-primary {
+  background: var(--dark-primary);
+}
+
+[data-theme="dark"] .btn-admin-primary:hover:not(:disabled) {
+  background: var(--dark-primary-hover);
+}
+
+[data-theme="dark"] .btn-admin-secondary {
+  background: #6c757d;
+}
+
+[data-theme="dark"] .btn-admin-secondary:hover:not(:disabled) {
+  background: #5a6268;
+}
+
+[data-theme="dark"] .btn-admin-warning {
+  background: var(--dark-warning);
+  color: #121212;
+}
+
+[data-theme="dark"] .btn-admin-warning:hover:not(:disabled) {
+  background: var(--dark-warning-hover);
+}
+
+[data-theme="dark"] .btn-admin-danger {
+  background: var(--dark-danger);
+}
+
+[data-theme="dark"] .btn-admin-danger:hover:not(:disabled) {
+  background: var(--dark-danger-hover);
+}
+
+[data-theme="dark"] .btn-admin-disabled {
+  opacity: 0.4 !important;
+  background: #6c757d !important;
+}
+
+[data-theme="dark"] .note-self {
+  color: var(--dark-text-muted);
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .page-wrapper {
+    padding: 1rem;
+  }
+  
+  .admin-table {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  .admin-table th,
+  .admin-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .admin-inline-form {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .admin-input,
+  .admin-select {
+    width: 100%;
+    min-width: 0;
+  }
+  
+  .form-error {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-nav {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .btn-admin {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ============================================
+    // Validator core functions (following log_activity.html style)
+    // ============================================
+
+    // Ban duration range limits
+    const banDurationRanges = {
+        'minimum': { min: 1, max: 24 * 365, hint: '1 hour minimum, 1 year maximum' },
+        'standard': { min: 1, max: 720, hint: '1 hour minimum, 30 days maximum' }
+    };
+
+    // Current user ID
+    const CURRENT_USER_ID = {{ current_user.id }};
+
+    // CSS style management function
+    function applyFieldErrorStyle(field, errorDiv, isValid, message = '') {
+        const form = field ? field.closest('.admin-inline-form') : null;
+        
+        if (!isValid) {
+            // Apply error styles
+            if (field) {
+                field.classList.add('error-field');
+                field.classList.remove('valid-field');
+            }
+            
+            if (form) {
+                form.classList.add('error');
+                form.classList.remove('valid');
+            }
+            
+            if (errorDiv) {
+                errorDiv.textContent = message;
+                errorDiv.classList.add('show');
+                errorDiv.style.display = 'block';
+            }
+            
+        } else {
+            // Apply valid styles
+            if (field) {
+                field.classList.remove('error-field');
+                field.classList.add('valid-field');
+            }
+            
+            if (form) {
+                form.classList.remove('error');
+                form.classList.add('valid');
+            }
+            
+            if (errorDiv) {
+                errorDiv.textContent = '';
+                errorDiv.classList.remove('show');
+                errorDiv.style.display = 'none';
+            }
+        }
+    }
+
+    // Update submit button status
+    function updateSubmitButton(button, isValid) {
+        if (button) {
+            if (isValid) {
+                button.disabled = false;
+                button.classList.remove('btn-admin-disabled');
+            } else {
+                button.disabled = true;
+                button.classList.add('btn-admin-disabled');
+            }
+        }
+    }
+
+    // Get form error message element
+    function getFormErrorElement(form) {
+        let errorDiv = form.querySelector('.form-error');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.className = 'form-error';
+            form.appendChild(errorDiv);
+        }
+        return errorDiv;
+    }
+
+    // Validate ban form
+    function validateBanForm(form) {
+        const durationInput = form.querySelector('input[name="duration_hours"]');
+        const reasonInput = form.querySelector('input[name="ban_reason"]');
+        const submitButton = form.querySelector('button[type="submit"]');
+        const userId = parseInt(form.dataset.userId);
+        let isValid = true;
+        let errorMessage = '';
+        
+        // Get error message element
+        const errorDiv = getFormErrorElement(form);
+        
+        // Check if it's the current user
+        if (userId === CURRENT_USER_ID) {
+            errorMessage = 'You cannot ban yourself';
+            isValid = false;
+        }
+
+        if (isValid) {
+          const targetRow = document.getElementById(`user-row-${userId}`);
+          if (targetRow) {
+            const isTargetAdmin = targetRow.querySelector('.badge-role-admin') !== null;
+            if (isTargetAdmin) {
+                errorMessage = 'Cannot ban another admin account';
+                isValid = false;
+            }
+          }
+        }
+        
+        // Validate ban duration
+        if (durationInput && isValid) {
+            const duration = parseInt(durationInput.value);
+            
+            if (isNaN(duration) || duration < 1) {
+                errorMessage = 'Ban duration must be at least 1 hour';
+                isValid = false;
+                applyFieldErrorStyle(durationInput, errorDiv, false, errorMessage);
+            } else if (duration > 24 * 365) {
+                errorMessage = 'Ban duration cannot exceed 1 year (8760 hours)';
+                isValid = false;
+                applyFieldErrorStyle(durationInput, errorDiv, false, errorMessage);
+            } else if (duration > 720) {
+                // Warning but not blocking
+                showStatus('Warning: Ban duration exceeds 30 days. Are you sure?', 'warning', 3000);
+                applyFieldErrorStyle(durationInput, null, true);
+            } else {
+                applyFieldErrorStyle(durationInput, null, true);
+            }
+        }
+        
+        // Validate ban reason
+        if (reasonInput && isValid) {
+            const reason = reasonInput.value.trim();
+            
+            if (reason.length === 0) {
+                errorMessage = 'Please provide a reason for the ban';
+                isValid = false;
+                applyFieldErrorStyle(reasonInput, errorDiv, false, errorMessage);
+            } else if (reason.length > 500) {
+                errorMessage = 'Ban reason cannot exceed 500 characters';
+                isValid = false;
+                applyFieldErrorStyle(reasonInput, errorDiv, false, errorMessage);
+            } else {
+                // Check for forbidden content
+                const forbiddenPatterns = [
+                    /<script>/i,
+                    /javascript:/i,
+                    /on\w+\s*=/i,
+                    /[\<\>\"\']+/g
+                ];
+                
+                let hasInvalidContent = false;
+                for (const pattern of forbiddenPatterns) {
+                    if (pattern.test(reason)) {
+                        hasInvalidContent = true;
+                        break;
+                    }
+                }
+                
+                if (hasInvalidContent) {
+                    errorMessage = 'Ban reason contains invalid content';
+                    isValid = false;
+                    applyFieldErrorStyle(reasonInput, errorDiv, false, errorMessage);
+                } else {
+                    applyFieldErrorStyle(reasonInput, null, true);
+                }
+            }
+        }
+        
+        if (!isValid) {
+            errorDiv.textContent = errorMessage;
+            errorDiv.classList.add('show');
+            errorDiv.style.display = 'block';
+        } else {
+            errorDiv.textContent = '';
+            errorDiv.classList.remove('show');
+            errorDiv.style.display = 'none';
+        }
+        
+        updateSubmitButton(submitButton, isValid);
+        return isValid;
+    }
+
+    // Validate role update form
+    function validateRoleForm(form) {
+        const select = form.querySelector('select[name="user_type"]');
+        const submitButton = form.querySelector('button[type="submit"]');
+        const userId = parseInt(form.dataset.userId);
+        let isValid = true;
+        let errorMessage = '';
+        
+        // Get error message element
+        const errorDiv = getFormErrorElement(form);
+        
+        if (select) {
+            const newRole = select.value;
+            const validRoles = ['student', 'teacher', 'admin'];
+            
+            // Check if it's a valid role
+            if (!validRoles.includes(newRole)) {
+                errorMessage = 'Invalid role selected';
+                isValid = false;
+                applyFieldErrorStyle(select, errorDiv, false, errorMessage);
+            } else {
+                // Check if it's the current user (cannot modify own role)
+                if (userId === CURRENT_USER_ID && newRole !== 'admin') {
+                    errorMessage = 'You cannot change your own admin role';
+                    isValid = false;
+                    applyFieldErrorStyle(select, errorDiv, false, errorMessage);
+                } else {
+                    applyFieldErrorStyle(select, null, true);
+                }
+            }
+        }
+        
+        if (!isValid) {
+            errorDiv.textContent = errorMessage;
+            errorDiv.classList.add('show');
+            errorDiv.style.display = 'block';
+        } else {
+            errorDiv.textContent = '';
+            errorDiv.classList.remove('show');
+            errorDiv.style.display = 'none';
+        }
+        
+        updateSubmitButton(submitButton, isValid);
+        return isValid;
+    }
+
+    // Validate delete form
+    function validateDeleteForm(form) {
+        const submitButton = form.querySelector('button[type="submit"]');
+        const userId = parseInt(form.dataset.userId);
+        let isValid = true;
+        let errorMessage = '';
+        
+        // Get error message element
+        const errorDiv = getFormErrorElement(form);
+        
+        // Check if deleting current user
+        if (userId === CURRENT_USER_ID) {
+            errorMessage = 'You cannot delete your own account';
+            isValid = false;
+            applyFieldErrorStyle(null, errorDiv, false, errorMessage);
+        }
+        
+        // Check if it's the last admin
+        const adminBadges = document.querySelectorAll('.badge-role-admin');
+        const userRow = document.getElementById(`user-row-${userId}`);
+        if (userRow && adminBadges.length === 1 && isValid) {
+            const userRoleBadge = userRow.querySelector('.badge-role');
+            if (userRoleBadge && userRoleBadge.classList.contains('badge-role-admin')) {
+                errorMessage = 'Cannot delete the last admin account';
+                isValid = false;
+                applyFieldErrorStyle(null, errorDiv, false, errorMessage);
+            }
+        }
+        
+        if (!isValid) {
+            errorDiv.textContent = errorMessage;
+            errorDiv.classList.add('show');
+            errorDiv.style.display = 'block';
+        } else {
+            errorDiv.textContent = '';
+            errorDiv.classList.remove('show');
+            errorDiv.style.display = 'none';
+        }
+        
+        updateSubmitButton(submitButton, isValid);
+        return isValid;
+    }
+
+    // ============================================
+    // Form validation event binding
+    // ============================================
+
+    // Set up real-time form validation
+    function setupFormValidation(form) {
+        const action = form.dataset.action;
+        
+        switch (action) {
+            case 'ban':
+                const durationInput = form.querySelector('input[name="duration_hours"]');
+                const reasonInput = form.querySelector('input[name="ban_reason"]');
+                
+                if (durationInput) {
+                    durationInput.addEventListener('input', () => validateBanForm(form));
+                    durationInput.addEventListener('blur', () => validateBanForm(form));
+                }
+                
+                if (reasonInput) {
+                    reasonInput.addEventListener('input', () => validateBanForm(form));
+                    reasonInput.addEventListener('blur', () => validateBanForm(form));
+                }
+                
+                // Initial validation
+                validateBanForm(form);
+                break;
+                
+            case 'update-role':
+                const roleSelect = form.querySelector('select[name="user_type"]');
+                if (roleSelect) {
+                    roleSelect.addEventListener('change', () => validateRoleForm(form));
+                    // Initial validation
+                    validateRoleForm(form);
+                }
+                break;
+                
+            case 'delete':
+                // Initial validation
+                validateDeleteForm(form);
+                break;
+        }
+    }
+
+    // Validate form before submission
+    function validateFormBeforeSubmit(form) {
+        const action = form.dataset.action;
+        let isValid = false;
+        
+        switch (action) {
+            case 'ban':
+                isValid = validateBanForm(form);
+                break;
+            case 'update-role':
+                isValid = validateRoleForm(form);
+                break;
+            case 'delete':
+                isValid = validateDeleteForm(form);
+                if (isValid) {
+                    // Additional confirmation dialog
+                    const userId = form.dataset.userId;
+                    const userRow = form.closest('tr');
+                    const username = userRow.querySelector('td:nth-child(2)').textContent;
+                    const confirmed = confirm(`Are you sure you want to delete user "${username}" (ID: ${userId})?\n\nThis action cannot be undone and will permanently remove all user data.`);
+                    return confirmed;
+                }
+                return false;
+            case 'unban':
+                // Unban doesn't need complex validation
+                const userId = parseInt(form.dataset.userId);
+                if (userId === CURRENT_USER_ID) {
+                    showStatus('You cannot unban yourself', 'error');
+                    return false;
+                }
+                isValid = true;
+                break;
+            default:
+                isValid = true;
+        }
+        
+        return isValid;
+    }
+
+    // Initialize all form validations
+    function initializeAllFormValidations() {
+        document.querySelectorAll('.role-form, .ban-form, .delete-form').forEach(form => {
+            setupFormValidation(form);
+        });
+    }
+
+    // ============================================
+    // Theme management functions (consistent with log_activity.html)
+    // ============================================
+
+    function applyTheme(theme) {
+        const root = document.documentElement;
+        
+        // Key: remove all theme attributes and reset
+        root.removeAttribute('data-theme');
+        root.removeAttribute('data-theme-mode');
+    
+        if (theme === 'auto') {
+            // Use system theme
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            root.setAttribute('data-theme', systemTheme);
+            root.setAttribute('data-theme-mode', 'auto');
+        } else {
+            // Use specified theme
+            root.setAttribute('data-theme', theme);
+            root.setAttribute('data-theme-mode', theme);
+        }
+    
+        // Save to localStorage
+        localStorage.setItem('theme', theme);
+    }
+    
+    // Apply saved theme on page load
+    function loadSavedTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else {
+            applyTheme('light');
+        }
+    }
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        const root = document.documentElement;
+        const currentMode = root.getAttribute('data-theme-mode');
+        
+        if (currentMode === 'auto') {
+            const newTheme = e.matches ? 'dark' : 'light';
+            root.setAttribute('data-theme', newTheme);
+        }
+    });
+    
+    // ============================================
+    // AJAX form processing (including validation)
+    // ============================================
+    
+    // Show status message
+    function showStatus(message, type = 'success', duration = 5000) {
+        const statusDiv = document.getElementById('ajax-status');
+        statusDiv.textContent = message;
+        statusDiv.className = `ajax-status ${type}`;
+        statusDiv.style.display = 'block';
+        
+        // Auto hide
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, duration);
+    }
+    
+    // Set row loading status
+    function setRowLoading(userId, isLoading) {
+        const row = document.getElementById(`user-row-${userId}`);
+        if (!row) return;
+        
+        if (isLoading) {
+            row.classList.add('updating');
+            // Disable all form controls in the row
+            row.querySelectorAll('input, select, button').forEach(el => {
+                el.disabled = true;
+            });
+        } else {
+            row.classList.remove('updating');
+            // Enable all form controls in the row
+            row.querySelectorAll('input, select, button').forEach(el => {
+                el.disabled = false;
+            });
+        }
+    }
+    
+    // Set button loading status
+    function setButtonLoading(button, isLoading) {
+        if (!button) return;
+        
+        const spinner = button.querySelector('.btn-spinner');
+        const text = button.querySelector('.btn-text');
+        
+        if (isLoading) {
+            button.disabled = true;
+            if (spinner) spinner.style.display = 'inline-block';
+            if (text) text.style.display = 'none';
+        } else {
+            button.disabled = false;
+            if (spinner) spinner.style.display = 'none';
+            if (text) text.style.display = 'inline-block';
+        }
+    }
+    
+    // Set form loading status
+    function setFormLoading(form, isLoading) {
+        const button = form.querySelector('button[type="submit"]');
+        const inputs = form.querySelectorAll('input, select');
+        
+        form.classList.toggle('loading', isLoading);
+        setButtonLoading(button, isLoading);
+        
+        inputs.forEach(input => {
+            input.disabled = isLoading;
+        });
+    }
+    
+    // Update user role display
+    function updateRoleDisplay(userId, newRole) {
+        const row = document.getElementById(`user-row-${userId}`);
+        if (!row) return;
+        
+        const roleCell = row.querySelector('.role-cell');
+        const badge = roleCell.querySelector('.badge-role');
+        
+        if (badge) {
+            // Remove old classes
+            badge.className = badge.className.replace(/\bbadge-role-\w+\b/g, '');
+            // Add new class
+            badge.classList.add('badge-role', `badge-role-${newRole}`);
+            badge.textContent = newRole.charAt(0).toUpperCase() + newRole.slice(1);
+            
+            // Highlight animation
+            roleCell.classList.add('updated');
+            setTimeout(() => {
+                roleCell.classList.remove('updated');
+            }, 1000);
+        }
+        
+        // Update select box
+        const select = row.querySelector('.user-type-select');
+        if (select) {
+            select.value = newRole;
+            // Trigger validation
+            validateRoleForm(select.closest('form'));
+        }
+    }
+    
+    // Update ban status display
+    function updateBanDisplay(userId, isBanned, banUntil = null, banReason = null) {
+        const row = document.getElementById(`user-row-${userId}`);
+        if (!row) return;
+        
+        const banCell = row.querySelector('.ban-status-cell');
+        const banFormCell = row.querySelector('.ban-form-cell');
+        
+        if (isBanned) {
+            // Update status display
+            banCell.innerHTML = `
+                <span class="badge-status badge-status-banned">
+                    Banned until ${banUntil || 'N/A'}
+                </span><br>
+                ${banReason ? `<small class="ban-reason">Reason: ${banReason}</small>` : ''}
+            `;
+            
+            // Update form (switch to Unban form)
+            banFormCell.innerHTML = `
+                <form class="admin-inline-form ban-form" data-user-id="${userId}" data-action="unban">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn-admin btn-admin-warning">
+                        <span class="btn-text">Unban</span>
+                        <span class="btn-spinner" style="display: none;">⏳</span>
+                    </button>
+                    <div class="form-error" style="display: none;"></div>
+                </form>
+            `;
+            
+            // Rebind events and validation
+            const newForm = banFormCell.querySelector('.ban-form');
+            setupFormValidation(newForm);
+            bindFormEvents(newForm);
+        } else {
+            // Update status display
+            banCell.innerHTML = '<span class="badge-status badge-status-active">Active</span>';
+            
+            // Update form (switch to Ban form)
+            banFormCell.innerHTML = `
+                <form class="admin-inline-form ban-form" data-user-id="${userId}" data-action="ban">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="number" name="duration_hours" class="admin-input admin-input-small ban-duration" 
+                           value="24" min="1" max="8760" title="Ban duration (hours)">
+                    <input type="text" name="ban_reason" class="admin-input ban-reason-input" 
+                           placeholder="Reason (required)" maxlength="500">
+                    <button type="submit" class="btn-admin btn-admin-warning">
+                        <span class="btn-text">Ban</span>
+                        <span class="btn-spinner" style="display: none;">⏳</span>
+                    </button>
+                    <div class="form-error" style="display: none;"></div>
+                </form>
+            `;
+            
+            // Rebind events and validation
+            const newForm = banFormCell.querySelector('.ban-form');
+            setupFormValidation(newForm);
+            bindFormEvents(newForm);
+        }
+        
+        // Highlight animation
+        banCell.classList.add('updated');
+        setTimeout(() => {
+            banCell.classList.remove('updated');
+        }, 1000);
+    }
+    
+    // Delete user row
+    function removeUserRow(userId) {
+        const row = document.getElementById(`user-row-${userId}`);
+        if (row) {
+            // Add fade out animation
+            row.style.transition = 'opacity 0.3s ease';
+            row.style.opacity = '0';
+            
+            setTimeout(() => {
+                row.remove();
+                showStatus(`User ${userId} deleted successfully`, 'success');
+            }, 300);
+        }
+    }
+    
+    // Handle AJAX requests (including validation)
+    async function handleFormSubmit(e) {
+        e.preventDefault();
+        
+        const form = e.target;
+        const userId = form.dataset.userId;
+        const action = form.dataset.action;
+        
+        console.log('=== Form Submit (Fixed Version) ===');
+        console.log('User ID:', userId);
+        console.log('Action:', action);
+        
+        // Validate form before submission
+        if (!validateFormBeforeSubmit(form)) {
+            console.log('Form validation failed');
+            return;
+        }
+        
+        // Check necessary parameters
+        if (!userId || !action) {
+            showStatus('Invalid form configuration', 'error');
+            return;
+        }
+        
+        // Get CSRF token
+        let csrfToken = form.querySelector('[name="csrf_token"]')?.value;
+        if (!csrfToken) {
+            // Fallback: get from other places
+            csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ||
+                       document.querySelector('[name="csrf_token"]')?.value;
+            console.log('CSRF token from fallback:', csrfToken ? 'Found' : 'Not found');
+        }
+        
+        if (!csrfToken) {
+            showStatus('CSRF token missing. Please refresh the page.', 'error');
+            return;
+        }
+        
+        // 🔴 Fix: Create FormData only once
+        const formData = new FormData(form);
+        
+        // Ensure CSRF token is included (double insurance)
+        if (!formData.has('csrf_token')) {
+            formData.append('csrf_token', csrfToken);
+            console.log('Added CSRF token to FormData');
+        }
+        
+        // Debug: Show FormData content
+        console.log('FormData contents:');
+        for (let [key, value] of formData.entries()) {
+            console.log(`  ${key}: ${value}`);
+        }
+        
+        // Set loading status
+        setFormLoading(form, true);
+        setRowLoading(userId, true);
+        
+        try {
+            // 🔴 Fix: Determine URL based on action
+            let url;
+            switch (action) {
+                case 'update-role':
+                    url = `/admin/users/${userId}/role`;
+                    break;
+                case 'ban':
+                    url = `/admin/users/${userId}/ban`;
+                    break;
+                case 'unban':
+                    url = `/admin/users/${userId}/unban`;
+                    break;
+                case 'delete':
+                    url = `/admin/users/${userId}/delete`;
+                    break;
+                default:
+                    throw new Error(`Unknown action: ${action}`);
+            }
+            
+            console.log('Request URL:', url);
+            
+            // Send AJAX request
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            console.log('Response status:', response.status);
+            console.log('Response OK:', response.ok);
+            
+            // Get response text
+            const responseText = await response.text();
+            console.log('Response text (first 500 chars):', responseText.substring(0, 500));
+            
+            let responseData;
+            try {
+                // Try to parse JSON
+                responseData = JSON.parse(responseText);
+                console.log('JSON parsed successfully');
+            } catch (jsonError) {
+                console.error('JSON parse error:', jsonError);
+                
+                // If not JSON response
+                if (response.ok) {
+                    // Successful non-JSON response: show message and refresh
+                    showStatus('Operation successful, refreshing...', 'success', 2000);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                    return;
+                } else {
+                    // Failed non-JSON response
+                    throw new Error(`Server returned status ${response.status}`);
+                }
+            }
+            
+            // 🔴 Fix: Better status check
+            if (!response.ok) {
+                // 4xx or 5xx error
+                throw new Error(responseData?.message || `HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            // Check success field in response
+            if (responseData.success === false) {
+                throw new Error(responseData.message || 'Operation failed (success: false)');
+            }
+            
+            // 🔴 Fix: Handle successful response
+            if (response.ok && (responseData.success === true || responseData.success === undefined)) {
+                console.log('Operation successful, updating UI...');
+                
+                // Update UI based on action
+                switch (action) {
+                    case 'update-role':
+                        updateRoleDisplay(userId, formData.get('user_type'));
+                        showStatus(responseData.message || 'Role updated successfully', 'success');
+                        break;
+                        
+                    case 'ban':
+                        const banUntil = responseData.user?.ban_until ? 
+                            new Date(responseData.user.ban_until).toLocaleString() : 'N/A';
+                        updateBanDisplay(
+                            userId, 
+                            true, 
+                            banUntil,
+                            formData.get('ban_reason')
+                        );
+                        showStatus(responseData.message || 'User banned successfully', 'success');
+                        break;
+                        
+                    case 'unban':
+                        updateBanDisplay(userId, false);
+                        showStatus(responseData.message || 'User unbanned successfully', 'success');
+                        break;
+                        
+                    case 'delete':
+                        removeUserRow(userId);
+                        showStatus(responseData.message || 'User deleted successfully', 'success');
+                        break;
+                        
+                    default:
+                        showStatus(responseData.message || 'Operation completed', 'success');
+                }
+            } else {
+                // Unknown response status
+                console.warn('Unexpected response:', responseData);
+                throw new Error('Unexpected response from server');
+            }
+            
+        } catch (error) {
+            console.error('AJAX request failed:', error);
+            console.error('Error name:', error.name);
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+            
+            // Show user-friendly error message
+            let userMessage = error.message;
+            
+            if (error.name === 'TypeError') {
+                userMessage = 'Network error. Please check your connection.';
+            } else if (error.name === 'SyntaxError') {
+                userMessage = 'Server returned invalid response.';
+            } else if (error.message.includes('CSRF')) {
+                userMessage = 'Security token expired. Please refresh the page.';
+            } else if (error.message.includes('status 400')) {
+                userMessage = 'Bad request. Please check the form data.';
+            } else if (error.message.includes('status 403')) {
+                userMessage = 'Permission denied.';
+            } else if (error.message.includes('status 404')) {
+                userMessage = 'Resource not found.';
+            } else if (error.message.includes('status 500')) {
+                userMessage = 'Server error. Please try again later.';
+            }
+            
+            showStatus(`Error: ${userMessage}`, 'error');
+        } finally {
+            // Clear loading status
+            setFormLoading(form, false);
+            setRowLoading(userId, false);
+        }
+    }
+    
+    // Bind form events
+    function bindFormEvents(form) {
+        if (!form) return;
+        
+        form.addEventListener('submit', handleFormSubmit);
+    }
+    
+    // Bind all form events
+    function bindAllFormEvents() {
+        document.querySelectorAll('.role-form, .ban-form, .delete-form').forEach(form => {
+            bindFormEvents(form);
+        });
+    }
+    
+    // Refresh user data
+    async function refreshUsers() {
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const tableBody = document.getElementById('users-table-body');
+        const adminCard = document.querySelector('.admin-card');
+        const adminTable = document.querySelector('.admin-table');
+        
+        // Show loading status
+        loadingIndicator.style.display = 'flex';
+        adminCard.classList.add('loading');
+        adminTable.classList.add('loading');
+        
+        try {
+            const response = await fetch(window.location.href, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            // Check response type
+            const contentType = response.headers.get('content-type');
+            
+            if (contentType && contentType.includes('application/json')) {
+                // Handle JSON response
+                const data = await response.json();
+                
+                if (data.success && data.users) {
+                    // Re-render table (complete example needs more complex rendering logic)
+                    showStatus('Data refreshed successfully', 'success');
+                    
+                    // If needed, you can re-render the entire table here
+                    // For simplicity, we just reload the page
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 100);
+                }
+            } else {
+                // Handle HTML response
+                const html = await response.text();
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+                const newTableBody = tempDiv.querySelector('#users-table-body');
+                
+                if (newTableBody) {
+                    tableBody.innerHTML = newTableBody.innerHTML;
+                    bindAllFormEvents();
+                    initializeAllFormValidations();
+                    showStatus('User list refreshed successfully', 'success');
+                }
+            }
+            
+        } catch (error) {
+            console.error('Refresh failed:', error);
+            showStatus(`Failed to refresh: ${error.message}`, 'error');
+        } finally {
+            // Hide loading status
+            loadingIndicator.style.display = 'none';
+            adminCard.classList.remove('loading');
+            adminTable.classList.remove('loading');
+        }
+    }
+    
+    // ============================================
+    // Initialization
+    // ============================================
+    
+    // Load theme on initial load
+    loadSavedTheme();
+    
+    // Bind all form events
+    bindAllFormEvents();
+    
+    // Initialize all form validations
+    initializeAllFormValidations();
+    
+    // Bind refresh button
+    document.getElementById('refresh-users').addEventListener('click', refreshUsers);
+    
+    // Listen for theme changes
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'data-theme') {
+                // When theme changes, you can perform any necessary updates
+                console.log('Theme changed:', document.documentElement.getAttribute('data-theme'));
+            }
+        });
+    });
+    
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+    });
+    
+    // Auto refresh (optional, every 5 minutes)
+    // setTimeout(refreshUsers, 5 * 60 * 1000);
+});
+</script>
+{% endblock %}

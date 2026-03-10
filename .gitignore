@@ -1,0 +1,19 @@
+## Python 虚拟环境与缓存
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Flask/数据库相关
+instance/
+*.db
+*.sqlite
+.env
+
+# 编辑器与系统文件
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

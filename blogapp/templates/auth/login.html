@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* Override inline styles for dark mode using CSS variables */
+[data-theme="dark"] .login-container,
+[data-theme="dark"] .login-container h2,
+[data-theme="dark"] .login-container label,
+[data-theme="dark"] .login-container p,
+[data-theme="dark"] .login-container a,
+[data-theme="dark"] .login-container input {
+    /* Force use of CSS variables instead of hardcoded colors */
+    background: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Auto theme in dark mode */
+@media (prefers-color-scheme: dark) {
+    [data-theme="auto"] .login-container,
+    [data-theme="auto"] .login-container h2,
+    [data-theme="auto"] .login-container label,
+    [data-theme="auto"] .login-container p,
+    [data-theme="auto"] .login-container a,
+    [data-theme="auto"] .login-container input {
+        background: var(--card-bg) !important;
+        color: var(--text-color) !important;
+        border-color: var(--border-color) !important;
+    }
+}
+
+/* Specific fixes for inputs in dark mode */
+[data-theme="dark"] .login-container input::placeholder {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .login-container input:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px var(--primary-light) !important;
+}
+
+/* Fix for links */
+[data-theme="dark"] .login-container a {
+    color: var(--primary-color) !important;
+}
+
+[data-theme="dark"] .login-container a:hover {
+    color: var(--accent-color) !important;
+}
+</style>
+
+<div class="login-container" style="max-width: 400px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px;">
+    <h2 style="color: #000000;">Login to UCD GreenLife</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }} 
+        <div style="margin: 1rem 0;">
+            <label style="display: block; margin-bottom: 0.5rem; color: #000000;">Username:</label>
+            <input type="text" name="username" required style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; color: #000000;">
+        </div>
+        <div style="margin: 1rem 0;">
+            <label style="display: block; margin-bottom: 0.5rem; color: #000000;">Password:</label>
+            <input type="password" name="password" required style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; color: #000000;">
+        </div>
+        <button type="submit" style="width: 100%; padding: 0.75rem; background: #2E8B57; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Login
+        </button>
+    </form>
+    <p style="text-align: center; margin-top: 1rem; color: #000000;">
+        Don't have an account? <a href="{{ url_for('auth.register') }}" style="color: #2E8B57;">Register here</a>
+    </p>
+</div>
+
+<script>
+// Apply theme to login page
+document.addEventListener('DOMContentLoaded', function() {
+    // Get theme from localStorage or default
+    const theme = localStorage.getItem('theme') || 'light';
+    const colorScheme = localStorage.getItem('color_scheme') || 'green';
+    
+    // Apply theme
+    let actualTheme = theme;
+    if (theme === 'auto') {
+        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    
+    document.body.setAttribute('data-theme', actualTheme);
+    document.body.setAttribute('data-theme-mode', theme);
+    document.body.setAttribute('data-color-scheme', colorScheme);
+    
+    console.log('Login page theme:', actualTheme);
+});
+</script>
+
+{% endblock %}

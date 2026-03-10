@@ -1,0 +1,1111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="create-event-container">
+    <!-- Header Section -->
+    <div class="create-event-header">
+        <div class="header-content">
+            <a href="{{ url_for('main.events') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Back to Events
+            </a>
+            <h1>Create New Event</h1>
+            <p class="subtitle">Organize a sustainability event for the campus community</p>
+        </div>
+        <div class="header-graphic">
+            <i class="fas fa-calendar-plus"></i>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Form -->
+    <div class="create-event-card">
+        <form method="POST" action="{{ url_for('main.create_event')}} " class="needs-validation" novalidate>
+            {{ form.hidden_tag() }}
+            
+            <!-- Event Basic Info Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <i class="fas fa-info-circle"></i>
+                    <h3>Event Information</h3>
+                </div>
+                <div class="section-content">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="title" class="form-label">
+                                    Event Title *
+                                    <span class="required-indicator">•</span>
+                                </label>
+                                {{ form.title(
+                                    id="title",
+                                    class="form-control form-control-lg",
+                                    placeholder="e.g., Campus Cleanup Day, Energy Saving Workshop...",
+                                    maxlength="100"
+                                ) }}
+                                <div class="form-text">Give your event a clear and engaging title</div>
+                                <div class="char-counter">
+                                    <span id="titleCounter">0</span>/100 characters
+                                </div>
+                                <div id="titleError" class="error-message">
+                                    {% for error in form.title.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="event_type" class="form-label">
+                                    Event Type *
+                                    <span class="required-indicator">•</span>
+                                </label>
+                                {{ form.event_type(
+                                    id="event_type",
+                                    class="form-select form-select-lg"
+                                ) }}
+                                <div id="eventTypeError" class="error-message">
+                                    {% for error in form.event_type.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description" class="form-label">
+                            Description *
+                            <span class="required-indicator">•</span>
+                        </label>
+                        {{ form.description(
+                            id="description",
+                            class="form-control",
+                            rows="5",
+                            placeholder="Describe what participants can expect, what they should bring, and the impact of this event...",
+                            maxlength="500"
+                        ) }}
+                        <div class="form-text">Provide enough details to attract participants</div>
+                        <div class="char-counter">
+                            <span id="descriptionCounter">0</span>/500 characters
+                        </div>
+                        <div id="descriptionError" class="error-message">
+                            {% for error in form.description.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location & Capacity Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h3>Location & Capacity</h3>
+                </div>
+                <div class="section-content">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="location" class="form-label">
+                                    Location *
+                                    <span class="required-indicator">•</span>
+                                </label>
+                                {{ form.location(
+                                    id="location",
+                                    class="form-control",
+                                    placeholder="e.g., Main Quad, Student Center Room 101...",
+                                    maxlength="100"
+                                ) }}
+                                <div class="form-text">Where will the event take place?</div>
+                                <div class="char-counter">
+                                    <span id="locationCounter">0</span>/100 characters
+                                </div>
+                                <div id="locationError" class="error-message">
+                                    {% for error in form.location.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="max_participants" class="form-label">
+                                    Maximum Participants
+                                    <span class="optional-indicator">(Optional)</span>
+                                </label>
+                                {{ form.max_participants(
+                                    id="max_participants",
+                                    class="form-control",
+                                    placeholder="Unlimited",
+                                    type="number",
+                                    min="1",
+                                    max="1000"
+                                ) }}
+                                <div class="form-text">Please select an appropriate number for participants</div>
+                                <div id="maxParticipantsError" class="error-message">
+                                    {% for error in form.max_participants.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date & Time Section -->
+            <div class="form-section">
+                <div class="section-header">
+                    <i class="fas fa-clock me-2"></i>
+                    <h3>Date & Time</h3>
+                </div>
+                <div class="section-content">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="start_date" class="form-label">
+                                    Start Date & Time *
+                                    <span class="required-indicator">•</span>
+                                </label>
+                                {{ form.start_date(
+                                    id="start_date",
+                                    class="form-control",
+                                    placeholder="YYYY-MM-DD HH:MM (e.g., 2026-03-15 14:30)"
+                                ) }}
+                                <div class="form-text">Format: YYYY-MM-DD HH:MM (24-hour format)</div>
+                                <div id="startDateError" class="error-message">
+                                    {% for error in form.start_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="end_date" class="form-label">
+                                    End Date & Time *
+                                    <span class="required-indicator">•</span>
+                                </label>
+                                {{ form.end_date(
+                                    id="end_date",
+                                    class="form-control",
+                                    placeholder="YYYY-MM-DD HH:MM (e.g., 2026-03-15 16:30)"
+                                ) }}
+                                <div class="form-text">Format: YYYY-MM-DD HH:MM (24-hour format)</div>
+                                <div id="endDateError" class="error-message">
+                                    {% for error in form.end_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="date-validation" id="dateValidation">
+                        <div class="validation-item" id="durationValidation">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <span>Event duration: <span id="durationDisplay">-</span></span>
+                        </div>
+                        <div class="validation-item" id="futureDateValidation">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <span>Event is scheduled for the future</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="form-actions">
+                <a href="{{ url_for('main.events') }}" class="btn btn-cancel btn-lg">
+                    <i class="fas fa-times me-2"></i>
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-success btn-lg" id="submitEventBtn">
+                    <i class="fas fa-plus me-2"></i>
+                    Create Event
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.create-event-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Header Styles */
+.create-event-header {
+    background: linear-gradient(135deg, #2E8B57 0%, #4CAF50 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.create-event-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    transform: rotate(30deg);
+}
+
+.header-content {
+    flex: 1;
+    z-index: 1;
+}
+
+.back-btn {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: opacity 0.3s ease;
+}
+
+.back-btn:hover {
+    opacity: 0.8;
+    color: white;
+}
+
+.create-event-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.header-graphic {
+    font-size: 6rem;
+    opacity: 0.2;
+    z-index: 0;
+}
+
+/* Main Card */
+.create-event-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+    border: 1px solid #f0f0f0;
+    overflow: hidden;
+}
+
+/* Form Sections */
+.form-section {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.form-section:last-child {
+    border-bottom: none;
+}
+
+.section-header {
+    background: #f8f9fa;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.section-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.3rem;
+}
+
+.section-header i {
+    color: #2E8B57;
+    font-size: 1.2rem;
+}
+
+.section-content {
+    padding: 2rem;
+}
+
+/* Form Controls */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+}
+
+.required-indicator {
+    color: #dc3545;
+    margin-left: 0.25rem;
+    font-size: 1.2rem;
+}
+
+.optional-indicator {
+    color: #6c757d;
+    font-size: 0.8rem;
+    font-weight: normal;
+    margin-left: 0.5rem;
+}
+
+.form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #2E8B57;
+    box-shadow: 0 0 0 0.2rem rgba(46, 139, 87, 0.1);
+}
+
+.form-control-lg {
+    font-size: 1.1rem;
+    padding: 1rem 1.25rem;
+}
+
+.form-text {
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+/* Character Counters */
+.char-counter {
+    text-align: right;
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+.char-counter.warning {
+    color: #ffc107;
+}
+
+.char-counter.error {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+/* Cancel Button - Custom Styles */
+.btn-cancel {
+    background: transparent;
+    color: #007bff !important;
+    border: 2px solid #007bff !important;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: #007bff !important;
+    color: white !important;
+    border-color: #007bff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.btn-cancel:active,
+.btn-cancel.active,
+.btn-cancel:focus {
+    background: #ffc107 !important;
+    color: #212529 !important;
+    border-color: #ffc107 !important;
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(255, 193, 7, 0.3);
+}
+
+/* Date Validation */
+.date-validation {
+    background: #f8fff8;
+    border: 1px solid #e8f5e8;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.validation-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.validation-item:last-child {
+    margin-bottom: 0;
+}
+
+.validation-item i {
+    font-size: 0.9rem;
+}
+
+/* Action Buttons */
+.form-actions {
+    padding: 2rem;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.btn {
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-lg {
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #2E8B57, #4CAF50);
+    color: white;
+    border: none;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
+}
+
+/* Error States */
+.form-control.error {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+}
+
+.form-control.valid {
+    border-color: #28a745;
+    background-color: #f8fff8;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+/* Flash Messages */
+.flash-messages {
+    margin-bottom: 2rem;
+}
+
+.alert {
+    border-radius: 8px;
+    border: none;
+    padding: 1rem 1.5rem;
+}
+
+/* ============================================
+   Dark Mode Styles - Using the same system as settings.html
+   ============================================ */
+
+/* Dark Mode Base Variables */
+[data-theme="dark"] {
+    --dark-bg-primary: #121212;
+    --dark-bg-secondary: #1a1a1a;
+    --dark-bg-card: #2d2d2d;
+    --dark-bg-theme-card: #121212;
+    --dark-text-primary: #ffffff;
+    --dark-text-secondary: #cccccc;
+    --dark-text-muted: #aaaaaa;
+    --dark-border: #333333;
+    --dark-border-light: #404040;
+    --dark-primary: #4CAF50;
+    --dark-primary-hover: #45a049;
+    --dark-danger: #dc3545;
+    --dark-danger-hover: #c82333;
+    --dark-accent: #2E8B57;
+}
+
+/* Dark Mode Create Event Container */
+[data-theme="dark"] .create-event-container {
+    background: var(--dark-bg-primary);
+    color: var(--dark-text-primary);
+}
+
+/* Dark Mode Header Area */
+[data-theme="dark"] .create-event-header {
+    background: linear-gradient(135deg, var(--dark-accent) 0%, var(--dark-primary) 100%);
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .back-btn {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .back-btn:hover {
+    color: var(--dark-text-primary);
+    opacity: 0.8;
+}
+
+/* Dark Mode Main Card - Key: Darken Card Background */
+[data-theme="dark"] .create-event-card {
+    background: var(--dark-bg-card) !important;
+    border-color: var(--dark-border) !important;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+    color: var(--dark-text-primary);
+}
+
+/* Dark Mode Form Section Header */
+[data-theme="dark"] .section-header {
+    background: var(--dark-bg-secondary);
+    border-bottom-color: var(--dark-border);
+}
+
+[data-theme="dark"] .section-header h3 {
+    color: var(--dark-text-primary) !important;
+}
+
+[data-theme="dark"] .section-header i {
+    color: var(--dark-primary);
+}
+
+/* Dark Mode Form Labels */
+[data-theme="dark"] .form-label {
+    color: var(--dark-text-primary) !important;
+}
+
+/* Dark Mode Form Controls */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background: var(--dark-bg-secondary);
+    border-color: var(--dark-border-light);
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    border-color: var(--dark-primary);
+    box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.1);
+}
+
+[data-theme="dark"] .form-control:read-only {
+    background: var(--dark-bg-card);
+    cursor: not-allowed;
+}
+
+/* Dark Mode Form Text */
+[data-theme="dark"] .form-text {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Dark Mode Character Counters */
+[data-theme="dark"] .char-counter {
+    color: var(--dark-text-muted);
+}
+
+[data-theme="dark"] .char-counter.warning {
+    color: #ffc107;
+}
+
+[data-theme="dark"] .char-counter.error {
+    color: var(--dark-danger);
+}
+
+/* Dark Mode Date Validation Area */
+[data-theme="dark"] .date-validation {
+    background: rgba(76, 175, 80, 0.05);
+    border-color: var(--dark-border);
+}
+
+[data-theme="dark"] .validation-item {
+    color: var(--dark-text-primary);
+}
+
+/* Dark Mode Cancel Button */
+[data-theme="dark"] .btn-cancel {
+    background: transparent;
+    color: #6ea8fe !important;
+    border: 2px solid #6ea8fe !important;
+}
+
+[data-theme="dark"] .btn-cancel:hover {
+    background: #6ea8fe !important;
+    color: white !important;
+    border-color: #6ea8fe !important;
+    box-shadow: 0 4px 15px rgba(110, 168, 254, 0.3);
+}
+
+[data-theme="dark"] .btn-cancel:active,
+[data-theme="dark"] .btn-cancel.active,
+[data-theme="dark"] .btn-cancel:focus {
+    background: #ffc107 !important;
+    color: #212529 !important;
+    border-color: #ffc107 !important;
+    box-shadow: 0 2px 10px rgba(255, 193, 7, 0.3);
+}
+
+/* Dark Mode Action Buttons Area */
+[data-theme="dark"] .form-actions {
+    background: var(--dark-bg-secondary);
+    border-top-color: var(--dark-border);
+}
+
+/* Dark Mode Buttons */
+[data-theme="dark"] .btn-success {
+    background: linear-gradient(135deg, var(--dark-accent), var(--dark-primary));
+    border: none;
+}
+
+[data-theme="dark"] .btn-success:hover {
+    background: linear-gradient(135deg, var(--dark-primary-hover), #3d8b40);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+/* Dark Mode Error States */
+[data-theme="dark"] .form-control.error {
+    border-color: var(--dark-danger);
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+[data-theme="dark"] .form-control.valid {
+    border-color: var(--dark-primary);
+    background-color: rgba(76, 175, 80, 0.05);
+}
+
+[data-theme="dark"] .error-message {
+    color: var(--dark-danger);
+}
+
+/* Dark Mode Flash Messages */
+[data-theme="dark"] .alert {
+    background-color: var(--dark-bg-secondary);
+    border-left: 4px solid var(--dark-primary);
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .alert-success {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-left-color: var(--dark-primary);
+}
+
+[data-theme="dark"] .alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border-left-color: var(--dark-danger);
+}
+
+/* Dark Mode Required/Optional Indicators */
+[data-theme="dark"] .required-indicator {
+    color: var(--dark-danger);
+}
+
+[data-theme="dark"] .optional-indicator {
+    color: var(--dark-text-muted);
+}
+
+/* Dark Mode Form Section Borders */
+[data-theme="dark"] .form-section {
+    border-bottom-color: var(--dark-border);
+}
+
+[data-theme="dark"] .form-section:last-child {
+    border-bottom: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .create-event-container {
+        padding: 1rem;
+    }
+    
+    .create-event-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem 1rem;
+    }
+    
+    .header-graphic {
+        display: none;
+    }
+    
+    .create-event-header h1 {
+        font-size: 2rem;
+    }
+    
+    .section-content {
+        padding: 1.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .section-header {
+        padding: 1rem 1.5rem;
+    }
+    
+    .section-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    /* Dark Mode Responsive */
+    [data-theme="dark"] .create-event-header {
+        padding: 2rem 1rem;
+    }
+    
+    [data-theme="dark"] .section-content {
+        padding: 1.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Character counters
+    setupCharacterCounter('title', 'titleCounter', 100);
+    setupCharacterCounter('description', 'descriptionCounter', 500);
+    setupCharacterCounter('location', 'locationCounter', 100);
+
+    // Enhanced form validation
+    setupEnhancedFormValidation();
+
+    // Form submission handling
+    const form = document.querySelector('form');
+    const submitBtn = document.getElementById('submitEventBtn');
+    
+    if ( form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            // Add loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating Event...';
+            submitBtn.disabled = true;
+        });
+    }
+    
+    // ============================================
+    // Theme Management System - Consistent with settings.html
+    // ============================================
+    
+    // Load saved theme from localStorage
+    function loadTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const savedColorScheme = localStorage.getItem('color_scheme');
+        
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else {
+            // Use default theme or system theme
+            applyTheme('light');
+        }
+        
+        if (savedColorScheme) {
+            applyColorScheme(savedColorScheme);
+        }
+    }
+    
+    // Apply theme
+    function applyTheme(theme) {
+        const root = document.documentElement;
+        
+        // Key: Remove all theme attributes and reset
+        root.removeAttribute('data-theme');
+        root.removeAttribute('data-theme-mode');
+        
+        if (theme === 'auto') {
+            // Use system theme
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            root.setAttribute('data-theme', systemTheme);
+            root.setAttribute('data-theme-mode', 'auto');
+        } else {
+            // Use specified theme
+            root.setAttribute('data-theme', theme);
+            root.setAttribute('data-theme-mode', theme);
+        }
+    }
+    
+    // Apply color scheme
+    function applyColorScheme(colorScheme) {
+        const root = document.documentElement;
+        root.setAttribute('data-color-scheme', colorScheme);
+    }
+    
+    // Listen for system theme changes (when theme is set to auto)
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        const root = document.documentElement;
+        const currentMode = root.getAttribute('data-theme-mode');
+        
+        if (currentMode === 'auto') {
+            const newTheme = e.matches ? 'dark' : 'light';
+            root.setAttribute('data-theme', newTheme);
+        }
+    });
+    
+    // Initial theme load
+    loadTheme();
+});
+
+function setupCharacterCounter(fieldId, counterId, maxLength) {
+    const field = document.getElementById(fieldId);
+    const counter = document.getElementById(counterId);
+    
+    if (field && counter) {
+        field.addEventListener('input', function() {
+            const length = this.value.length;
+            counter.textContent = length;
+            
+            if (length > maxLength * 0.8) {
+                counter.parentElement.classList.add('warning');
+            } else {
+                counter.parentElement.classList.remove('warning');
+            }
+            
+            if (length > maxLength) {
+                counter.parentElement.classList.add('error');
+            } else {
+                counter.parentElement.classList.remove('error');
+            }
+        });
+        
+        // Initialize counter
+        counter.textContent = field.value.length;
+    }
+}
+
+function setupEnhancedFormValidation() {
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    
+    if (startDateInput && endDateInput) {
+        [startDateInput, endDateInput].forEach(input => {
+            input.addEventListener('input', updateDateValidation);
+            input.addEventListener('blur', validateDateFormat);
+        });
+        
+        updateDateValidation();
+    }
+}
+
+function validateDateFormat() {
+    const value = this.value.trim();
+    const formatRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/;
+    
+    if (value && !formatRegex.test(value)) {
+        this.classList.add('error');
+    } else {
+        this.classList.remove('error');
+    }
+}
+
+function updateDateValidation() {
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    const durationDisplay = document.getElementById('durationDisplay');
+    const futureDateValidation = document.getElementById('futureDateValidation');
+    
+    if (!startDateInput.value || !endDateInput.value) {
+        if (durationDisplay) durationDisplay.textContent = '-';
+        return;
+    }
+    
+    try {
+        const start = new Date(startDateInput.value.replace(' ', 'T') + ':00');
+        const end = new Date(endDateInput.value.replace(' ', 'T') + ':00');
+        const now = new Date();
+        
+        // Calculate duration
+        const durationMs = end - start;
+        const durationHours = Math.floor(durationMs / (1000 * 60 * 60));
+        const durationMinutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+        
+        let durationText = '';
+        if (durationHours > 0) {
+            durationText += `${durationHours} hour${durationHours > 1 ? 's' : ''} `;
+        }
+        if (durationMinutes > 0) {
+            durationText += `${durationMinutes} minute${durationMinutes > 1 ? 's' : ''}`;
+        }
+        
+        if (durationText) {
+            durationDisplay.textContent = durationText;
+        } else {
+            durationDisplay.textContent = 'Invalid duration';
+        }
+        
+        // Verify future dates
+        const isFuture = start > now;
+        const futureIcon = futureDateValidation.querySelector('i');
+        const futureText = futureDateValidation.querySelector('span:last-child');
+        
+        if (isFuture) {
+            futureIcon.className = 'fas fa-check-circle text-success';
+            futureText.textContent = 'Event is scheduled for the future';
+        } else {
+            futureIcon.className = 'fas fa-exclamation-circle text-warning';
+            futureText.textContent = 'Event starts in the past';
+        }
+    } catch (error) {
+        console.log('Date parsing error:', error);
+    }
+}
+
+function validateEventForm() {
+    const title = document.getElementById('title');
+    const description = document.getElementById('description');
+    const eventType = document.getElementById('event_type');
+    const location = document.getElementById('location');
+    const startDate = document.getElementById('start_date');
+    const endDate = document.getElementById('end_date');
+    
+    let isValid = true;
+    
+    // Clear previous errors
+    clearFieldError('title');
+    clearFieldError('description');
+    clearFieldError('event_type');
+    clearFieldError('location');
+    clearFieldError('start_date');
+    clearFieldError('end_date');
+    
+    // Basic validation
+    if (!title.value.trim()) {
+        showFieldError('title', 'Event title is required');
+        isValid = false;
+    } else if (title.value.trim().length < 5) {
+        showFieldError('title', 'Title must be at least 5 characters');
+        isValid = false;
+    }
+    
+    if (!description.value.trim()) {
+        showFieldError('description', 'Event description is required');
+        isValid = false;
+    } else if (description.value.trim().length < 10) {
+        showFieldError('description', 'Description must be at least 10 characters');
+        isValid = false;
+    }
+    
+    if (!eventType.value) {
+        showFieldError('event_type', 'Please select an event type');
+        isValid = false;
+    }
+    
+    if (!location.value.trim()) {
+        showFieldError('location', 'Event location is required');
+        isValid = false;
+    } else if (location.value.trim().length < 3) {
+        showFieldError('location', 'Location must be at least 3 characters');
+        isValid = false;
+    }
+    
+    if (!startDate.value) {
+        showFieldError('start_date', 'Start date is required');
+        isValid = false;
+    }
+    
+    if (!endDate.value) {
+        showFieldError('end_date', 'End date is required');
+        isValid = false;
+    }
+    
+    // Date validation
+    if (startDate.value && endDate.value) {
+        const start = new Date(startDate.value);
+        const end = new Date(endDate.value);
+        const now = new Date();
+        
+        if (start < now) {
+            showFieldError('start_date', 'Event cannot start in the past');
+            isValid = false;
+        }
+        
+        if (end <= start) {
+            showFieldError('end_date', 'End date must be after start date');
+            isValid = false;
+        }
+        
+        // Check if event is longer than 30 days
+        const duration = (end - start) / (1000 * 60 * 60 * 24);
+        if (duration > 30) {
+            showFieldError('end_date', 'Event cannot last longer than 30 days');
+            isValid = false;
+        }
+    }
+    
+    return isValid;
+}
+
+function showFieldError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    const errorDiv = document.getElementById(fieldId + 'Error');
+    
+    if (field && errorDiv) {
+        errorDiv.textContent = message;
+        field.classList.add('error');
+        field.classList.remove('valid');
+        
+        // Scroll to first error
+        if (!window.scrolledToError) {
+            field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            window.scrolledToError = true;
+        }
+    }
+}
+
+function clearFieldError(fieldId) {
+    const field = document.getElementById(fieldId);
+    const errorDiv = document.getElementById(fieldId + 'Error');
+    
+    if (field && errorDiv) {
+        errorDiv.textContent = '';
+        field.classList.remove('error');
+    }
+}
+</script>
+{% endblock %}

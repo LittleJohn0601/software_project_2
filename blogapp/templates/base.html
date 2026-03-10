@@ -1,0 +1,1502 @@
+{# 
+  Base Template (base.html)
+  
+  Provides the global layout for the UCD GreenLife website:
+  - Shared navigation bar
+  - Consistent styling and page container
+  - Flash message rendering
+  - Content block used by all child templates
+  - Enhanced music player with state persistence
+  
+  All pages (home, about, contact, dashboard, impact center, etc.)
+  extend this file using Jinja template inheritance.
+#}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name ="csrf_token" content="{{csrf_token()}}">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if title %}{{ title }} - UCD GreenLife{% else %}UCD GreenLife{% endif %}</title>
+
+  <!-- External stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+
+  <style>
+/* Basic theme variables - dynamically updated */
+:root {
+    /* Primary colors */
+    --primary-color: #2e8b57;
+    --primary-dark: #1f6b41;
+    --primary-light: rgba(46, 139, 87, 0.1);
+    --secondary-color: #34495e;
+    --accent-color: #27ae60;
+    
+    /* Background colors */
+    --background-color: #f8f9fa;
+    --background-gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    --card-bg: #ffffff;
+    --card-bg-hover: #f8fff8;
+    
+    /* Text colors */
+    --text-color: #2c3e50;
+    --text-light: #7f8c8d;
+    --text-muted: #95a5a6;
+    --text-inverse: #ffffff;
+    
+    /* Borders and shadows */
+    --border-color: #e1e8ed;
+    --border-light: #f0f0f0;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 8px 15px rgba(0, 0, 0, 0.15);
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
+    
+    /* Status colors */
+    --success-color: #27ae60;
+    --error-color: #e74c3c;
+    --warning-color: #f39c12;
+    --info-color: #3498db;
+    
+    /* UI elements */
+    --border-radius: 12px;
+    --transition: all 0.3s ease;
+}
+
+/* Green theme (default) */
+[data-color-scheme="green"] {
+    --primary-color: #2e8b57;
+    --primary-dark: #1f6b41;
+    --primary-light: rgba(46, 139, 87, 0.1);
+    --accent-color: #27ae60;
+}
+
+/* Blue theme */
+[data-color-scheme="blue"] {
+    --primary-color: #2196F3;
+    --primary-dark: #1976D2;
+    --primary-light: rgba(33, 150, 243, 0.1);
+    --accent-color: #03A9F4;
+}
+
+/* Earth tone theme */
+[data-color-scheme="earth"] {
+    --primary-color: #8B4513;
+    --primary-dark: #654321;
+    --primary-light: rgba(139, 69, 19, 0.1);
+    --accent-color: #228B22;
+}
+
+/* ========== Dark mode basic settings ========== */
+
+/* Dark theme variables - basic version */
+[data-theme="dark"] {
+    /* Background colors - dark */
+    --background-color: #121212;
+    --background-gradient: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+    --card-bg: #1e1e1e;
+    --card-bg-hover: #252525;
+    
+    /* Text colors - light */
+    --text-color: #ecf0f1;
+    --text-light: #bdc3c7;
+    --text-muted: #7f8c8d;
+    --text-inverse: #121212;
+    
+    /* Borders and shadows */
+    --border-color: #404040;
+    --border-light: #2d2d2d;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --shadow-hover: 0 8px 15px rgba(0, 0, 0, 0.4);
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.2);
+    
+    /* Status colors slightly adjusted for dark background */
+    --success-color: #2ecc71;
+    --error-color: #e74c3c;
+    --warning-color: #f39c12;
+    --info-color: #3498db;
+}
+
+/* ========== Color schemes in dark mode ========== */
+
+/* Green theme in dark mode */
+[data-theme="dark"][data-color-scheme="green"] {
+    --primary-color: #4CAF50 !important;
+    --primary-dark: #2E8B57 !important;
+    --primary-light: rgba(76, 175, 80, 0.2) !important;
+    --accent-color: #81C784 !important;
+}
+
+/* Blue theme in dark mode */
+[data-theme="dark"][data-color-scheme="blue"] {
+    --primary-color: #4fc3f7 !important;
+    --primary-dark: #0288d1 !important;
+    --primary-light: rgba(79, 195, 247, 0.2) !important;
+    --accent-color: #03A9F4 !important;
+}
+
+/* Earth tone theme in dark mode */
+[data-theme="dark"][data-color-scheme="earth"] {
+    --primary-color: #a0522d !important;
+    --primary-dark: #8b4513 !important;
+    --primary-light: rgba(160, 82, 45, 0.2) !important;
+    --accent-color: #32cd32 !important;
+}
+
+/* ========== Auto theme settings ========== */
+
+/* Auto theme detection */
+@media (prefers-color-scheme: dark) {
+    [data-theme="auto"] {
+        --background-color: #121212;
+        --background-gradient: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
+        --card-bg: #1e1e1e;
+        --card-bg-hover: #252525;
+        --text-color: #ecf0f1;
+        --text-light: #bdc3c7;
+        --border-color: #404040;
+        --border-light: #2d2d2d;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        --shadow-hover: 0 8px 15px rgba(0, 0, 0, 0.4);
+        --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Green theme in auto mode */
+    [data-theme="auto"][data-color-scheme="green"] {
+        --primary-color: #4CAF50 !important;
+        --primary-dark: #2E8B57 !important;
+        --primary-light: rgba(76, 175, 80, 0.2) !important;
+        --accent-color: #81C784 !important;
+    }
+    
+    /* Blue theme in auto mode */
+    [data-theme="auto"][data-color-scheme="blue"] {
+        --primary-color: #4fc3f7 !important;
+        --primary-dark: #0288d1 !important;
+        --primary-light: rgba(79, 195, 247, 0.2) !important;
+        --accent-color: #03A9F4 !important;
+    }
+    
+    /* Earth tone theme in auto mode */
+    [data-theme="auto"][data-color-scheme="earth"] {
+        --primary-color: #a0522d !important;
+        --primary-dark: #8b4513 !important;
+        --primary-light: rgba(160, 82, 45, 0.2) !important;
+        --accent-color: #32cd32 !important;
+    }
+}
+
+/* General styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--background-gradient);
+    color: var(--text-color);
+    line-height: 1.6;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Navigation bar styles - using variables */
+.navbar {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.nav-left, .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.brand {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: var(--transition);
+}
+
+.brand:hover {
+    transform: translateY(-2px);
+}
+
+.navbar a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    position: relative;
+}
+
+.navbar a:not(.brand):not(.btn):hover {
+    color: var(--primary-color);
+    background-color: var(--primary-light);
+}
+
+.navbar a:not(.brand):not(.btn)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--primary-color);
+    transition: var(--transition);
+    transform: translateX(-50%);
+}
+
+.navbar a:not(.brand):not(.btn):hover::after {
+    width: 80%;
+}
+
+/* ============================================
+   Music Player Styles
+   ============================================ */
+
+/* Music Button in Navigation */
+.nav-music-btn {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    border-radius: 50px;
+    color: var(--primary-color);
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    margin-left: 0.5rem;
+    font-weight: 600;
+    min-width: 100px;
+    justify-content: center;
+}
+
+.nav-music-btn:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+}
+
+.nav-music-btn.playing {
+    background: var(--primary-color);
+    color: white;
+    animation: gentlePulse 3s infinite;
+}
+
+@keyframes gentlePulse {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(46, 139, 87, 0.4); 
+    }
+    50% { 
+        box-shadow: 0 0 0 6px rgba(46, 139, 87, 0); 
+    }
+}
+
+#music-status {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Volume Popup */
+.volume-popup {
+    position: fixed;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: var(--shadow);
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    width: 200px;
+    animation: fadeIn 0.2s ease;
+}
+
+.volume-popup.show {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.volume-slider {
+    width: 100%;
+    height: 8px;
+    background: var(--border-color);
+    border-radius: 4px;
+    outline: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    border: 3px solid white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+    background: var(--primary-dark);
+}
+
+.volume-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    min-width: 40px;
+    text-align: center;
+}
+
+/* Music Notification */
+.music-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: 250px;
+    animation: slideInUp 0.3s ease;
+}
+
+.music-notification.show {
+    display: flex;
+}
+
+.music-notification-content {
+    flex-grow: 1;
+}
+
+.music-notification-message {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.music-notification-close {
+    background: transparent;
+    border: none;
+    color: var(--text-light);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.music-notification-close:hover {
+    background: var(--primary-light);
+    color: var(--primary-color);
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Music Message (for simple alerts) */
+.music-message {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--info-color);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 9999;
+    font-size: 14px;
+    animation: fadeIn 0.3s ease;
+    max-width: 300px;
+}
+
+/* Dark Mode Support */
+[data-theme="dark"] .nav-music-btn {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+[data-theme="dark"] .nav-music-btn:hover {
+    background: rgba(var(--primary-rgb), 0.1);
+}
+
+[data-theme="dark"] .nav-music-btn.playing {
+    background: var(--primary-color);
+    color: white;
+}
+
+[data-theme="dark"] .volume-popup {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .music-notification {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+/* Button styles */
+.btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: var(--text-inverse) !important;
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+    border: none;
+    cursor: pointer;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+}
+
+/* Container styles */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: transparent;
+}
+
+/* Alert/Flash messages */
+.alert {
+    background: var(--card-bg);
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--accent-color);
+    animation: slideIn 0.3s ease;
+    color: var(--text-color);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Form styles */
+.invalid-feedback {
+    display: block;
+    color: var(--error-color);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+.is-invalid {
+    border-color: var(--error-color) !important;
+    padding-right: calc(1.5em + 0.75rem);
+    background-image: none;
+    position: relative;
+}
+
+.is-invalid::after {
+    content: "✕"; 
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--error-color);
+    font-size: 1em;
+    font-weight: bold;
+    width: 1.2em;
+    height: 1.2em;
+    text-align: center;
+    line-height: 1.2;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .nav-left, .nav-right {
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .brand {
+        font-size: 1.5rem;
+    }
+
+    .container {
+        padding: 1rem;
+    }
+
+    .navbar a {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+    
+    .nav-music-btn {
+        min-width: auto;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    #music-status {
+        display: none;
+    }
+    
+    .nav-music-btn .music-icon {
+        margin-right: 0;
+    }
+    
+    .volume-popup {
+        width: 180px;
+        right: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-left, .nav-right {
+        gap: 0.5rem;
+    }
+
+    .navbar a {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.85rem;
+    }
+
+    .btn {
+        padding: 0.6rem 1.2rem !important;
+    }
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Accessibility focus styles */
+a:focus, button:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* General color for all links */
+a {
+    color: var(--primary-color);
+}
+
+a:hover {
+    color: var(--accent-color);
+}
+</style>
+</head>
+
+<body data-theme="{{ session.get('theme', 'light') }}" 
+      data-color-scheme="{{ session.get('color_scheme', 'green') }}">
+
+  <nav class="navbar">
+    <div class="nav-left">
+      <!-- Brand / Home: safe endpoint check -->
+      <a class="brand"
+         href="{{ url_for('public.index') if has_endpoint('public.index')
+                                            else url_for('main.index') }}">
+        UCD GreenLife
+      </a>
+
+      <!-- Public navigation -->
+      <a href="{{ url_for('public.index') if has_endpoint('public.index')
+                                           else url_for('main.index') }}">
+        Home
+      </a>
+
+      <a href="{{ url_for('public.about') if has_endpoint('public.about')
+                                          else '#' }}">
+        About
+      </a>
+
+      <a href="{{ url_for('public.contact') if has_endpoint('public.contact')
+                                            else '#' }}">
+        Contact
+      </a>
+    </div>
+
+    <div class="nav-right">
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('main.dashboard') if has_endpoint('main.dashboard')
+                                             else '#' }}">
+          Dashboard
+        </a>
+
+        <a href="{{ url_for('main.impact_center') if has_endpoint('main.impact_center')
+                                                else '#' }}">
+          Impact Center
+        </a>
+
+        <a href="{{ url_for('main.settings') if has_endpoint('main.settings')
+                                             else '#' }}">
+            ⚙️ Settings
+        </a>
+
+        <a href="{{ url_for('auth.logout') if has_endpoint('auth.logout')
+                                          else '#' }}">
+          Logout
+        </a>
+
+        <button id="music-toggle" class="nav-music-btn" title="Toggle Background Music">
+            <span id="music-icon">🎵</span>
+            <span id="music-status">Off</span>
+        </button>
+
+      {% else %}
+        <a href="{{ url_for('auth.login') if has_endpoint('auth.login')
+                                         else '#' }}">
+          Login
+        </a>
+
+        <a class="btn" href="{{ url_for('auth.register') if has_endpoint('auth.register')
+                                                     else '#' }}">
+          Register
+        </a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <div class="container">
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Content block -->
+    {% block content %}{% endblock %}
+  </div>
+
+<script>
+// ============================================
+// Global Theme Manager 
+// ============================================
+
+(function() {
+    'use strict';
+    
+    console.log('🌐 Loading theme manager...');
+    
+    // Prevent duplicate loading
+    if (window.__themeManagerLoaded) {
+        console.log('⚠️ Theme manager already loaded');
+        return;
+    }
+    window.__themeManagerLoaded = true;
+    
+    // Cache frequently used elements
+    const body = document.body;
+    const root = document.documentElement;
+    
+    // Function to update CSS variables
+    function updateColorVariables(colorScheme) {
+        console.log('🎨 Updating CSS variables for:', colorScheme);
+        
+        // Remove the old variable
+        root.style.removeProperty('--primary-color');
+        root.style.removeProperty('--primary-light');
+        root.style.removeProperty('--primary-dark');
+        root.style.removeProperty('--primary-rgb');
+        
+        switch(colorScheme) {
+            case 'green':
+                root.style.setProperty('--primary-color', '#2E8B57');
+                root.style.setProperty('--primary-light', '#4CAF50');
+                root.style.setProperty('--primary-dark', '#267c4d');
+                root.style.setProperty('--primary-rgb', '46, 139, 87');
+                break;
+            case 'blue':
+                root.style.setProperty('--primary-color', '#2196F3');
+                root.style.setProperty('--primary-light', '#03A9F4');
+                root.style.setProperty('--primary-dark', '#0b7dda');
+                root.style.setProperty('--primary-rgb', '33, 150, 243');
+                break;
+            case 'earth':
+                root.style.setProperty('--primary-color', '#8B4513');
+                root.style.setProperty('--primary-light', '#228B22');
+                root.style.setProperty('--primary-dark', '#5D2906');
+                root.style.setProperty('--primary-rgb', '139, 69, 19');
+                break;
+            default:
+                // Default green
+                root.style.setProperty('--primary-color', '#2E8B57');
+                root.style.setProperty('--primary-light', '#4CAF50');
+                root.style.setProperty('--primary-dark', '#267c4d');
+                root.style.setProperty('--primary-rgb', '46, 139, 87');
+        }
+        
+        console.log('✅ CSS variables updated');
+    }
+    
+    // Core theme functions
+    function applyTheme(theme) {
+        const actualTheme = (theme === 'auto') 
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+            : theme;
+        
+        // Update data attributes
+        body.setAttribute('data-theme', actualTheme);
+        body.setAttribute('data-theme-mode', theme);
+        
+        // Save to localStorage
+        localStorage.setItem('theme', theme);
+        
+        console.log('🎨 Theme applied:', { theme, actualTheme });
+        return { theme, actualTheme };
+    }
+    
+    function applyColorScheme(colorScheme) {
+        body.setAttribute('data-color-scheme', colorScheme);
+        localStorage.setItem('color_scheme', colorScheme);
+        
+        // Update CSS variables
+        updateColorVariables(colorScheme);
+        
+        console.log('🎨 Color scheme applied:', colorScheme);
+        return colorScheme;
+    }
+    
+    // Listen for colour scheme changes from the settings page
+    window.addEventListener('colorSchemeChanged', function(event) {
+        if (event.detail && event.detail.colorScheme) {
+            console.log('📢 Received color scheme change event:', event.detail.colorScheme);
+            applyColorScheme(event.detail.colorScheme);
+        }
+    });
+    
+    // Monitor localStorage changes (synchronised across tabs)
+    window.addEventListener('storage', function(event) {
+        if (event.key === 'color_scheme' && event.newValue) {
+            console.log('📱 Storage event: color scheme changed to', event.newValue);
+            applyColorScheme(event.newValue);
+        }
+        
+        if (event.key === 'theme' && event.newValue) {
+            console.log('📱 Storage event: theme changed to', event.newValue);
+            applyTheme(event.newValue);
+        }
+    });
+    
+    // Initialize theme manager
+    function initializeThemeManager() {
+        console.log('🔄 Initializing theme manager...');
+        
+        // Load saved settings
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        const savedColorScheme = localStorage.getItem('color_scheme') || 'green';
+        
+        console.log('📊 Retrieved settings:', {
+            theme: savedTheme,
+            colorScheme: savedColorScheme
+        });
+        
+        // Apply settings
+        applyTheme(savedTheme);
+        applyColorScheme(savedColorScheme);
+        
+        console.log('✅ Theme manager initialized');
+    }
+    
+    // Expose API
+    window.ThemeManager = {
+        applyTheme: applyTheme,
+        applyColorScheme: applyColorScheme,
+        updateColorVariables: updateColorVariables, 
+        getCurrentSettings: function() {
+            return {
+                theme: localStorage.getItem('theme') || 'light',
+                colorScheme: localStorage.getItem('color_scheme') || 'green',
+                actualTheme: body.getAttribute('data-theme'),
+                mode: body.getAttribute('data-theme-mode')
+            };
+        }
+    };
+    
+    // Start theme manager
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initializeThemeManager, 10);
+        });
+    } else {
+        setTimeout(initializeThemeManager, 10);
+    }
+    
+})();
+
+// ============================================
+// Fixed Music Player with Proper Audio Handling
+// ============================================
+
+(function() {
+    'use strict';
+    
+    console.log('🎵 Loading Music Player...');
+    
+    // Prevent duplicate initialization
+    if (window.musicPlayerInitialized) {
+        console.log('🎵 Music player already initialized');
+        return;
+    }
+    window.musicPlayerInitialized = true;
+    
+    // Music Player Class
+    class MusicPlayer {
+        constructor() {
+            this.audio = null;
+            this.isPlaying = false;
+            this.volume = 0.3;
+            this.musicFile = '/static/music/forest_rain.mp3';
+            this.storageKey = 'ucd_music_player_state';
+            this.volumePopup = null;
+            this.userHasInteracted = false;
+            this.pendingPlayback = false;
+            this.audioLoaded = false;
+            
+            console.log('🎵 Creating MusicPlayer instance');
+            
+            // Initialize with delay to ensure DOM is ready
+            setTimeout(() => this.initialize(), 100);
+        }
+        
+        initialize() {
+            console.log('🎵 Initializing music player...');
+            
+            // Step 1: Load saved state from localStorage
+            this.loadState();
+            
+            // Step 2: Setup UI event listeners first (so user can interact)
+            this.setupUI();
+            
+            // Step 3: Update UI to reflect current state
+            this.updateUI();
+            
+            // Step 4: Setup user interaction detection
+            this.setupInteractionDetection();
+            
+            // Step 5: Load audio file
+            this.loadAudio();
+            
+            console.log('✅ Music player initialized');
+        }
+        
+        loadState() {
+            try {
+                const savedState = localStorage.getItem(this.storageKey);
+                if (savedState) {
+                    const state = JSON.parse(savedState);
+                    
+                    // Check if state is recent (within 24 hours)
+                    const now = Date.now();
+                    const savedTime = state.timestamp || 0;
+                    const maxAge = 24 * 60 * 60 * 1000;
+                    
+                    if (now - savedTime < maxAge) {
+                        this.isPlaying = state.isPlaying || false;
+                        this.volume = state.volume || 0.3;
+                        console.log('📂 Loaded saved state:', state);
+                        
+                        // If music should be playing
+                        if (this.isPlaying) {
+                            this.pendingPlayback = true;
+                            console.log('⏳ Playback scheduled (pending user interaction)');
+                        }
+                    }
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to load saved state:', error);
+            }
+        }
+        
+        saveState() {
+            const state = {
+                isPlaying: this.isPlaying,
+                volume: this.volume,
+                timestamp: Date.now()
+            };
+            
+            try {
+                localStorage.setItem(this.storageKey, JSON.stringify(state));
+                console.log('💾 Saved state:', state);
+            } catch (error) {
+                console.warn('⚠️ Failed to save state:', error);
+            }
+        }
+        
+        loadAudio() {
+            console.log('🔊 Loading audio file:', this.musicFile);
+            
+            // Create audio element
+            this.audio = new Audio();
+            this.audio.id = 'background-music-element';
+            this.audio.loop = true;
+            this.audio.preload = 'auto';
+            this.audio.volume = this.volume;
+            this.audio.style.display = 'none';
+            
+            // Set source
+            this.audio.src = this.musicFile;
+            
+            // Add to page body
+            document.body.appendChild(this.audio);
+            
+            // Setup audio event listeners
+            this.setupAudioEvents();
+            
+            // Preload audio
+            this.audio.load();
+        }
+        
+        setupAudioEvents() {
+            if (!this.audio) return;
+            
+            // When audio is loaded and ready
+            this.audio.addEventListener('canplaythrough', () => {
+                this.audioLoaded = true;
+                console.log('✅ Audio loaded and ready to play');
+                
+                // If we have pending playback and user has interacted, try to play
+                if (this.pendingPlayback && this.userHasInteracted) {
+                    console.log('🔄 Attempting pending playback after audio loaded');
+                    this.play();
+                }
+            });
+            
+            // Play event
+            this.audio.addEventListener('play', () => {
+                this.isPlaying = true;
+                this.pendingPlayback = false;
+                this.saveState();
+                this.updateUI();
+                console.log('▶️ Audio started playing');
+            });
+            
+            // Pause event
+            this.audio.addEventListener('pause', () => {
+                this.isPlaying = false;
+                this.saveState();
+                this.updateUI();
+                console.log('⏸️ Audio paused');
+            });
+            
+            // Error event
+            this.audio.addEventListener('error', (e) => {
+                console.error('❌ Audio error:', e, 'Source:', this.audio.src);
+                
+                // Try alternative paths or show error
+                this.showNotification('Unable to load music file. Check if file exists at: ' + this.musicFile, 'error');
+            });
+            
+            // When audio ends (for looping)
+            this.audio.addEventListener('ended', () => {
+                console.log('🔁 Audio ended, restarting...');
+                if (this.isPlaying) {
+                    this.audio.currentTime = 0;
+                    this.audio.play().catch(e => {
+                        console.log('⚠️ Auto-restart failed:', e.name);
+                    });
+                }
+            });
+        }
+        
+        setupInteractionDetection() {
+            // Mark that user has interacted with the page
+            const markInteraction = () => {
+                if (!this.userHasInteracted) {
+                    this.userHasInteracted = true;
+                    console.log('👆 User interaction detected');
+                    
+                    // If we have pending playback and audio is loaded, try to play
+                    if (this.pendingPlayback && this.audioLoaded) {
+                        console.log('🔄 Attempting playback after user interaction');
+                        setTimeout(() => this.play(), 100);
+                    }
+                }
+            };
+            
+            // Listen for user interactions
+            const interactionEvents = ['click', 'touchstart', 'keydown', 'mousedown'];
+            
+            interactionEvents.forEach(event => {
+                document.addEventListener(event, markInteraction, { 
+                    once: true,
+                    passive: true 
+                });
+            });
+            
+            // Also listen specifically for music button clicks
+            const musicButton = document.getElementById('music-toggle');
+            if (musicButton) {
+                musicButton.addEventListener('click', markInteraction);
+            }
+        }
+        
+        setupUI() {
+            const toggleButton = document.getElementById('music-toggle');
+            if (!toggleButton) {
+                console.log('❌ Music toggle button not found');
+                return;
+            }
+            
+            // Click to toggle play/pause
+            toggleButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.togglePlayback();
+            });
+            
+            // Right-click to show volume control
+            toggleButton.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                this.showVolumeControl(e.clientX, e.clientY);
+            });
+        }
+        
+        togglePlayback() {
+            console.log('🔄 Toggling playback, current state:', this.isPlaying);
+            
+            if (this.isPlaying) {
+                this.pause();
+            } else {
+                this.play();
+            }
+        }
+        
+        play() {
+            console.log('▶️ Attempting to play audio...');
+            
+            if (!this.audio) {
+                console.log('❌ Audio element not created yet');
+                this.loadAudio();
+                return;
+            }
+            
+            if (!this.audioLoaded) {
+                console.log('⏳ Audio not loaded yet, waiting...');
+                this.showNotification('Loading music file...', 'info');
+                
+                // Wait for audio to load
+                const checkLoaded = () => {
+                    if (this.audioLoaded) {
+                        this.executePlay();
+                    } else {
+                        setTimeout(checkLoaded, 100);
+                    }
+                };
+                checkLoaded();
+                return;
+            }
+            
+            this.executePlay();
+        }
+        
+        executePlay() {
+            console.log('▶️ Executing play command...');
+            
+            // Try to play
+            const playPromise = this.audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        console.log('✅ Play successful');
+                        // State will be updated by the play event
+                    })
+                    .catch(error => {
+                        console.warn('❌ Play failed:', error.name, error.message);
+                        
+                        if (error.name === 'NotAllowedError') {
+                            this.showNotification('Please click the music button again to start playback', 'info');
+                            
+                            // Update UI to reflect it's not playing
+                            this.isPlaying = false;
+                            this.pendingPlayback = true;
+                            this.updateUI();
+                            this.saveState();
+                        }
+                    });
+            }
+        }
+        
+        pause() {
+            console.log('⏸️ Pausing audio...');
+            
+            if (this.audio) {
+                this.audio.pause();
+                // State will be updated by the pause event
+            }
+        }
+        
+        setVolume(newVolume) {
+            const clampedVolume = Math.max(0, Math.min(1, newVolume));
+            this.volume = clampedVolume;
+            
+            if (this.audio) {
+                this.audio.volume = clampedVolume;
+            }
+            
+            this.saveState();
+            this.updateVolumeDisplay(clampedVolume);
+        }
+        
+        updateUI() {
+            const toggleButton = document.getElementById('music-toggle');
+            const statusElement = document.getElementById('music-status');
+            const iconElement = document.getElementById('music-icon');
+            
+            if (!toggleButton) return;
+            
+            if (this.isPlaying) {
+                // Playing state
+                toggleButton.classList.add('playing');
+                toggleButton.title = 'Click to pause | Right-click: volume control';
+                if (statusElement) statusElement.textContent = 'On';
+                if (iconElement) iconElement.textContent = '🎵';
+            } else {
+                // Not playing state
+                toggleButton.classList.remove('playing');
+                toggleButton.title = 'Click to play | Right-click: volume control';
+                
+                if (this.pendingPlayback) {
+                    // Waiting for user interaction
+                    if (statusElement) statusElement.textContent = 'Waiting';
+                    if (iconElement) iconElement.textContent = '🔇⏳';
+                    toggleButton.title = 'Click to play | Music will start after interaction';
+                } else {
+                    // Simply paused
+                    if (statusElement) statusElement.textContent = 'Off';
+                    if (iconElement) iconElement.textContent = '🔇';
+                }
+            }
+        }
+        
+        updateVolumeDisplay(volume) {
+            const volumeDisplay = document.querySelector('.volume-value');
+            if (volumeDisplay) {
+                volumeDisplay.textContent = `${Math.round(volume * 100)}%`;
+            }
+        }
+        
+        showVolumeControl(x, y) {
+            // Create or get volume control popup
+            let volumePopup = document.getElementById('volume-control-popup');
+            
+            if (!volumePopup) {
+                volumePopup = document.createElement('div');
+                volumePopup.id = 'volume-control-popup';
+                volumePopup.className = 'volume-popup';
+                volumePopup.innerHTML = `
+                    <div style="margin-bottom: 8px; font-weight: bold; color: var(--text-color);">
+                        Volume Control
+                    </div>
+                    <input type="range" class="volume-slider" 
+                           min="0" max="100" value="${this.volume * 100}"
+                           title="Adjust volume">
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <span class="volume-value">${Math.round(this.volume * 100)}%</span>
+                        <button class="close-volume-btn" style="background: none; border: none; cursor: pointer; color: var(--text-light);">
+                            ✕
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(volumePopup);
+                
+                // Slider input event
+                const slider = volumePopup.querySelector('.volume-slider');
+                slider.addEventListener('input', (e) => {
+                    const volume = parseInt(e.target.value) / 100;
+                    this.setVolume(volume);
+                });
+                
+                // Close button event
+                const closeButton = volumePopup.querySelector('.close-volume-btn');
+                closeButton.addEventListener('click', () => {
+                    volumePopup.classList.remove('show');
+                });
+            }
+            
+            // Position and show the popup
+            const rect = volumePopup.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            
+            let left = x - rect.width / 2;
+            if (left < 10) left = 10;
+            if (left + rect.width > viewportWidth) left = viewportWidth - rect.width - 10;
+            
+            volumePopup.style.left = `${left}px`;
+            volumePopup.style.top = `${y + 15}px`;
+            volumePopup.classList.add('show');
+            
+            // Click outside to close
+            setTimeout(() => {
+                const closeHandler = (clickEvent) => {
+                    if (!volumePopup.contains(clickEvent.target) && 
+                        clickEvent.target.id !== 'music-toggle') {
+                        volumePopup.classList.remove('show');
+                        document.removeEventListener('click', closeHandler);
+                    }
+                };
+                document.addEventListener('click', closeHandler);
+            }, 10);
+        }
+        
+        showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = 'music-notification';
+            notification.innerHTML = `
+                <div class="music-notification-content">
+                    <div class="music-notification-message">${message}</div>
+                </div>
+                <button class="music-notification-close">×</button>
+            `;
+            
+            // Style based on type
+            if (type === 'error') {
+                notification.style.borderLeft = '4px solid var(--error-color)';
+                notification.style.background = 'var(--card-bg)';
+            } else if (type === 'info') {
+                notification.style.borderLeft = '4px solid var(--info-color)';
+                notification.style.background = 'var(--card-bg)';
+            }
+            
+            document.body.appendChild(notification);
+            
+            // Show with animation
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            // Close button event
+            notification.querySelector('.music-notification-close').addEventListener('click', () => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            });
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode && notification.classList.contains('show')) {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.remove();
+                        }
+                    }, 300);
+                }
+            }, 3000);
+        }
+        
+        // Public method to check audio status
+        getAudioStatus() {
+            return {
+                audioElement: !!this.audio,
+                audioLoaded: this.audioLoaded,
+                isPlaying: this.isPlaying,
+                pendingPlayback: this.pendingPlayback,
+                userHasInteracted: this.userHasInteracted,
+                volume: this.volume,
+                src: this.audio ? this.audio.src : 'No audio element'
+            };
+        }
+    }
+    
+    // ============================================
+    // Main Initialization Function
+    // ============================================
+    
+    function initializeMusicPlayer() {
+        console.log('🚀 Starting music player initialization...');
+        
+        // Check if user is logged in (has music button)
+        const musicButton = document.getElementById('music-toggle');
+        if (!musicButton) {
+            console.log('👤 User not logged in, skipping music player');
+            return;
+        }
+        
+        try {
+            // Create music player instance
+            window.MusicPlayer = new MusicPlayer();
+            
+            // Save state before page unloads
+            window.addEventListener('beforeunload', () => {
+                if (window.MusicPlayer) {
+                    window.MusicPlayer.saveState();
+                }
+            });
+            
+            // Debug: expose player for testing
+            window.debugMusicPlayer = () => {
+                if (window.MusicPlayer) {
+                    console.log('🎵 Music Player Debug Info:', window.MusicPlayer.getAudioStatus());
+                }
+            };
+            
+            console.log('✅ Music player initialized. Type debugMusicPlayer() for status.');
+            
+        } catch (error) {
+            console.error('❌ Failed to initialize music player:', error);
+        }
+    }
+    
+    // ============================================
+    // Start Music Player
+    // ============================================
+    
+    // Wait for DOM to be fully loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeMusicPlayer);
+    } else {
+        setTimeout(initializeMusicPlayer, 100);
+    }
+    
+})();
+
+// ============================================
+// Global Theme Manager
+// ============================================
+
+(function() {
+    'use strict';
+    
+    console.log('🌐 Loading theme manager...');
+    
+    // Prevent duplicate loading
+    if (window.__themeManagerLoaded) {
+        console.log('⚠️ Theme manager already loaded');
+        return;
+    }
+    window.__themeManagerLoaded = true;
+    
+    // Cache frequently used elements
+    const body = document.body;
+    
+    // Core theme functions
+    function applyTheme(theme) {
+        const actualTheme = (theme === 'auto') 
+            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+            : theme;
+        
+        // Update data attributes
+        body.setAttribute('data-theme', actualTheme);
+        body.setAttribute('data-theme-mode', theme);
+        
+        // Save to localStorage
+        localStorage.setItem('theme', theme);
+        
+        console.log('🎨 Theme applied:', { theme, actualTheme });
+        return { theme, actualTheme };
+    }
+    
+    function applyColorScheme(colorScheme) {
+        body.setAttribute('data-color-scheme', colorScheme);
+        localStorage.setItem('color_scheme', colorScheme);
+        console.log('🎨 Color scheme applied:', colorScheme);
+        return colorScheme;
+    }
+    
+    // Initialize theme manager
+    function initializeThemeManager() {
+        console.log('🔄 Initializing theme manager...');
+        
+        // Load saved settings
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        const savedColorScheme = localStorage.getItem('color_scheme') || 'green';
+        
+        // Apply settings
+        applyTheme(savedTheme);
+        applyColorScheme(savedColorScheme);
+        
+        console.log('✅ Theme manager initialized');
+    }
+    
+    // Expose API
+    window.ThemeManager = {
+        applyTheme: applyTheme,
+        applyColorScheme: applyColorScheme,
+        getCurrentSettings: function() {
+            return {
+                theme: localStorage.getItem('theme') || 'light',
+                colorScheme: localStorage.getItem('color_scheme') || 'green',
+                actualTheme: body.getAttribute('data-theme'),
+                mode: body.getAttribute('data-theme-mode')
+            };
+        }
+    };
+    
+    // Start theme manager
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initializeThemeManager, 10);
+        });
+    } else {
+        setTimeout(initializeThemeManager, 10);
+    }
+    
+})();
+</script>
+
+</body>
+</html>

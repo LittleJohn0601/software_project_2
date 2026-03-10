@@ -1,0 +1,646 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+/* Add color scheme CSS variables */
+:root {
+    /* Default green scheme - will be overwritten by JavaScript */
+    --primary-color: #2E8B57;
+    --primary-light: #4CAF50;
+    --primary-dark: #267c4d;
+    --primary-gradient: linear-gradient(90deg, #2E8B57, #4CAF50);
+    --primary-color-rgb: 46, 139, 87;
+}
+
+/* Green scheme */
+[data-color-scheme="green"] {
+    --primary-color: #2E8B57;
+    --primary-light: #4CAF50;
+    --primary-dark: #267c4d;
+    --primary-gradient: linear-gradient(90deg, #2E8B57, #4CAF50);
+    --primary-color-rgb: 46, 139, 87;
+}
+
+/* Blue scheme */
+[data-color-scheme="blue"] {
+    --primary-color: #2196F3;
+    --primary-light: #03A9F4;
+    --primary-dark: #0b7dda;
+    --primary-gradient: linear-gradient(90deg, #2196F3, #03A9F4);
+    --primary-color-rgb: 33, 150, 243;
+}
+
+/* Earth tone scheme */
+[data-color-scheme="earth"] {
+    --primary-color: #8B4513;
+    --primary-light: #228B22;
+    --primary-dark: #5D2906;
+    --primary-gradient: linear-gradient(90deg, #8B4513, #228B22);
+    --primary-color-rgb: 139, 69, 19;
+}
+
+/* ============================================
+   Basic styles
+   ============================================ */
+#impact-data h1 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.impact-dashboard {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.impact-dashboard h2 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(var(--primary-color-rgb), 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(var(--primary-color-rgb), 0.2);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(var(--primary-color-rgb), 0.1);
+    background: rgba(var(--primary-color-rgb), 0.1);
+}
+
+.stat-card h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.stat-description {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.progress-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.progress-section h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.progress-bar-container {
+    background: #e0e0e0;
+    border-radius: 10px;
+    height: 30px;
+    overflow: hidden;
+    margin-top: 0.5rem;
+}
+
+.progress-fill {
+    background: var(--primary-gradient);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    transition: width 0.5s ease;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+    color: #666;
+}
+
+.error-state {
+    color: #dc3545;
+    text-align: center;
+    padding: 2rem;
+    background: #fff5f5;
+    border-radius: 8px;
+    border: 1px solid #f8d7da;
+}
+
+/* ============================================
+   Dark mode styles
+   ============================================ */
+
+/* Dark mode variables */
+[data-theme="dark"] {
+    --dark-bg-primary: #121212;
+    --dark-bg-secondary: #1a1a1a;
+    --dark-bg-card: #2d2d2d;
+    --dark-bg-stat: rgba(var(--primary-color-rgb), 0.1);
+    --dark-bg-progress: #333333;
+    --dark-text-primary: #ffffff;
+    --dark-text-secondary: #cccccc;
+    --dark-text-muted: #aaaaaa;
+    --dark-border: #333333;
+    --dark-border-green: rgba(var(--primary-color-rgb), 0.5);
+    --dark-primary: var(--primary-color);
+    --dark-progress-bg: #444444;
+    --dark-progress-fill: var(--primary-gradient);
+}
+
+/* Dark mode heading */
+[data-theme="dark"] h1 {
+    color: var(--primary-color);
+}
+
+/* Dark mode dashboard */
+[data-theme="dark"] .impact-dashboard {
+    background: var(--dark-bg-card);
+    border-color: var(--dark-border-green);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .impact-dashboard h2 {
+    color: var(--primary-color);
+}
+
+/* Dark mode stat card */
+[data-theme="dark"] .stat-card {
+    background: var(--dark-bg-stat);
+    border-color: var(--dark-border-green);
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .stat-card:hover {
+    background: rgba(var(--primary-color-rgb), 0.2);
+    box-shadow: 0 5px 15px rgba(var(--primary-color-rgb), 0.2);
+}
+
+[data-theme="dark"] .stat-card h3 {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .stat-value {
+    color: var(--primary-color);
+}
+
+[data-theme="dark"] .stat-description {
+    color: var(--dark-text-secondary);
+}
+
+/* Dark mode progress bar */
+[data-theme="dark"] .progress-section {
+    background: var(--dark-bg-progress);
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .progress-section h3 {
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .progress-bar-container {
+    background: var(--dark-progress-bg);
+}
+
+[data-theme="dark"] .progress-fill {
+    background: var(--dark-progress-fill);
+}
+
+/* Dark mode loading state */
+[data-theme="dark"] .loading-state {
+    background: var(--dark-bg-card);
+    border-color: var(--dark-border);
+    color: var(--dark-text-secondary);
+}
+
+/* Dark mode error state */
+[data-theme="dark"] .error-state {
+    background: #2a1e1e;
+    border-color: #5c3a3a;
+    color: #f8d7da;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .impact-dashboard {
+        padding: 1rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+}
+</style>
+
+<h1>🌍 Sustainability Impact Center</h1>
+
+<div id="impact-data" style="margin: 2rem 0;">
+    <div style="text-align: center; padding: 2rem; background: white; border-radius: 8px;">
+        <p>Loading real-time campus impact data...</p>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ============================================
+    // Color scheme management
+    // ============================================
+    
+    function applyColorScheme(colorScheme) {
+        const root = document.documentElement;
+        
+        // Set color scheme attribute
+        root.setAttribute('data-color-scheme', colorScheme);
+        
+        // Save to localStorage
+        localStorage.setItem('color_scheme', colorScheme);
+        
+        // Update color variables
+        updateColorVariables(colorScheme);
+        
+        // If data is already loaded, update color of dynamic content
+        updateDynamicContentColorScheme(colorScheme);
+    }
+    
+    function updateColorVariables(colorScheme) {
+        const root = document.documentElement;
+        
+        switch(colorScheme) {
+            case 'green':
+                root.style.setProperty('--primary-color', '#2E8B57');
+                root.style.setProperty('--primary-light', '#4CAF50');
+                root.style.setProperty('--primary-dark', '#267c4d');
+                root.style.setProperty('--primary-gradient', 'linear-gradient(90deg, #2E8B57, #4CAF50)');
+                root.style.setProperty('--primary-color-rgb', '46, 139, 87');
+                break;
+                
+            case 'blue':
+                root.style.setProperty('--primary-color', '#2196F3');
+                root.style.setProperty('--primary-light', '#03A9F4');
+                root.style.setProperty('--primary-dark', '#0b7dda');
+                root.style.setProperty('--primary-gradient', 'linear-gradient(90deg, #2196F3, #03A9F4)');
+                root.style.setProperty('--primary-color-rgb', '33, 150, 243');
+                break;
+                
+            case 'earth':
+                root.style.setProperty('--primary-color', '#8B4513');
+                root.style.setProperty('--primary-light', '#228B22');
+                root.style.setProperty('--primary-dark', '#5D2906');
+                root.style.setProperty('--primary-gradient', 'linear-gradient(90deg, #8B4513, #228B22)');
+                root.style.setProperty('--primary-color-rgb', '139, 69, 19');
+                break;
+        }
+    }
+    
+    // Update color scheme for dynamic content
+    function updateDynamicContentColorScheme(colorScheme) {
+        const impactData = document.getElementById('impact-data');
+        if (!impactData || impactData.querySelector('.impact-dashboard')) {
+            // If dynamic content is already loaded, reapply color scheme
+            updateDynamicElementColors(colorScheme);
+        }
+    }
+    
+    // Force update color of dynamically generated elements
+    function updateDynamicElementColors(colorScheme) {
+        const impactData = document.getElementById('impact-data');
+        if (impactData && impactData.querySelector('.impact-dashboard')) {
+            // Page title
+            const h1 = document.querySelector('h1');
+            if (h1) h1.style.color = getComputedStyle(document.documentElement).getPropertyValue('--primary-color');
+            
+            // Get current theme again
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            updateDynamicElementStyles(currentTheme);
+        }
+    }
+    
+    // ============================================
+    // Theme management - consistent with settings.html
+    // ============================================
+    
+    function applyTheme(theme) {
+        const root = document.documentElement;
+        
+        // Remove all theme attributes and reset
+        root.removeAttribute('data-theme');
+        root.removeAttribute('data-theme-mode');
+        
+        if (theme === 'auto') {
+            // Use system theme
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            root.setAttribute('data-theme', systemTheme);
+            root.setAttribute('data-theme-mode', 'auto');
+        } else {
+            // Use specified theme
+            root.setAttribute('data-theme', theme);
+            root.setAttribute('data-theme-mode', theme);
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('theme', theme);
+        
+        // If data is already loaded, update theme of dynamic content
+        updateDynamicElementStyles(theme === 'auto' ? 
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : 
+            theme
+        );
+    }
+    
+    // Update theme for dynamic content
+    function updateDynamicElementStyles(theme) {
+        const impactData = document.getElementById('impact-data');
+        if (!impactData || impactData.querySelector('.impact-dashboard')) {
+            // If dynamic content is already loaded, reapply theme classes
+            const dashboard = impactData.querySelector('.impact-dashboard');
+            if (dashboard) {
+                // Force update styles of dynamically generated elements
+                updateDynamicElementThemes(theme);
+            }
+        }
+    }
+    
+    // Force update styles of dynamically generated elements
+    function updateDynamicElementThemes(theme) {
+        if (theme === 'dark') {
+            // Ensure dynamically generated content has correct styles in dark mode
+            const impactData = document.getElementById('impact-data');
+            if (impactData) {
+                // Get RGB value of current color scheme
+                const rgb = getComputedStyle(document.documentElement).getPropertyValue('--primary-color-rgb') || '46, 139, 87';
+                const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color');
+                
+                // Update all dynamically generated cards
+                const statCards = impactData.querySelectorAll('.stat-card');
+                statCards.forEach(card => {
+                    card.style.backgroundColor = `rgba(${rgb}, 0.1)`;
+                    card.style.borderColor = `rgba(${rgb}, 0.5)`;
+                    card.style.color = '#ffffff';
+                    
+                    const h3 = card.querySelector('h3');
+                    if (h3) h3.style.color = '#ffffff';
+                    
+                    const statValue = card.querySelector('.stat-value');
+                    if (statValue) statValue.style.color = primaryColor;
+                    
+                    const statDesc = card.querySelector('.stat-description');
+                    if (statDesc) statDesc.style.color = '#cccccc';
+                });
+                
+                // Update dashboard main body
+                const dashboard = impactData.querySelector('.impact-dashboard');
+                if (dashboard) {
+                    dashboard.style.backgroundColor = '#2d2d2d';
+                    dashboard.style.borderColor = `rgba(${rgb}, 0.5)`;
+                    dashboard.style.color = '#ffffff';
+                    
+                    const h2 = dashboard.querySelector('h2');
+                    if (h2) h2.style.color = primaryColor;
+                }
+                
+                // Update progress bar section
+                const progressSection = impactData.querySelector('.progress-section');
+                if (progressSection) {
+                    progressSection.style.backgroundColor = '#333333';
+                    progressSection.style.color = '#ffffff';
+                    
+                    const h3 = progressSection.querySelector('h3');
+                    if (h3) h3.style.color = '#ffffff';
+                    
+                    const progressBar = progressSection.querySelector('.progress-bar-container');
+                    if (progressBar) progressBar.style.backgroundColor = '#444444';
+                }
+            }
+        } else {
+            // Reset to light mode styles
+            const impactData = document.getElementById('impact-data');
+            if (impactData) {
+                const statCards = impactData.querySelectorAll('.stat-card');
+                statCards.forEach(card => {
+                    card.style.backgroundColor = '';
+                    card.style.borderColor = '';
+                    card.style.color = '';
+                    
+                    const h3 = card.querySelector('h3');
+                    if (h3) h3.style.color = '';
+                    
+                    const statValue = card.querySelector('.stat-value');
+                    if (statValue) statValue.style.color = '';
+                    
+                    const statDesc = card.querySelector('.stat-description');
+                    if (statDesc) statDesc.style.color = '';
+                });
+                
+                const dashboard = impactData.querySelector('.impact-dashboard');
+                if (dashboard) {
+                    dashboard.style.backgroundColor = '';
+                    dashboard.style.borderColor = '';
+                    dashboard.style.color = '';
+                    
+                    const h2 = dashboard.querySelector('h2');
+                    if (h2) h2.style.color = '';
+                }
+                
+                const progressSection = impactData.querySelector('.progress-section');
+                if (progressSection) {
+                    progressSection.style.backgroundColor = '';
+                    progressSection.style.color = '';
+                    
+                    const h3 = progressSection.querySelector('h3');
+                    if (h3) h3.style.color = '';
+                    
+                    const progressBar = progressSection.querySelector('.progress-bar-container');
+                    if (progressBar) progressBar.style.backgroundColor = '';
+                }
+            }
+        }
+    }
+    
+    // Apply saved theme and color scheme when page loads
+    function loadSavedSettings() {
+        // 1. Load color scheme
+        const savedColorScheme = localStorage.getItem('color_scheme');
+        if (savedColorScheme) {
+            applyColorScheme(savedColorScheme);
+        } else {
+            applyColorScheme('green'); // Default green scheme
+        }
+        
+        // 2. Load theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else {
+            applyTheme('light');
+        }
+    }
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        const root = document.documentElement;
+        const currentMode = root.getAttribute('data-theme-mode');
+        
+        if (currentMode === 'auto') {
+            const newTheme = e.matches ? 'dark' : 'light';
+            root.setAttribute('data-theme', newTheme);
+            updateDynamicElementStyles(newTheme);
+        }
+    });
+    
+    // Listen for storage changes (cross-tab)
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'color_scheme') {
+            applyColorScheme(e.newValue);
+        }
+        if (e.key === 'theme') {
+            applyTheme(e.newValue);
+        }
+    });
+    
+    // Listen for messages from other pages
+    window.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'themeChanged') {
+            applyTheme(e.data.theme);
+            localStorage.setItem('theme', e.data.theme);
+        }
+        if (e.data && e.data.type === 'colorSchemeChanged') {
+            applyColorScheme(e.data.colorScheme);
+            localStorage.setItem('color_scheme', e.data.colorScheme);
+        }
+    });
+    
+    // Initial load settings
+    loadSavedSettings();
+    
+    // ============================================
+    // Load impact data
+    // ============================================
+    
+    // Create loading state
+    document.getElementById('impact-data').innerHTML = `
+        <div class="loading-state">
+            <p>Loading real-time campus impact data...</p>
+        </div>
+    `;
+    
+    // Fetch data
+    fetch('/api/impact/campus_live')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Build HTML
+            const html = `
+                <div class="impact-dashboard">
+                    <h2>🏫 UCD Campus Impact Dashboard</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>🌳 CO₂ Saved</h3>
+                            <p class="stat-value">${data.total_carbon_saved.toLocaleString()} kg</p>
+                            <p class="stat-description">Total carbon emissions prevented</p>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <h3>🌲 Trees Equivalent</h3>
+                            <p class="stat-value">${data.trees_equivalent.toLocaleString()}</p>
+                            <p class="stat-description">Mature trees needed to absorb this CO₂</p>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <h3>🎯 Progress to Goal</h3>
+                            <p class="stat-value">${data.campus_target_progress}%</p>
+                            <p class="stat-description">${data.active_participants} active participants</p>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-section">
+                        <h3>Campus Target Progress (50,000 kg CO₂)</h3>
+                        <div class="progress-bar-container">
+                            <div class="progress-fill" style="width: ${data.campus_target_progress}%">
+                                ${data.campus_target_progress}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('impact-data').innerHTML = html;
+            
+            // Ensure dynamically generated content applies correct theme and color scheme
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            if (currentTheme === 'dark') {
+                updateDynamicElementThemes('dark');
+            }
+            
+            // Ensure color variables are applied correctly
+            const currentColorScheme = document.documentElement.getAttribute('data-color-scheme') || 'green';
+            applyColorScheme(currentColorScheme);
+        })
+        .catch(error => {
+            console.error('Error loading impact data:', error);
+            document.getElementById('impact-data').innerHTML = `
+                <div class="error-state">
+                    <p>⚠️ Error loading impact data</p>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Please try again later or check your connection.</p>
+                </div>
+            `;
+        });
+    
+    // Listen for theme changes to update dynamic content
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'data-theme') {
+                const theme = document.documentElement.getAttribute('data-theme');
+                updateDynamicElementThemes(theme);
+            }
+            if (mutation.attributeName === 'data-color-scheme') {
+                const colorScheme = document.documentElement.getAttribute('data-color-scheme');
+                updateDynamicElementColors(colorScheme);
+            }
+        });
+    });
+    
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme', 'data-color-scheme']
+    });
+});
+</script>
+{% endblock %}

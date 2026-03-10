@@ -1,0 +1,95 @@
+2025-12-18 12:55:57,079 ERROR: Exception on /log_activity [POST] [in E:\web-application-project\flaskenv\Lib\site-packages\flask\app.py:875]
+Traceback (most recent call last):
+  File "E:\web-application-project\flaskenv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\web-application-project\flaskenv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\web-application-project\flaskenv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\web-application-project\flaskenv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\web-application-project\flaskenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\web-application-project\blogapp\routes\main.py", line 261, in log_activity
+    f"from IP: {client_ip}"
+                ^^^^^^^^^
+NameError: name 'client_ip' is not defined
+2025-12-18 12:56:17,964 ERROR: Exception on /log_activity [POST] [in E:\web-application-project\flaskenv\Lib\site-packages\flask\app.py:875]
+Traceback (most recent call last):
+  File "E:\web-application-project\flaskenv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\web-application-project\flaskenv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\web-application-project\flaskenv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\web-application-project\flaskenv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\web-application-project\flaskenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\web-application-project\blogapp\routes\main.py", line 261, in log_activity
+    f"from IP: {client_ip}"
+                ^^^^^^^^^
+NameError: name 'client_ip' is not defined
+2025-12-18 12:57:42,957 INFO: GreenLife app startup with encryption (loaded from .env) [in E:\web-application-project\blogapp\__init__.py:75]
+2025-12-18 12:57:42,958 INFO: Log file location: E:\web-application-project\blogapp\..\logs\greenlife.log [in E:\web-application-project\blogapp\__init__.py:76]
+2025-12-18 12:57:42,959 INFO: GreenLife app startup with encryption (loaded from .env) [in E:\web-application-project\blogapp\__init__.py:82]
+2025-12-18 13:01:20,739 INFO: User '00003333' logged out. [in E:\web-application-project\blogapp\routes\auth.py:113]
+2025-12-18 13:02:50,551 INFO: Email encryption cipher created successfully [in E:\web-application-project\blogapp\email_encryptor.py:80]
+2025-12-18 13:02:50,788 INFO: New user registered: 12345678 [in E:\web-application-project\blogapp\routes\auth.py:48]
+2025-12-18 13:03:06,017 INFO: User '12345678' logged in successfully. [in E:\web-application-project\blogapp\routes\auth.py:98]
+2025-12-18 13:07:51,128 INFO: User '12345678' logged out. [in E:\web-application-project\blogapp\routes\auth.py:113]
+2025-12-18 13:08:40,998 INFO: New user registered: 00001234 [in E:\web-application-project\blogapp\routes\auth.py:48]
+2025-12-18 13:08:50,801 INFO: User '00001234' logged in successfully. [in E:\web-application-project\blogapp\routes\auth.py:98]
+2025-12-18 13:12:14,346 INFO: User '00001234' logged out. [in E:\web-application-project\blogapp\routes\auth.py:113]
+2025-12-18 13:12:30,353 INFO: User '12345678' logged in successfully. [in E:\web-application-project\blogapp\routes\auth.py:98]
+2025-12-18 13:15:57,405 INFO: User '12345678' logged out. [in E:\web-application-project\blogapp\routes\auth.py:113]
+2025-12-18 13:16:12,510 INFO: User '00003333' logged in successfully. [in E:\web-application-project\blogapp\routes\auth.py:98]
+2025-12-18 13:18:02,187 INFO: 
+================================================================================ [in E:\web-application-project\blogapp\routes\main.py:1440]
+2025-12-18 13:18:02,191 INFO: === BAN Request Detailed Log === [in E:\web-application-project\blogapp\routes\main.py:1441]
+2025-12-18 13:18:02,192 INFO: Time: 2025-12-18 13:18:02.192822 [in E:\web-application-project\blogapp\routes\main.py:1442]
+2025-12-18 13:18:02,194 INFO: Request Path: /admin/users/14/ban [in E:\web-application-project\blogapp\routes\main.py:1443]
+2025-12-18 13:18:02,198 INFO: Request Method: POST [in E:\web-application-project\blogapp\routes\main.py:1444]
+2025-12-18 13:18:02,199 INFO: Content Type: multipart/form-data; boundary=----geckoformboundary97e750a0862f221afcfba6a45261fd88 [in E:\web-application-project\blogapp\routes\main.py:1445]
+2025-12-18 13:18:02,259 WARNING: Admin '00003333' banned user '12345678' (id=14) for 24 hours. Reason: I hate you [in E:\web-application-project\blogapp\routes\main.py:1533]
+2025-12-18 13:18:06,810 INFO: User '00003333' logged out. [in E:\web-application-project\blogapp\routes\auth.py:113]
+2025-12-18 13:18:20,452 WARNING: Banned user '12345678' attempted to log in. Reason=I hate you, until=2025-12-19 05:18:02.207667 [in E:\web-application-project\blogapp\routes\auth.py:87]
+2025-12-18 13:23:42,092 INFO: User '00003333' logged in successfully. [in E:\web-application-project\blogapp\routes\auth.py:98]
+2025-12-18 13:25:17,443 WARNING: Failed login attempt for username='00003333' [in E:\web-application-project\blogapp\routes\auth.py:103]
+2025-12-18 13:37:07,355 WARNING: Failed login attempt for username='23219832' [in E:\web-application-project\blogapp\routes\auth.py:103]
+2025-12-18 13:38:34,650 INFO: User '23372315' logged in successfully. [in E:\web-application-project\blogapp\routes\auth.py:98]
+2025-12-18 13:41:13,816 INFO: User '23372315' logged out. [in E:\web-application-project\blogapp\routes\auth.py:113]
+2025-12-18 13:41:28,886 INFO: User '00001234' logged in successfully. [in E:\web-application-project\blogapp\routes\auth.py:98]
+2025-12-18 13:43:29,769 INFO: User '00001234' logged out. [in E:\web-application-project\blogapp\routes\auth.py:113]
+2025-12-18 13:43:42,546 WARNING: Banned user '12345678' attempted to log in. Reason=I hate you, until=2025-12-19 05:18:02.207667 [in E:\web-application-project\blogapp\routes\auth.py:87]
+2025-12-18 13:44:01,852 INFO: User '23219832' logged in successfully. [in E:\web-application-project\blogapp\routes\auth.py:98]
+2025-12-18 13:45:49,017 INFO: User '23219832' logged out. [in E:\web-application-project\blogapp\routes\auth.py:113]
+2025-12-18 13:46:04,792 INFO: User '00001234' logged in successfully. [in E:\web-application-project\blogapp\routes\auth.py:98]
+2025-12-18 13:50:01,629 INFO: GreenLife app startup with encryption (loaded from .env) [in E:\web-application-project\blogapp\__init__.py:75]
+2025-12-18 13:50:01,630 INFO: Log file location: E:\web-application-project\blogapp\..\logs\greenlife.log [in E:\web-application-project\blogapp\__init__.py:76]
+2025-12-18 13:50:01,631 INFO: GreenLife app startup with encryption (loaded from .env) [in E:\web-application-project\blogapp\__init__.py:82]
+2025-12-18 13:51:37,211 INFO: Email encryption cipher created successfully [in E:\web-application-project\blogapp\email_encryptor.py:80]
+2025-12-18 13:54:03,933 INFO: GreenLife app startup with encryption (loaded from .env) [in E:\web-application-project\blogapp\__init__.py:75]
+2025-12-18 13:54:03,935 INFO: Log file location: E:\web-application-project\blogapp\..\logs\greenlife.log [in E:\web-application-project\blogapp\__init__.py:76]
+2025-12-18 13:54:03,935 INFO: GreenLife app startup with encryption (loaded from .env) [in E:\web-application-project\blogapp\__init__.py:82]
+2025-12-18 13:55:06,118 INFO: User '00001234' logged out. [in E:\web-application-project\blogapp\routes\auth.py:113]
+2025-12-18 13:55:29,478 INFO: User '23219832' logged in successfully. [in E:\web-application-project\blogapp\routes\auth.py:98]
+2025-12-18 14:05:32,470 INFO: GreenLife app startup with encryption (loaded from .env) [in E:\web-application-project\blogapp\__init__.py:75]
+2025-12-18 14:05:32,471 INFO: Log file location: E:\web-application-project\blogapp\..\logs\greenlife.log [in E:\web-application-project\blogapp\__init__.py:76]
+2025-12-18 14:05:32,473 INFO: GreenLife app startup with encryption (loaded from .env) [in E:\web-application-project\blogapp\__init__.py:82]
+2025-12-18 14:10:32,404 INFO: GreenLife app startup with encryption (loaded from .env) [in E:\web-application-project\blogapp\__init__.py:75]
+2025-12-18 14:10:32,405 INFO: Log file location: E:\web-application-project\blogapp\..\logs\greenlife.log [in E:\web-application-project\blogapp\__init__.py:76]
+2025-12-18 14:10:32,406 INFO: GreenLife app startup with encryption (loaded from .env) [in E:\web-application-project\blogapp\__init__.py:82]
+2025-12-18 14:48:34,287 INFO: GreenLife app startup with encryption (loaded from .env) [in E:\web-application-project\blogapp\__init__.py:75]
+2025-12-18 14:48:34,288 INFO: Log file location: E:\web-application-project\blogapp\..\logs\greenlife.log [in E:\web-application-project\blogapp\__init__.py:76]
+2025-12-18 14:48:34,289 INFO: GreenLife app startup with encryption (loaded from .env) [in E:\web-application-project\blogapp\__init__.py:82]

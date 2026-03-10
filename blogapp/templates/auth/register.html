@@ -1,0 +1,631 @@
+<!-- templates/auth/register.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+/* ============================================
+   Base Styles (Default Light Mode)
+   ============================================ */
+
+.register-container {
+    max-width: 400px;
+    margin: 0 auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.register-container h2 {
+    color: #2E8B57;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.register-container label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.register-container p {
+    text-align: center;
+    margin-top: 1rem;
+    color: #7f8c8d;
+    font-size: 0.95rem;
+}
+
+.register-container a {
+    color: #2E8B57;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.register-container a:hover {
+    color: #267c4d;
+    text-decoration: underline;
+}
+
+/* Form Fields */
+.form-field {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    color: #495057;
+}
+
+.form-field:focus {
+    outline: none;
+    border-color: #2E8B57;
+    box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+}
+
+.form-field.error {
+    border-color: #dc3545 !important;
+    background-color: #fff5f5;
+}
+
+.form-field:disabled {
+    background: #f8f9fa;
+    cursor: not-allowed;
+}
+
+/* Select Box */
+.register-container select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: white;
+    color: #495057;
+    cursor: pointer;
+}
+
+.register-container select:focus {
+    outline: none;
+    border-color: #2E8B57;
+    box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+}
+
+/* Button */
+.register-container button {
+    width: 100%;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, #2E8B57, #4CAF50);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+}
+
+.register-container button:hover {
+    background: linear-gradient(135deg, #267c4d, #3d8b40);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
+}
+
+.register-container button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Error Message */
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    min-height: 1.25rem;
+}
+
+.error-message:empty {
+    display: none;
+}
+
+/* ============================================
+   Dark Mode Styles - Using Our Theme System
+   ============================================ */
+
+/* Dark Mode Variables */
+[data-theme="dark"] {
+    --dark-bg-primary: #121212;
+    --dark-bg-secondary: #1a1a1a;
+    --dark-bg-card: #2d2d2d;
+    --dark-bg-input: #1a1a1a;
+    --dark-text-primary: #ffffff;
+    --dark-text-secondary: #cccccc;
+    --dark-text-muted: #aaaaaa;
+    --dark-text-green: #4CAF50;
+    --dark-border: #333333;
+    --dark-border-light: #404040;
+    --dark-border-green: #22543d;
+    --dark-primary: #4CAF50;
+    --dark-primary-hover: #45a049;
+    --dark-error: #ff6b6b;
+    --dark-success: #51cf66;
+    --dark-shadow: rgba(0, 0, 0, 0.3);
+    --dark-shadow-hover: rgba(0, 0, 0, 0.4);
+}
+
+/* Dark Mode Global */
+[data-theme="dark"] .register-container {
+    background: var(--dark-bg-card) !important;
+    border-color: var(--dark-border) !important;
+    box-shadow: 0 4px 20px var(--dark-shadow);
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .register-container h2 {
+    color: var(--dark-primary) !important;
+}
+
+[data-theme="dark"] .register-container label {
+    color: var(--dark-text-primary) !important;
+}
+
+[data-theme="dark"] .register-container p {
+    color: var(--dark-text-secondary) !important;
+}
+
+[data-theme="dark"] .register-container a {
+    color: var(--dark-primary) !important;
+}
+
+[data-theme="dark"] .register-container a:hover {
+    color: var(--dark-primary-hover) !important;
+}
+
+/* Dark Mode Form Fields */
+[data-theme="dark"] .form-field {
+    background: var(--dark-bg-input) !important;
+    border-color: var(--dark-border-light) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+[data-theme="dark"] .form-field:focus {
+    border-color: var(--dark-primary) !important;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    background: var(--dark-bg-input) !important;
+}
+
+[data-theme="dark"] .form-field.error {
+    border-color: var(--dark-error) !important;
+    background-color: #2a1e1e !important;
+}
+
+[data-theme="dark"] .form-field:disabled {
+    background: var(--dark-bg-secondary) !important;
+    color: var(--dark-text-muted) !important;
+}
+
+/* Dark Mode Placeholder */
+[data-theme="dark"] .form-field::placeholder {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Dark Mode Select Box */
+[data-theme="dark"] .register-container select {
+    background: var(--dark-bg-input) !important;
+    border-color: var(--dark-border-light) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+[data-theme="dark"] .register-container select:focus {
+    border-color: var(--dark-primary) !important;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+[data-theme="dark"] .register-container select option {
+    background: var(--dark-bg-card);
+    color: var(--dark-text-primary);
+}
+
+[data-theme="dark"] .register-container select option:checked {
+    background: var(--dark-primary);
+    color: white;
+}
+
+/* Dark Mode Button */
+[data-theme="dark"] .register-container button {
+    background: linear-gradient(135deg, var(--dark-primary), #4CAF50) !important;
+    color: white !important;
+}
+
+[data-theme="dark"] .register-container button:hover {
+    background: linear-gradient(135deg, var(--dark-primary-hover), #3d8b40) !important;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3) !important;
+}
+
+/* Dark Mode Error Message */
+[data-theme="dark"] .error-message {
+    color: var(--dark-error) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .register-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .register-container h2 {
+        font-size: 1.5rem;
+    }
+    
+    /* Dark Mode Mobile Adjustment */
+    [data-theme="dark"] .register-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+}
+</style>
+
+<div class="register-container">
+    <h2>Join UCD GreenLife</h2>
+    <form method="POST" novalidate onsubmit="return validateForm()">
+        {{ form.hidden_tag() }}
+        
+        <!-- username -->
+        <div style="margin: 1rem 0;">
+            <label for="username">Username:</label>
+            {{ form.username(
+                id="username",
+                class="form-field",
+                onblur="validateUsername()",
+                placeholder="Enter your 8-digit username"
+            ) }}
+            <div id="usernameError" class="error-message">
+                {% for error in form.username.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- email -->
+        <div style="margin: 1rem 0;">
+            <label for="email">Email:</label>
+            {{ form.email(
+                id="email",
+                class="form-field",
+                onblur="validateEmail()",
+                placeholder="example@ucd.ie"
+            ) }}
+            <div id="emailError" class="error-message">
+                {% for error in form.email.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- password -->
+        <div style="margin: 1rem 0;">
+            <label for="password">Password:</label>
+            {{ form.password(
+                id="password",
+                class="form-field",
+                onblur="validatePassword()",
+                placeholder="6-12 characters (letters, numbers, !, _)"
+            ) }}
+            <div id="passwordError" class="error-message">
+                {% for error in form.password.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- User Type -->
+        <div style="margin: 1rem 0;">
+            <label for="user_type">User Type:</label>
+            {{ form.user_type(
+                id="user_type",
+                class="form-field"
+            ) }}
+            <div class="error-message">
+                {% for error in form.user_type.errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        </div>
+        
+        <button type="submit">Register</button>
+    </form>
+    <p>
+        Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a>
+    </p>
+</div>
+
+<script>
+function validateUsernameFormat() {
+    const usernameInput = document.getElementById('username');
+    const errorDiv = document.getElementById('usernameError');
+    const username = usernameInput.value.trim();
+    
+    // Validate 8 digits
+    const usernameRegex = /^\d{8}$/;
+    
+    if (username && !usernameRegex.test(username)) {
+        errorDiv.textContent = 'Username must be 8 digits';
+        usernameInput.classList.add('error');
+        return false;
+    } else {
+        errorDiv.textContent = '';
+        usernameInput.classList.remove('error');
+        return true;
+    }
+}
+
+function validateUsername() {
+    return validateUsernameFormat();
+}
+
+function validatePassword() {
+    const passwordInput = document.getElementById('password');
+    const errorDiv = document.getElementById('passwordError');
+    const password = passwordInput.value;
+    
+    // Verify password length and characters
+    const passwordRegex = /^[a-zA-Z0-9!_]{6,12}$/;
+    
+    if (password && !passwordRegex.test(password)) {
+        errorDiv.textContent = 'Password must be 6-12 characters long and can only contain letters, numbers, !, and _';
+        passwordInput.classList.add('error');
+        return false;
+    } else {
+        errorDiv.textContent = '';
+        passwordInput.classList.remove('error');
+        return true;
+    }
+}
+
+function validateEmail() {
+    const emailInput = document.getElementById('email');
+    const errorDiv = document.getElementById('emailError');
+    const email = emailInput.value.trim();
+    
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    
+    if (email && !emailRegex.test(email)) {
+        errorDiv.textContent = 'Please enter a valid email address';
+        emailInput.classList.add('error');
+        return false;
+    } else {
+        errorDiv.textContent = '';
+        emailInput.classList.remove('error');
+        return true;
+    }
+}
+
+function validateForm() {
+    const isUsernameValid = validateUsername();
+    const isPasswordValid = validatePassword();
+    const isEmailValid = validateEmail();
+    return isUsernameValid && isPasswordValid && isEmailValid;
+}
+
+// ============================================
+// Theme Management - Keep Consistent with settings.html
+// ============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize form validation
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const emailInput = document.getElementById('email');
+    const usernameError = document.getElementById('usernameError');
+    const passwordError = document.getElementById('passwordError');
+    const emailError = document.getElementById('emailError');
+    
+    // Add error style if WTForms already has errors
+    if (usernameError && usernameError.textContent.trim() !== '') {
+        usernameInput.classList.add('error');
+    }
+    if (passwordError && passwordError.textContent.trim() !== '') {
+        passwordInput.classList.add('error');
+    }
+    if (emailError && emailError.textContent.trim() !== '') {
+        emailInput.classList.add('error');
+    }
+    
+    // Theme management function
+    function applyTheme(theme) {
+        const root = document.documentElement;
+        
+        // Remove all theme attributes and reset
+        root.removeAttribute('data-theme');
+        root.removeAttribute('data-theme-mode');
+        
+        if (theme === 'auto') {
+            // Use system theme
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            root.setAttribute('data-theme', systemTheme);
+            root.setAttribute('data-theme-mode', 'auto');
+        } else {
+            // Use specified theme
+            root.setAttribute('data-theme', theme);
+            root.setAttribute('data-theme-mode', theme);
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('theme', theme);
+        
+        // Update registration page styles
+        updateRegisterForTheme(theme === 'auto' ? 
+            (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : 
+            theme
+        );
+    }
+    
+    // Update registration page visual state
+    function updateRegisterForTheme(theme) {
+        const registerContainer = document.querySelector('.register-container');
+        const formFields = document.querySelectorAll('.form-field');
+        const labels = document.querySelectorAll('label');
+        const button = document.querySelector('button');
+        const links = document.querySelectorAll('a');
+        const paragraph = document.querySelector('.register-container p');
+        const heading = document.querySelector('.register-container h2');
+        
+        if (theme === 'dark') {
+            // Dark mode: force style update
+            if (registerContainer) {
+                registerContainer.style.backgroundColor = '#2d2d2d';
+                registerContainer.style.borderColor = '#333333';
+                registerContainer.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.3)';
+                registerContainer.style.color = '#ffffff';
+            }
+            
+            formFields.forEach(field => {
+                field.style.backgroundColor = '#1a1a1a';
+                field.style.borderColor = '#404040';
+                field.style.color = '#ffffff';
+                
+                // Check if error state already exists
+                if (field.classList.contains('error')) {
+                    field.style.borderColor = '#ff6b6b';
+                    field.style.backgroundColor = '#2a1e1e';
+                }
+            });
+            
+            labels.forEach(label => {
+                label.style.color = '#ffffff';
+            });
+            
+            if (button) {
+                button.style.background = 'linear-gradient(135deg, #4CAF50, #4CAF50)';
+                button.style.color = 'white';
+            }
+            
+            if (heading) {
+                heading.style.color = '#4CAF50';
+            }
+            
+            if (paragraph) {
+                paragraph.style.color = '#cccccc';
+            }
+            
+            links.forEach(link => {
+                link.style.color = '#4CAF50';
+            });
+            
+        } else {
+            // Light mode: reset styles
+            if (registerContainer) {
+                registerContainer.style.backgroundColor = '';
+                registerContainer.style.borderColor = '';
+                registerContainer.style.boxShadow = '';
+                registerContainer.style.color = '';
+            }
+            
+            formFields.forEach(field => {
+                field.style.backgroundColor = '';
+                field.style.borderColor = '';
+                field.style.color = '';
+            });
+            
+            labels.forEach(label => {
+                label.style.color = '';
+            });
+            
+            if (button) {
+                button.style.background = '';
+                button.style.color = '';
+            }
+            
+            if (heading) {
+                heading.style.color = '';
+            }
+            
+            if (paragraph) {
+                paragraph.style.color = '';
+            }
+            
+            links.forEach(link => {
+                link.style.color = '';
+            });
+        }
+    }
+    
+    // Apply saved theme when page loads
+    function loadSavedTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else {
+            applyTheme('light');
+        }
+    }
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+        const root = document.documentElement;
+        const currentMode = root.getAttribute('data-theme-mode');
+        
+        if (currentMode === 'auto') {
+            const newTheme = e.matches ? 'dark' : 'light';
+            root.setAttribute('data-theme', newTheme);
+            updateRegisterForTheme(newTheme);
+        }
+    });
+    
+    // Listen for storage changes
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'theme') {
+            applyTheme(e.newValue);
+        }
+    });
+    
+    // Listen for messages from other pages
+    window.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'themeChanged') {
+            applyTheme(e.data.theme);
+            localStorage.setItem('theme', e.data.theme);
+        }
+    });
+    
+    // Initial theme load
+    loadSavedTheme();
+    
+    // Delayed update to ensure DOM is fully loaded
+    setTimeout(() => {
+        const root = document.documentElement;
+        const currentTheme = root.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            updateRegisterForTheme('dark');
+        }
+    }, 100);
+    
+    // Listen for theme changes (if other scripts modify the theme)
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'data-theme') {
+                const theme = document.documentElement.getAttribute('data-theme');
+                updateRegisterForTheme(theme);
+            }
+        });
+    });
+    
+    // Start observing changes to the document element
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+    });
+});
+</script>
+{% endblock %}

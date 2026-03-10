@@ -1,0 +1,75 @@
+2025-12-09 14:20:25,456 INFO: GreenLife app startup - Logging initialized [in E:\web-application-project\blogapp\__init__.py:84]
+2025-12-09 14:20:25,573 INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000 [in E:\web-application-project\flaskenv\Lib\site-packages\werkzeug\_internal.py:97]
+2025-12-09 14:20:25,574 INFO: [33mPress CTRL+C to quit[0m [in E:\web-application-project\flaskenv\Lib\site-packages\werkzeug\_internal.py:97]
+2025-12-09 14:20:59,655 INFO: GreenLife app startup - Logging initialized [in E:\web-application-project\blogapp\__init__.py:84]
+2025-12-09 14:20:59,749 INFO: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000 [in E:\web-application-project\flaskenv\Lib\site-packages\werkzeug\_internal.py:97]
+2025-12-09 14:20:59,758 INFO: [33mPress CTRL+C to quit[0m [in E:\web-application-project\flaskenv\Lib\site-packages\werkzeug\_internal.py:97]
+2025-12-09 14:22:10,637 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 14:30:33,502 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 14:36:00,558 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 14:44:22,205 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 14:50:22,401 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 15:00:01,809 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 15:00:45,702 INFO: User '00001111' logged out. [in E:\web-application-project\blogapp\routes\auth.py:118]
+2025-12-09 15:05:04,218 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 15:06:37,518 INFO: User '00001111' logged in successfully. [in E:\web-application-project\blogapp\routes\auth.py:103]
+2025-12-09 15:12:52,347 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 15:22:01,161 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 15:51:50,773 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 15:52:34,032 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 15:54:03,088 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 16:45:25,009 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 16:45:35,362 ERROR: Exception on /events/5 [DELETE] [in E:\web-application-project\flaskenv\Lib\site-packages\flask\app.py:875]
+Traceback (most recent call last):
+  File "E:\web-application-project\blogapp\routes\main.py", line 679, in api_delete_event
+    return jsonify({
+           ^^^^^^^
+NameError: name 'jsonify' is not defined
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "E:\web-application-project\flaskenv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\web-application-project\flaskenv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\web-application-project\flaskenv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\web-application-project\flaskenv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\web-application-project\flaskenv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\web-application-project\blogapp\routes\main.py", line 687, in api_delete_event
+    return jsonify({'success': False, 'message': 'Error deleting event'}), 500
+           ^^^^^^^
+NameError: name 'jsonify' is not defined
+2025-12-09 16:46:57,204 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 17:04:26,736 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 17:15:53,308 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 17:25:01,945 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 17:46:54,723 INFO: Admin '00001111' changed role of user '23219646' from student to teacher [in E:\web-application-project\blogapp\routes\main.py:857]
+2025-12-09 17:47:02,878 INFO: Admin '00001111' changed role of user '23219646' from teacher to student [in E:\web-application-project\blogapp\routes\main.py:857]
+2025-12-09 18:06:30,033 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 18:07:16,286 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 18:29:32,818 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 18:32:05,257 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 18:36:20,179 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 18:46:15,163 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 18:47:19,749 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 18:48:19,767 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 19:13:22,618 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 19:13:45,684 INFO: AJAX: Admin '00001111' unbanned user '23219646'. [in E:\web-application-project\blogapp\routes\main.py:1002]
+2025-12-09 19:15:55,487 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
+2025-12-09 19:16:58,306 ERROR: Error in api_admin_ban_user: module 'datetime' has no attribute 'utcnow' [in E:\web-application-project\blogapp\routes\main.py:961]
+2025-12-09 19:17:25,111 ERROR: Error in api_admin_ban_user: module 'datetime' has no attribute 'utcnow' [in E:\web-application-project\blogapp\routes\main.py:961]
+2025-12-09 19:17:29,908 ERROR: Error in api_admin_ban_user: module 'datetime' has no attribute 'utcnow' [in E:\web-application-project\blogapp\routes\main.py:961]
+2025-12-09 19:17:41,219 ERROR: Error in api_admin_ban_user: module 'datetime' has no attribute 'utcnow' [in E:\web-application-project\blogapp\routes\main.py:961]
+2025-12-09 19:17:44,838 ERROR: Error in api_admin_ban_user: module 'datetime' has no attribute 'utcnow' [in E:\web-application-project\blogapp\routes\main.py:961]
+2025-12-09 19:20:26,431 INFO: GreenLife app startup [in E:\web-application-project\blogapp\__init__.py:127]
