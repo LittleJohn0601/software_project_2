@@ -1,94 +1,184 @@
-{% extends "base.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf_token" content="{{ csrf_token() }}">
+    <title>Login - PeakShift</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row min-vh-100">
+            <!-- Left Content Section - Characters -->
+            <div class="col-lg-6 d-none d-lg-flex flex-column justify-content-between left-section">
+                <!-- Logo -->
+                <div class="logo-container">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="logo-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                        <span class="logo-text">PeakShift</span>
+                    </div>
+                </div>
 
-<style>
-/* Override inline styles for dark mode using CSS variables */
-[data-theme="dark"] .login-container,
-[data-theme="dark"] .login-container h2,
-[data-theme="dark"] .login-container label,
-[data-theme="dark"] .login-container p,
-[data-theme="dark"] .login-container a,
-[data-theme="dark"] .login-container input {
-    /* Force use of CSS variables instead of hardcoded colors */
-    background: var(--card-bg) !important;
-    color: var(--text-color) !important;
-    border-color: var(--border-color) !important;
-}
+                <!-- Characters Container -->
+                <div class="characters-wrapper">
+                    <div class="characters-container">
+                        <!-- Purple Character - Back layer -->
+                        <div class="character character-purple" id="purpleChar">
+                            <div class="eyes" id="purpleEyes">
+                                <div class="eyeball" id="purpleEye1">
+                                    <div class="pupil" id="purplePupil1"></div>
+                                </div>
+                                <div class="eyeball" id="purpleEye2">
+                                    <div class="pupil" id="purplePupil2"></div>
+                                </div>
+                            </div>
+                        </div>
 
-/* Auto theme in dark mode */
-@media (prefers-color-scheme: dark) {
-    [data-theme="auto"] .login-container,
-    [data-theme="auto"] .login-container h2,
-    [data-theme="auto"] .login-container label,
-    [data-theme="auto"] .login-container p,
-    [data-theme="auto"] .login-container a,
-    [data-theme="auto"] .login-container input {
-        background: var(--card-bg) !important;
-        color: var(--text-color) !important;
-        border-color: var(--border-color) !important;
-    }
-}
+                        <!-- Black Character - Middle layer -->
+                        <div class="character character-black" id="blackChar">
+                            <div class="eyes" id="blackEyes">
+                                <div class="eyeball" id="blackEye1">
+                                    <div class="pupil" id="blackPupil1"></div>
+                                </div>
+                                <div class="eyeball" id="blackEye2">
+                                    <div class="pupil" id="blackPupil2"></div>
+                                </div>
+                            </div>
+                        </div>
 
-/* Specific fixes for inputs in dark mode */
-[data-theme="dark"] .login-container input::placeholder {
-    color: var(--text-muted) !important;
-}
+                        <!-- Orange Character - Front left -->
+                        <div class="character character-orange" id="orangeChar">
+                            <div class="eyes-simple" id="orangeEyes">
+                                <div class="pupil-simple" id="orangePupil1"></div>
+                                <div class="pupil-simple" id="orangePupil2"></div>
+                            </div>
+                        </div>
 
-[data-theme="dark"] .login-container input:focus {
-    border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 3px var(--primary-light) !important;
-}
+                        <!-- Yellow Character - Front right -->
+                        <div class="character character-yellow" id="yellowChar">
+                            <div class="eyes-simple" id="yellowEyes">
+                                <div class="pupil-simple" id="yellowPupil1"></div>
+                                <div class="pupil-simple" id="yellowPupil2"></div>
+                            </div>
+                            <div class="mouth" id="yellowMouth"></div>
+                        </div>
+                    </div>
+                </div>
 
-/* Fix for links */
-[data-theme="dark"] .login-container a {
-    color: var(--primary-color) !important;
-}
+                <!-- Decorative elements -->
+                <div class="decorative-grid"></div>
+                <div class="decorative-blur decorative-blur-1"></div>
+                <div class="decorative-blur decorative-blur-2"></div>
+            </div>
 
-[data-theme="dark"] .login-container a:hover {
-    color: var(--accent-color) !important;
-}
-</style>
+            <!-- Right Login Section -->
+            <div class="col-lg-6 d-flex align-items-center justify-content-center right-section">
+                <div class="login-container">
+                    <!-- Mobile Logo -->
+                    <div class="d-lg-none text-center mb-5">
+                        <div class="d-inline-flex align-items-center gap-2">
+                            <div class="logo-icon-mobile">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </div>
+                            <span class="logo-text-mobile">PeakShift</span>
+                        </div>
+                    </div>
 
-<div class="login-container" style="max-width: 400px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px;">
-    <h2 style="color: #000000;">Login to UCD GreenLife</h2>
-    <form method="POST">
-        {{ form.hidden_tag() }} 
-        <div style="margin: 1rem 0;">
-            <label style="display: block; margin-bottom: 0.5rem; color: #000000;">Username:</label>
-            <input type="text" name="username" required style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; color: #000000;">
+                    <!-- Header -->
+                    <div class="text-center mb-4">
+                        <h1 class="login-title">Welcome back!</h1>
+                        <p class="login-subtitle">Please enter your details</p>
+                    </div>
+
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <!-- Login Form -->
+                    <form id="loginForm" action="{{ url_for('auth.login') }}" method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input 
+                                type="text" 
+                                class="form-control form-control-lg" 
+                                id="username" 
+                                name="username"
+                                placeholder="Enter your username" 
+                                required
+                                autocomplete="username">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="position-relative">
+                                <input 
+                                    type="password" 
+                                    class="form-control form-control-lg" 
+                                    id="password" 
+                                    name="password"
+                                    placeholder="••••••••" 
+                                    required
+                                    autocomplete="current-password">
+                                <button 
+                                    type="button" 
+                                    class="btn-toggle-password" 
+                                    id="togglePassword"
+                                    aria-label="Toggle password visibility">
+                                    <svg class="icon-eye" id="iconEye" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    <svg class="icon-eye-off d-none" id="iconEyeOff" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mb-3" id="loginBtn">
+                            Log in
+                        </button>
+                    </form>
+
+                    <!-- Sign Up Link -->
+                    <div class="text-center signup-link">
+                        Don't have an account? 
+                        <a href="{{ url_for('auth.register') }}" class="signup-link-text">Sign Up</a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div style="margin: 1rem 0;">
-            <label style="display: block; margin-bottom: 0.5rem; color: #000000;">Password:</label>
-            <input type="password" name="password" required style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; color: #000000;">
-        </div>
-        <button type="submit" style="width: 100%; padding: 0.75rem; background: #2E8B57; color: white; border: none; border-radius: 4px; cursor: pointer;">
-            Login
-        </button>
-    </form>
-    <p style="text-align: center; margin-top: 1rem; color: #000000;">
-        Don't have an account? <a href="{{ url_for('auth.register') }}" style="color: #2E8B57;">Register here</a>
-    </p>
-</div>
+    </div>
 
-<script>
-// Apply theme to login page
-document.addEventListener('DOMContentLoaded', function() {
-    // Get theme from localStorage or default
-    const theme = localStorage.getItem('theme') || 'light';
-    const colorScheme = localStorage.getItem('color_scheme') || 'green';
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    // Apply theme
-    let actualTheme = theme;
-    if (theme === 'auto') {
-        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-    
-    document.body.setAttribute('data-theme', actualTheme);
-    document.body.setAttribute('data-theme-mode', theme);
-    document.body.setAttribute('data-color-scheme', colorScheme);
-    
-    console.log('Login page theme:', actualTheme);
-});
-</script>
-
-{% endblock %}
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+</body>
+</html>
