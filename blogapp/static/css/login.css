@@ -1,0 +1,368 @@
+/* ===== Global Styles ===== */
+:root {
+    --primary-color: #6366f1;
+    --primary-dark: #4f46e5;
+    --text-dark: #1f2937;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
+    --bg-light: #f9fafb;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    overflow-x: hidden;
+}
+
+/* ===== Left Section - Characters ===== */
+.left-section {
+    position: relative;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.9) 0%, #6366f1 50%, rgba(99, 102, 241, 0.8) 100%);
+    color: white;
+    padding: 3rem;
+    overflow: hidden;
+}
+
+.logo-container {
+    position: relative;
+    z-index: 20;
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-text {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+/* ===== Characters Container ===== */
+.characters-wrapper {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 500px;
+}
+
+.characters-container {
+    position: relative;
+    width: 550px;
+    height: 400px;
+}
+
+/* ===== Character Base Styles ===== */
+.character {
+    position: absolute;
+    bottom: 0;
+    transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: bottom center;
+}
+
+/* Purple Character */
+.character-purple {
+    left: 70px;
+    width: 180px;
+    height: 400px;
+    background-color: #6C3FF5;
+    border-radius: 10px 10px 0 0;
+    z-index: 1;
+}
+
+.character-purple.typing,
+.character-purple.password-hidden {
+    height: 440px;
+}
+
+/* Black Character */
+.character-black {
+    left: 240px;
+    width: 120px;
+    height: 310px;
+    background-color: #2D2D2D;
+    border-radius: 8px 8px 0 0;
+    z-index: 2;
+}
+
+/* Orange Character */
+.character-orange {
+    left: 0;
+    width: 240px;
+    height: 200px;
+    background-color: #FF9B6B;
+    border-radius: 120px 120px 0 0;
+    z-index: 3;
+}
+
+/* Yellow Character */
+.character-yellow {
+    left: 310px;
+    width: 140px;
+    height: 230px;
+    background-color: #E8D754;
+    border-radius: 70px 70px 0 0;
+    z-index: 4;
+}
+
+/* ===== Eyes Styles ===== */
+.eyes {
+    position: absolute;
+    display: flex;
+    gap: 32px;
+    transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#purpleEyes {
+    left: 45px;
+    top: 40px;
+}
+
+#blackEyes {
+    left: 26px;
+    top: 32px;
+    gap: 24px;
+}
+
+.eyeball {
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: all 0.15s ease-out;
+}
+
+#purpleEye1, #purpleEye2 {
+    width: 18px;
+    height: 18px;
+}
+
+#blackEye1, #blackEye2 {
+    width: 16px;
+    height: 16px;
+}
+
+.eyeball.blinking {
+    height: 2px !important;
+}
+
+.pupil {
+    background-color: #2D2D2D;
+    border-radius: 50%;
+    transition: transform 0.1s ease-out;
+}
+
+#purplePupil1, #purplePupil2 {
+    width: 7px;
+    height: 7px;
+}
+
+#blackPupil1, #blackPupil2 {
+    width: 6px;
+    height: 6px;
+}
+
+/* ===== Simple Eyes (Orange & Yellow) ===== */
+.eyes-simple {
+    position: absolute;
+    display: flex;
+    gap: 32px;
+    transition: all 0.2s ease-out;
+}
+
+#orangeEyes {
+    left: 82px;
+    top: 90px;
+}
+
+#yellowEyes {
+    left: 52px;
+    top: 40px;
+    gap: 24px;
+}
+
+.pupil-simple {
+    width: 12px;
+    height: 12px;
+    background-color: #2D2D2D;
+    border-radius: 50%;
+    transition: transform 0.1s ease-out;
+}
+
+/* ===== Yellow Mouth ===== */
+.mouth {
+    position: absolute;
+    width: 80px;
+    height: 4px;
+    background-color: #2D2D2D;
+    border-radius: 2px;
+    transition: all 0.2s ease-out;
+}
+
+#yellowMouth {
+    left: 40px;
+    top: 88px;
+}
+
+/* ===== Decorative Elements ===== */
+.decorative-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    z-index: 1;
+}
+
+.decorative-blur {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: 1;
+}
+
+.decorative-blur-1 {
+    top: 25%;
+    right: 25%;
+    width: 256px;
+    height: 256px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.decorative-blur-2 {
+    bottom: 25%;
+    left: 25%;
+    width: 384px;
+    height: 384px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* ===== Right Section - Login Form ===== */
+.right-section {
+    background-color: white;
+    padding: 2rem;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+.logo-icon-mobile {
+    width: 32px;
+    height: 32px;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-icon-mobile svg {
+    stroke: var(--primary-color);
+}
+
+.logo-text-mobile {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.login-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.login-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 0;
+}
+
+/* ===== Form Styles ===== */
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    height: 48px;
+    background-color: white;
+    border: 1px solid rgba(229, 231, 235, 0.6);
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.1);
+}
+
+.btn-toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.btn-toggle-password:hover {
+    color: var(--text-dark);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    font-size: 1rem;
+    font-weight: 500;
+    height: 48px;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.signup-link {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 2rem;
+}
+
+.signup-link-text {
+    color: var(--text-dark);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.signup-link-text:hover {
+    text-decoration: underline;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 991.98px) {
+    .right-section {
+        min-height: 100vh;
+    }
+}
