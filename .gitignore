@@ -12,6 +12,10 @@ instance/
 *.sqlite
 .env
 
+# 日志文件
+logs/
+*.log
+
 # 编辑器与系统文件
 .vscode/
 .idea/
