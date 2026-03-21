@@ -121,7 +121,7 @@ def login():
             # ⭐ Normal login
             login_user(user)
             current_app.logger.info("User '%s' logged in successfully.", user.username)
-            flash('Login successful!', 'success')
+            flash('登录成功！', 'success')
             return redirect(url_for('main.dashboard'))
 
         # Username/Email does not exist or password is incorrect
@@ -137,5 +137,5 @@ def logout():
     """Handle user logout"""
     current_app.logger.info("User '%s' logged out.", current_user.username)
     logout_user()
-    flash('You have been logged out.')
+    flash('成功退出登录', 'success')
     return redirect(url_for('main.index'))

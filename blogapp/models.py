@@ -32,17 +32,20 @@ class User(UserMixin, db.Model):
         return f'<User {self.username}>'
 
 
-# TODO: Add your PeakShift models here
-# Example models for your industrial energy system:
-
-# class Factory(db.Model):
-#     """工厂模型"""
-#     id = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String(100), nullable=False)
-#     location = db.Column(db.String(200))
-#     industry_type = db.Column(db.String(50))  # 行业类型
-#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-#     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+class Factory(db.Model):
+    """工厂模型"""
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    location = db.Column(db.String(200))
+    industry_type = db.Column(db.String(50))  # 行业类型
+    monthly_usage = db.Column(db.Float, default=0)  # 月用电量 (kWh)
+    monthly_cost = db.Column(db.Float, default=0)  # 月电费 (元)
+    carbon_emission = db.Column(db.Float, default=0)  # 碳排放量 (kg)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<Factory {self.name}>'
 
 # class PowerSource(db.Model):
 #     """电力来源配置"""
