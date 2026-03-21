@@ -1,0 +1,313 @@
+/* ===== Dashboard Global Styles ===== */
+:root {
+    --primary-color: #6366f1;
+    --primary-dark: #4f46e5;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --text-dark: #1f2937;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
+    --bg-light: #f9fafb;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--bg-light);
+}
+
+/* ===== Navbar Styles ===== */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-size: 1.25rem;
+}
+
+/* ===== View Container ===== */
+.view-container {
+    display: none;
+}
+
+.view-container.active {
+    display: block;
+}
+
+/* ===== Factory Card Styles ===== */
+.factory-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.factory-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.factory-card-header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.factory-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.factory-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.factory-location {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.factory-stats {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin: 1rem 0;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.stat-value.usage {
+    color: var(--primary-color);
+}
+
+.stat-value.cost {
+    color: var(--warning-color);
+}
+
+.stat-value.emission {
+    color: var(--danger-color);
+}
+
+.factory-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.factory-actions .btn {
+    flex: 1;
+}
+
+/* ===== Empty State ===== */
+#emptyState {
+    background: white;
+    border-radius: 12px;
+    padding: 3rem;
+    margin: 2rem 0;
+}
+
+/* ===== Modal Styles ===== */
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 1.5rem;
+}
+
+/* ===== Form Styles ===== */
+.form-label {
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.form-control,
+.form-select {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.625rem 0.875rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.1);
+}
+
+/* ===== Button Styles ===== */
+.btn {
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-danger {
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+.btn-outline-danger:hover {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .factory-card {
+        margin-bottom: 1rem;
+    }
+    
+    .factory-actions {
+        flex-direction: column;
+    }
+    
+    .factory-actions .btn {
+        width: 100%;
+    }
+}
+
+/* ===== Flash Messages ===== */
+.flash-message {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.flash-icon {
+    font-size: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flash-content {
+    flex: 1;
+}
+
+.flash-text {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Success message */
+.flash-success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95));
+    color: white;
+}
+
+.flash-success .flash-icon {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Error/Danger message */
+.flash-danger,
+.flash-error {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95));
+    color: white;
+}
+
+.flash-danger .flash-icon,
+.flash-error .flash-icon {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Warning message */
+.flash-warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.95), rgba(217, 119, 6, 0.95));
+    color: white;
+}
+
+.flash-warning .flash-icon {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Info message */
+.flash-info {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.95), rgba(79, 70, 229, 0.95));
+    color: white;
+}
+
+.flash-info .flash-icon {
+    color: rgba(255, 255, 255, 0.9);
+}

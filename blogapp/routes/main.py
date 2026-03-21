@@ -6,8 +6,8 @@ Main routes for PeakShift application
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
-from blogapp import db
-from blogapp.models import User
+from blogapp import db, csrf
+from blogapp.models import User, Factory
 
 # 创建蓝图
 bp = Blueprint('main', __name__)
@@ -29,40 +29,130 @@ def index():
 @bp.route('/dashboard')
 @login_required
 def dashboard():
-    """用户仪表盘 - 待实现"""
-    # TODO: 实现仪表盘页面
-    return jsonify({
-        'message': 'Dashboard page - Under development',
-        'user': current_user.username
-    })
+    """主应用页面 - 单页应用"""
+    return render_template('dashboard.html')
 
 
 # ============================================================
 # 工厂管理路由 (待实现)
 # ============================================================
 
-@bp.route('/factories')
+@bp.route('/api/factories', methods=['GET'])
 @login_required
-def factories():
-    """工厂列表页面 - 待实现"""
-    # TODO: 显示用户的工厂列表
-    return jsonify({'message': 'Factories page - Under development'})
+@csrf.exempt
+def get_factories():
+    """API: 获取用户的工厂列表"""
+    factories = Factory.query.filter_by(user_id=current_user.id).all()
+    return jsonify({
+        'success': True,
+        'factories': [{
+            'id': f.id,
+            'name': f.name,
+            'location': f.location,
+            'industry_type': f.industry_type,
+            'monthly_usage': f.monthly_usage,
+            'monthly_cost': f.monthly_cost,
+            'carbon_emission': f.carbon_emission,
+            'created_at': f.created_at.strftime('%Y-%m-%d')
+        } for f in factories]
+    })
 
 
-@bp.route('/factory/create', methods=['GET', 'POST'])
+@bp.route('/api/factory/create', methods=['POST'])
 @login_required
+@csrf.exempt
 def create_factory():
-    """创建工厂 - 待实现"""
-    # TODO: 实现工厂创建功能
-    return jsonify({'message': 'Create factory - Under development'})
+    """API: 创建工厂"""
+    data = request.get_json()
+    
+    try:
+        # 验证必填字段
+        if not data.get('name'):
+            return jsonify({
+                'success': False,
+                'message': '工厂名称不能为空'
+            }), 400
+        
+        # 处理数值字段，空字符串转为 0
+        monthly_usage = data.get('monthly_usage')
+        monthly_cost = data.get('monthly_cost')
+        carbon_emission = data.get('carbon_emission')
+        
+        # 转换为浮点数，如果为空或空字符串则设为 0
+        monthly_usage = float(monthly_usage) if monthly_usage and str(monthly_usage).strip() else 0
+        monthly_cost = float(monthly_cost) if monthly_cost and str(monthly_cost).strip() else 0
+        carbon_emission = float(carbon_emission) if carbon_emission and str(carbon_emission).strip() else 0
+        
+        factory = Factory(
+            name=data.get('name').strip(),
+            location=data.get('location', '').strip() if data.get('location') else None,
+            industry_type=data.get('industry_type', '').strip() if data.get('industry_type') else None,
+            monthly_usage=monthly_usage,
+            monthly_cost=monthly_cost,
+            carbon_emission=carbon_emission,
+            user_id=current_user.id
+        )
+        
+        db.session.add(factory)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': '工厂创建成功',
+            'factory': {
+                'id': factory.id,
+                'name': factory.name,
+                'location': factory.location,
+                'industry_type': factory.industry_type,
+                'monthly_usage': factory.monthly_usage,
+                'monthly_cost': factory.monthly_cost,
+                'carbon_emission': factory.carbon_emission,
+                'created_at': factory.created_at.strftime('%Y-%m-%d')
+            }
+        })
+    except ValueError as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'message': f'数据格式错误: {str(e)}'
+        }), 400
+    except Exception as e:
+        db.session.rollback()
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'message': f'创建失败: {str(e)}'
+        }), 400
 
 
-@bp.route('/factory/<int:factory_id>')
+@bp.route('/api/factory/<int:factory_id>', methods=['DELETE'])
 @login_required
-def factory_detail(factory_id):
-    """工厂详情页面 - 待实现"""
-    # TODO: 显示工厂详细信息
-    return jsonify({'message': f'Factory {factory_id} detail - Under development'})
+@csrf.exempt
+def delete_factory(factory_id):
+    """API: 删除工厂"""
+    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id).first()
+    
+    if not factory:
+        return jsonify({
+            'success': False,
+            'message': '工厂不存在或无权限'
+        }), 404
+    
+    try:
+        db.session.delete(factory)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': '工厂删除成功'
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'message': f'删除失败: {str(e)}'
+        }), 400
 
 
 # ============================================================

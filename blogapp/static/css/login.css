@@ -400,3 +400,77 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
         min-height: 100vh;
     }
 }
+
+
+/* ===== Flash Messages ===== */
+.flash-message {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+    margin-bottom: 0.75rem;
+}
+
+.flash-icon {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flash-content {
+    flex: 1;
+}
+
+.flash-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Success message */
+.flash-success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95));
+    color: white;
+}
+
+.flash-success .flash-icon {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Error/Danger message */
+.flash-danger,
+.flash-error {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95));
+    color: white;
+}
+
+.flash-danger .flash-icon,
+.flash-error .flash-icon {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Warning message */
+.flash-warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.95), rgba(217, 119, 6, 0.95));
+    color: white;
+}
+
+.flash-warning .flash-icon {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Info message */
+.flash-info {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.95), rgba(79, 70, 229, 0.95));
+    color: white;
+}
+
+.flash-info .flash-icon {
+    color: rgba(255, 255, 255, 0.9);
+}
