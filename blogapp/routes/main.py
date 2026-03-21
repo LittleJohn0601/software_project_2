@@ -12,11 +12,12 @@ from flask_login import (
     login_required, current_user, logout_user
 )
 from sqlalchemy import func, or_
-from blogapp import db, impact_calculator
-from blogapp.forms import EventForm, LogActivityForm
-from blogapp.models import (
-    User, SustainabilityEvent, EventRegistration, CarbonFootprintLog
-)
+from blogapp import db
+# from blogapp.forms import EventForm, LogActivityForm  # 临时注释
+from blogapp.models import User
+# from blogapp.models import (  # 临时注释旧模型
+#     User, SustainabilityEvent, EventRegistration, CarbonFootprintLog
+# )
 
 # -------------------------------------------------------------
 # Blueprint
@@ -68,7 +69,8 @@ TREE_EQUIVALENT_KG = 21.0
 @bp.route('/')
 @bp.route('/index')
 def index():
-    return render_template('index.html', title='Home - UCD GreenLife')
+    # 临时重定向到登录页
+    return redirect(url_for('auth.login'))
 
 
 @bp.route('/dashboard')
@@ -1304,8 +1306,11 @@ def delete_account():
 # Statistics & Ranking
 # -------------------------------------------------------------
 def get_user_stats(user_id: int):
-    calculator = impact_calculator.ImpactCalculator()
-    user_impact = calculator.calculate_user_impact(user_id)
+    # 临时注释掉旧的 impact_calculator 逻辑
+    # calculator = impact_calculator.ImpactCalculator()
+    # user_impact = calculator.calculate_user_impact(user_id)
+    
+    user_impact = {'user_carbon_saved': 0}  # 临时默认值
 
     activity_count = CarbonFootprintLog.query.filter_by(user_id=user_id).count()
     user_rank = calculate_user_rank(user_id)

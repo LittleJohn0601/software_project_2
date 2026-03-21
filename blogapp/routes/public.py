@@ -6,8 +6,8 @@ bp = Blueprint("public", __name__)
 
 @bp.get("/")
 def index():
-    """Public home page"""
-    return render_template("index.html", title="Home")
+    """Public home page - redirect to login"""
+    return redirect(url_for("auth.login"))
 
 @bp.get("/about")
 def about():
