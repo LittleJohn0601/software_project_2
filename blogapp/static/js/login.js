@@ -13,6 +13,9 @@ const state = {
     lookTimeout: null
 };
 
+// 暴露到全局，供注册表单使用
+window.state = state;
+
 // ===== DOM Elements =====
 const elements = {
     // Characters
@@ -155,6 +158,9 @@ function updateCharacters() {
     // Update Pupils
     updatePupils(passwordVisible);
 }
+
+// 暴露到全局
+window.updateCharacters = updateCharacters;
 
 // ===== Update Eyes Positions =====
 function updateEyesPositions(purplePos, blackPos, orangePos, yellowPos, passwordVisible) {
@@ -302,6 +308,9 @@ function schedulePeek() {
         }, peekInterval);
     }
 }
+
+// 暴露到全局
+window.schedulePeek = schedulePeek;
 
 // ===== Form Event Handlers =====
 // Note: Changed from emailInput to username input for Flask compatibility

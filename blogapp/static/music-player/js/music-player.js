@@ -47,6 +47,8 @@
             this.button = null;
             this.playlist = [];
             this.currentIndex = 0;
+            this.savedTime = 0;  // 保存的播放位置
+            this.userPaused = false;  // 用户是否手动暂停
             
             this.init();
         }
@@ -63,6 +65,9 @@
                 return;
             }
             
+            // 加载播放进度
+            this.loadPlaybackState();
+            
             // 创建音频元素
             this.createAudio();
             
@@ -72,8 +77,8 @@
             // 绑定事件
             this.bindEvents();
             
-            // 自动播放（每次都尝试自动播放）
-            if (CONFIG.autoPlay) {
+            // 自动播放（只有在用户没有手动暂停过的情况下）
+            if (CONFIG.autoPlay && !this.userPaused) {
                 this.attemptAutoPlay();
             }
             
@@ -105,17 +110,26 @@
             this.audio.volume = this.volume;
             this.audio.preload = 'auto';
             
+            // 恢复播放进度
+            if (this.savedTime > 0) {
+                this.audio.currentTime = this.savedTime;
+                console.log('⏩ Restored playback position:', this.savedTime.toFixed(1), 'seconds');
+            }
+            
             // 音频事件监听
             this.audio.addEventListener('play', () => {
                 this.isPlaying = true;
                 this.updateButton();
-                this.saveState();
             });
             
             this.audio.addEventListener('pause', () => {
                 this.isPlaying = false;
                 this.updateButton();
-                this.saveState();
+            });
+            
+            // 定期保存播放进度
+            this.audio.addEventListener('timeupdate', () => {
+                this.savePlaybackState();
             });
             
             this.audio.addEventListener('ended', () => {
@@ -132,6 +146,10 @@
         }
         
         playNext() {
+            // 先保存当前状态，清除播放位置
+            this.savedTime = 0;
+            this.savePlaybackState();
+            
             this.currentIndex++;
             
             // 如果到达列表末尾
@@ -148,6 +166,7 @@
             
             // 加载并播放下一首
             this.audio.src = this.playlist[this.currentIndex];
+            this.audio.currentTime = 0;
             this.play();
             console.log('▶️ Playing:', this.playlist[this.currentIndex]);
         }
@@ -242,6 +261,8 @@
                 playPromise
                     .then(() => {
                         this.isMuted = false;
+                        this.userPaused = false; // 用户点击播放，清除暂停标记
+                        this.savePlaybackState();
                         console.log('▶️ Music playing');
                     })
                     .catch((error) => {
@@ -255,7 +276,9 @@
             
             this.audio.pause();
             this.isMuted = true;
-            console.log('⏸️ Music paused');
+            this.userPaused = true; // 用户手动暂停，设置标记
+            this.savePlaybackState();
+            console.log('⏸️ Music paused by user');
         }
         
         toggle() {
@@ -280,36 +303,43 @@
             }
         }
         
-        loadState() {
+        loadPlaybackState() {
             try {
                 const saved = localStorage.getItem(CONFIG.storageKey);
                 if (saved) {
                     const state = JSON.parse(saved);
-                    // 如果用户之前手动暂停过，保持暂停状态
-                    this.isMuted = state.isMuted || false;
+                    this.currentIndex = state.currentIndex || 0;
+                    this.savedTime = state.currentTime || 0;
                     this.volume = state.volume || CONFIG.defaultVolume;
-                    console.log('📂 Loaded saved state:', state);
+                    this.userPaused = state.userPaused || false; // 记录用户是否手动暂停
+                    console.log('📂 Loaded playback state:', state);
                 } else {
-                    // 首次访问，默认不静音（会自动播放）
-                    this.isMuted = false;
-                    console.log('🆕 First visit, music will auto-play');
+                    this.currentIndex = 0;
+                    this.savedTime = 0;
+                    this.userPaused = false;
                 }
             } catch (error) {
-                console.warn('⚠️ Failed to load state:', error);
-                this.isMuted = false; // 出错时默认不静音
+                console.warn('⚠️ Failed to load playback state:', error);
+                this.currentIndex = 0;
+                this.savedTime = 0;
+                this.userPaused = false;
             }
         }
         
-        saveState() {
+        savePlaybackState() {
+            if (!this.audio) return;
+            
             try {
                 const state = {
-                    isMuted: this.isMuted,
+                    currentIndex: this.currentIndex,
+                    currentTime: this.audio.currentTime,
                     volume: this.volume,
+                    userPaused: this.userPaused, // 保存用户暂停状态
                     timestamp: Date.now()
                 };
                 localStorage.setItem(CONFIG.storageKey, JSON.stringify(state));
             } catch (error) {
-                console.warn('⚠️ Failed to save state:', error);
+                // 静默失败，不影响播放
             }
         }
         
