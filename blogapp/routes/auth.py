@@ -15,11 +15,29 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+@bp.route('/', methods=['GET'])
+def auth_page():
+    """统一认证页面（登录+注册）"""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    
+    login_form = LoginForm()
+    register_form = RegistrationForm()
+    
+    return render_template('auth/auth.html', 
+                         login_form=login_form, 
+                         register_form=register_form)
+
+
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     """Handle user registration with encrypted email"""
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
+    
+    # GET 请求重定向到统一认证页面
+    if request.method == 'GET':
+        return redirect(url_for('auth.auth_page') + '?mode=register')
     
     form = RegistrationForm()
     
@@ -32,7 +50,7 @@ def register():
         # Check if username already exists
         if User.query.filter_by(username=username).first():
             flash('Username already exists', 'danger')
-            return render_template('auth/register.html', title='Register', form=form)
+            return redirect(url_for('auth.auth_page') + '?mode=register')
         
         # Create user (email will be encrypted automatically)
         user = User(
@@ -47,9 +65,10 @@ def register():
         
         current_app.logger.info(f"New user registered: {username}")
         flash('Registration successful! Please log in.', 'success')
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.auth_page'))
     
-    return render_template('auth/register.html', title='Register', form=form)
+    # 表单验证失败，返回注册页面
+    return redirect(url_for('auth.auth_page') + '?mode=register')
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -59,18 +78,25 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
 
+    # GET 请求重定向到统一认证页面
+    if request.method == 'GET':
+        return redirect(url_for('auth.auth_page'))
+
     form = LoginForm()
 
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        user = User.query.filter_by(username=username).first()
+        # 支持用户名或邮箱登录
+        user = User.query.filter(
+            (User.username == username) | (User.email == username)
+        ).first()
 
         # First check username + password
         if user and user.check_password(password):
 
             # ⭐ First check if the user is in banned period
-            if user.is_banned:
+            if hasattr(user, 'is_banned') and user.is_banned:
                 now = datetime.now()
                 remaining = user.ban_until - now
                 days = remaining.days
@@ -90,8 +116,7 @@ def login():
                 )
 
                 flash(ban_msg, 'danger')
-                # Do not call login_user, return to login page directly
-                return render_template('auth/login.html', title='Login', form=form)
+                return redirect(url_for('auth.auth_page'))
 
             # ⭐ Normal login
             login_user(user)
@@ -99,11 +124,11 @@ def login():
             flash('Login successful!', 'success')
             return redirect(url_for('main.dashboard'))
 
-        # Username does not exist or password is incorrect
-        current_app.logger.warning("Failed login attempt for username='%s'", username)
-        flash('Invalid username or password', 'danger')
+        # Username/Email does not exist or password is incorrect
+        current_app.logger.warning("Failed login attempt for username/email='%s'", username)
+        flash('Invalid username/email or password', 'danger')
 
-    return render_template('auth/login.html', title='Login', form=form)
+    return redirect(url_for('auth.auth_page'))
 
 
 @bp.route('/logout')

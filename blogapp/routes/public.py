@@ -12,5 +12,5 @@ bp = Blueprint("public", __name__)
 
 @bp.get("/")
 def index():
-    """首页 - 重定向到登录页"""
-    return redirect(url_for("auth.login"))
+    """首页 - 重定向到统一认证页面"""
+    return redirect(url_for("auth.auth_page"))

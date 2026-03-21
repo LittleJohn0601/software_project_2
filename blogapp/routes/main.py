@@ -20,10 +20,10 @@ bp = Blueprint('main', __name__)
 @bp.route('/')
 @bp.route('/index')
 def index():
-    """首页 - 重定向到登录页"""
+    """首页 - 重定向到统一认证页面"""
     if current_user.is_authenticated:
         return redirect(url_for('main.dashboard'))
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('auth.auth_page'))
 
 
 @bp.route('/dashboard')
