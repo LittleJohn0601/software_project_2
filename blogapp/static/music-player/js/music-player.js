@@ -52,8 +52,8 @@
         }
         
         async init() {
-            // 加载保存的状态
-            this.loadState();
+            // 不加载保存的状态，每次都默认自动播放
+            this.isMuted = false;
             
             // 获取播放列表
             await this.loadPlaylist();
@@ -72,8 +72,8 @@
             // 绑定事件
             this.bindEvents();
             
-            // 自动播放（需要用户交互后才能真正播放）
-            if (CONFIG.autoPlay && !this.isMuted) {
+            // 自动播放（每次都尝试自动播放）
+            if (CONFIG.autoPlay) {
                 this.attemptAutoPlay();
             }
             
