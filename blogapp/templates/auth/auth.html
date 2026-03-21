@@ -267,7 +267,71 @@
     
     <!-- Auth Toggle Script -->
     <script>
+        // ========================================
+        // 输入限制：只允许英文、数字和常用符号
+        // ========================================
+        function restrictInput(inputElement, allowedPattern) {
+            inputElement.addEventListener('input', function(e) {
+                const cursorPosition = this.selectionStart;
+                const originalValue = this.value;
+                const filteredValue = this.value.replace(allowedPattern, '');
+                
+                if (filteredValue !== originalValue) {
+                    this.value = filteredValue;
+                    // 恢复光标位置
+                    this.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
+                }
+            });
+            
+            // 阻止粘贴非法字符
+            inputElement.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                const filteredText = pastedText.replace(allowedPattern, '');
+                
+                const cursorPosition = this.selectionStart;
+                const textBefore = this.value.substring(0, cursorPosition);
+                const textAfter = this.value.substring(this.selectionEnd);
+                
+                this.value = textBefore + filteredText + textAfter;
+                this.setSelectionRange(
+                    cursorPosition + filteredText.length,
+                    cursorPosition + filteredText.length
+                );
+                
+                // 触发 input 事件
+                this.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+        }
+        
+        // 应用输入限制
+        document.addEventListener('DOMContentLoaded', function() {
+            // 用户名：只允许英文、数字、下划线、连字符
+            const usernamePattern = /[^a-zA-Z0-9_-]/g;
+            const loginUsername = document.getElementById('username');
+            const registerUsername = document.getElementById('register_username');
+            
+            if (loginUsername) restrictInput(loginUsername, usernamePattern);
+            if (registerUsername) restrictInput(registerUsername, usernamePattern);
+            
+            // 邮箱：只允许英文、数字、@._-+
+            const emailPattern = /[^a-zA-Z0-9@._+-]/g;
+            const registerEmail = document.getElementById('register_email');
+            
+            if (registerEmail) restrictInput(registerEmail, emailPattern);
+            
+            // 密码：允许英文、数字、常用符号
+            const passwordPattern = /[^a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/g;
+            const loginPassword = document.getElementById('password');
+            const registerPassword = document.getElementById('register_password');
+            
+            if (loginPassword) restrictInput(loginPassword, passwordPattern);
+            if (registerPassword) restrictInput(registerPassword, passwordPattern);
+        });
+        
+        // ========================================
         // 切换到注册表单
+        // ========================================
         function showRegister() {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('registerSection').style.display = 'block';
