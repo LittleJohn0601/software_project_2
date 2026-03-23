@@ -309,10 +309,11 @@
                 if (saved) {
                     const state = JSON.parse(saved);
                     this.currentIndex = state.currentIndex || 0;
-                    this.savedTime = state.currentTime || 0;
+                    // 不恢复播放进度，每次都从头开始
+                    this.savedTime = 0;
                     this.volume = state.volume || CONFIG.defaultVolume;
                     this.userPaused = state.userPaused || false; // 记录用户是否手动暂停
-                    console.log('📂 Loaded playback state:', state);
+                    console.log('📂 Loaded playback state (progress reset):', state);
                 } else {
                     this.currentIndex = 0;
                     this.savedTime = 0;
