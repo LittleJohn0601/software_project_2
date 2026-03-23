@@ -3,6 +3,7 @@
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-3.1+-green.svg)](https://flask.palletsprojects.com/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple.svg)](https://getbootstrap.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
@@ -20,143 +21,55 @@
 
 ---
 
-## ✨ 主要功能
+## 🚀 快速开始（推荐使用 Docker）
 
-### 1. 碳排放计算（Carbon Emission Calculation）
+### 方法 1：使用 Docker（推荐）⭐
 
-- 根据企业的电力来源（火电、风电、太阳能等）计算碳排放
-- 支持每日/每月电力使用数据的自动碳排放量计算
-- 使用标准碳排放因子（如火电 820gCO₂/kWh，风电 11gCO₂/kWh）
+**为什么用 Docker？**
+- ✅ 一键配置环境，无需手动安装 Python、依赖
+- ✅ 所有人环境完全一致（Mac/Windows）
+- ✅ 代码修改自动生效，无需重启
+- ✅ 方便部署到虚拟机
 
-**示例场景：**
-> 某电解铝厂 60% 的电力来源于火电，40% 来自新能源。系统根据不同电力来源的碳排放因子，自动计算工厂的总碳排放量，并提供减排建议。
+#### 第一步：安装 Docker Desktop
+- 下载：https://www.docker.com/products/docker-desktop
+- 双击安装，就像装普通软件
+- 打开 Docker Desktop，等待启动完成
 
-### 2. 电费优化建议（Electricity Cost Optimization）
-
-- 基于分时电价（TOU）数据分析用电成本
-- 提供生产时间调整建议，避开高峰电价时段
-- 智能推荐低电价时段的生产计划
-
-**示例场景：**
-> 系统检测到白天高峰时段电价较高，建议将部分生产负荷转移至中午太阳能发电量高、电价较低的时段，预计每月可节省电费 ¥12,000。
-
-### 3. 多工厂管理
-
-- 支持用户管理多个工厂案例
-- 独立配置每个工厂的电力来源和运行时间
-- 对比分析不同工厂的能耗和成本
-
-### 4. 报告生成
-
-- 自动生成碳排放分析报告
-- 电费支出详细分析报告
-- 生产时间优化建议报告
-- 支持 PDF 导出和分享
-
----
-
-## 🔄 系统流程
-
-```
-1. 用户注册与登录
-   └─> 创建账号，管理多个工厂案例
-
-2. 输入工厂数据
-   └─> 配置用电量、电力来源、运行时间等
-
-3. 自动分析与计算
-   └─> 计算碳排放量和电费支出
-   └─> 基于分时电价生成优化建议
-
-4. 报告生成与优化建议
-   └─> 生成分析报告
-   └─> 提供生产时间调整方案
+#### 第二步：克隆项目
+```bash
+git clone https://github.com/LittleJohn0601/software_project_2.git
+cd software_project_2
 ```
 
----
-
-## 💡 创新点
-
-### 🔗 碳排放与电费结合分析
-将碳排放数据与分时电价相结合，提供综合的电费与碳排放优化建议，帮助企业在降低成本的同时实现环保目标。
-
-### ⏰ 智能生产时间优化
-通过分析不同时间段的电价波动，在保证生产需求的前提下，智能推荐最优生产时段，最大化降低电费支出。
-
-### 📊 可视化数据分析
-使用 Chart.js 提供直观的数据可视化，包括电价曲线、碳排放趋势、成本对比等，帮助企业快速做出决策。
-
----
-
-## 🛠️ 技术架构
-
-### 前端技术栈
-- **HTML5** - 页面结构
-- **CSS3** - 样式设计
-- **JavaScript (ES6+)** - 交互逻辑
-- **Bootstrap 5** - 响应式 UI 框架
-- **Chart.js** - 数据可视化图表库
-
-### 后端技术栈
-- **Python 3.11+** - 编程语言
-- **Flask 3.1+** - Web 框架
-- **SQLAlchemy** - ORM 数据库操作
-- **Flask-Login** - 用户认证
-- **Flask-WTF** - 表单处理与 CSRF 保护
-
-### 数据库
-- **SQLite** - 轻量级关系型数据库
-- 存储用户、工厂信息、电力使用、碳排放数据等
-
-### 部署环境
-- **UCD VM + Nginx** - 生产环境部署
-- Nginx 反向代理，将外部 Port 80 请求转发至 Flask 内部端口（如 5000）
-
----
-
-## 📦 项目结构
-
+#### 第三步：启动项目
+```bash
+docker-compose up
 ```
-software_project_2/
-├── blogapp/                    # 应用主模块
-│   ├── __init__.py            # 应用工厂
-│   ├── models.py              # 数据模型
-│   ├── forms.py               # 表单定义
-│   ├── decorators.py          # 装饰器
-│   ├── routes/                # 路由模块
-│   │   ├── auth.py           # 认证路由
-│   │   ├── main.py           # 主要路由
-│   │   ├── public.py         # 公共路由
-│   │   └── visualization.py  # 可视化路由
-│   ├── static/                # 静态文件
-│   │   ├── css/              # 样式文件
-│   │   │   └── login.css     # 登录页面样式
-│   │   └── js/               # JavaScript 文件
-│   │       └── login.js      # 登录页面交互
-│   └── templates/             # 模板文件
-│       └── auth/             # 认证相关模板
-│           └── login.html    # 登录页面
-├── instance/                  # 实例文件夹
-│   └── greenlife.db          # SQLite 数据库
-├── logs/                      # 日志文件
-├── venv/                      # Python 虚拟环境
-├── microblog.py              # 应用入口
-├── init_db.py                # 数据库初始化脚本
-├── .gitignore                # Git 忽略文件
-└── README.md                 # 项目文档
-```
+首次启动需要 3-5 分钟构建镜像，看到 `Running on http://0.0.0.0:5001` 就成功了。
+
+#### 第四步：访问应用
+打开浏览器：http://localhost:5001
+
+#### 日常使用
+- **启动**：打开 Docker Desktop → 找到 `peakshift-app` → 点 ▶️
+- **停止**：点 ⏸️ 或按 `Ctrl+C`
+- **拉取最新代码**：`git pull` 后直接点 ▶️ 运行（不需要重新构建）
+- **写代码**：正常用 VS Code 写，保存后自动生效
 
 ---
 
-## 🚀 快速开始
+### 方法 2：传统方式（不推荐）
 
-### 环境要求
+<details>
+<summary>点击展开传统安装方式</summary>
 
+#### 环境要求
 - Python 3.11 或更高版本
 - pip 包管理器
 - Git
 
-### 安装步骤
+#### 安装步骤
 
 1. **克隆项目**
    ```bash
@@ -174,7 +87,7 @@ software_project_2/
 
 3. **安装依赖**
    ```bash
-   pip install flask flask-sqlalchemy flask-login flask-wtf python-dotenv cryptography
+   pip install -r requirements.txt
    ```
 
 4. **初始化数据库**
@@ -188,23 +101,160 @@ software_project_2/
    ```
 
 6. **访问应用**
-   
-   打开浏览器访问：http://127.0.0.1:5000
+   打开浏览器：http://127.0.0.1:5001
+
+</details>
 
 ---
 
-## 👥 团队协作规范
+## 🐳 Docker 使用指南
 
-### Git 分支管理
+### 常用命令
 
-- **main** - 主分支，保持稳定可部署状态
-- **branch-[姓名]** - 个人开发分支（如 `branch-bole-wu`）
-- 所有开发工作必须在个人分支进行
-- 完成功能后通过 Pull Request 合并到 main
+```bash
+# 启动项目（前台运行）
+docker-compose up
+
+# 启动项目（后台运行）
+docker-compose up -d
+
+# 停止项目
+docker-compose down
+
+# 查看日志
+docker-compose logs -f
+
+# 重新构建（新增依赖时）
+docker-compose up --build
+```
+
+### Docker Desktop 操作
+
+| 操作 | 位置 | 说明 |
+|------|------|------|
+| **启动** | 点击 ▶️ | 启动容器 |
+| **停止** | 点击 ⏸️ | 停止容器 |
+| **重启** | 点击 🔄 | 重启容器 |
+| **查看日志** | 点击容器名 → Logs | 查看运行日志 |
+| **重新构建** | 点击 ⋯ → Rebuild | 新增依赖时用 |
+
+### 常见问题
+
+**Q: 端口被占用怎么办？**
+```bash
+# 查找占用端口的进程
+lsof -i :5001
+# 停止进程
+kill <PID>
+```
+
+**Q: 代码修改不生效？**
+- 确保文件保存了
+- 刷新浏览器
+- 如果还不行，重启容器
+
+**Q: 新增了 Python 依赖怎么办？**
+- Docker Desktop → 点击 ⋯ → Rebuild
+
+---
+
+## ✨ 已实现功能
+
+### 1. 用户认证系统 ✅
+- 单页认证界面（登录/注册）
+- 动画交互效果
+- 用户名/邮箱登录
+- 密码加密存储
+
+### 2. 工厂管理 ✅
+- 创建工厂
+- 查看工厂列表
+- 删除工厂
+- 工厂基本信息展示
+
+### 3. 全局音乐播放器 ✅
+- 独立模块设计
+- 自动播放
+- 进度保存
+- 可安全删除
+
+---
+
+## 🛠️ 技术架构
+
+### 前端技术栈
+- **HTML5** + **CSS3** + **JavaScript (ES6+)**
+- **Bootstrap 5** - 响应式 UI 框架
+- **Chart.js** - 数据可视化（规划中）
+
+### 后端技术栈
+- **Python 3.11+** - 编程语言
+- **Flask 3.1+** - Web 框架
+- **SQLAlchemy** - ORM 数据库操作
+- **Flask-Login** - 用户认证
+- **Flask-WTF** - 表单处理与 CSRF 保护
+
+### 容器化
+- **Docker** - 容器化部署
+- **Docker Compose** - 服务编排
+
+### 数据库
+- **SQLite** - 轻量级关系型数据库
+
+---
+
+## 📦 项目结构
+
+```
+software_project_2/
+├── blogapp/                    # 应用主模块（所有代码写这里）
+│   ├── __init__.py            # 应用工厂
+│   ├── models.py              # 数据模型
+│   ├── forms.py               # 表单定义
+│   ├── routes/                # 路由模块
+│   │   ├── auth.py           # 认证路由
+│   │   ├── main.py           # 主要路由
+│   │   └── public.py         # 公共路由
+│   ├── static/                # 静态文件
+│   │   ├── css/              # 样式文件
+│   │   ├── js/               # JavaScript 文件
+│   │   └── music-player/     # 音乐播放器模块
+│   └── templates/             # 模板文件
+│       ├── auth/             # 认证页面
+│       └── dashboard.html    # 主应用页面
+├── instance/                  # 数据库文件
+├── logs/                      # 日志文件
+├── Dockerfile                 # Docker 镜像配置
+├── docker-compose.yml         # Docker 编排配置
+├── requirements.txt           # Python 依赖
+├── microblog.py              # 应用入口
+└── init_db.py                # 数据库初始化
+```
+
+---
+
+## � 团队协作规范
+
+### Git 工作流
+
+1. **个人分支开发**
+   ```bash
+   git checkout -b branch-your-name
+   ```
+
+2. **提交代码**
+   ```bash
+   git add .
+   git commit -m "feat: 添加新功能"
+   git push origin branch-your-name
+   ```
+
+3. **创建 Pull Request**
+   - 在 GitHub 上创建 PR
+   - 等待代码审查
+   - 合并到 main 分支
 
 ### Commit 规范
-
-使用语义化提交信息：
 
 ```
 feat: 添加新功能
@@ -212,74 +262,90 @@ fix: 修复 bug
 refactor: 重构代码
 docs: 更新文档
 style: 代码格式调整
-test: 添加测试
-chore: 构建/工具链更新
 ```
 
-**示例：**
-```bash
-git commit -m "feat: 实现工厂管理功能"
-git commit -m "fix: 修复电费计算精度问题"
-git commit -m "docs: 更新 API 文档"
-```
+### 开发规范
 
-### 代码审查
+**⚠️ 重要：所有新代码必须写在 `blogapp/` 文件夹下！**
 
-- 所有 Pull Request 需要至少一位团队成员审查
-- 管理员（Administrator）拥有最终合并权限
-- 保持代码质量和一致性
-
----
-
-## 🔒 安全注意事项
-
-### 开发环境
-
-- ⚠️ **严禁使用 sudo** 运行后端程序
-- ⚠️ **SSH 密码必须 16 位以上**，且非字典词
-- 使用 `.env` 文件管理敏感配置（不要提交到 Git）
-
-### 远程访问
-
-- 软件必须能从爱尔兰远程访问
-- 代码中不得写死 `127.0.0.1` 或 `raw IP`
-- 必须使用 `Hostname` 进行配置
+- ✅ 新增路由 → `blogapp/routes/`
+- ✅ 新增模板 → `blogapp/templates/`
+- ✅ 新增样式 → `blogapp/static/css/`
+- ✅ 新增脚本 → `blogapp/static/js/`
+- ❌ 不要在项目根目录新增 `.py` 文件
 
 ---
 
 ## 📝 开发计划
 
-### Phase 1 - 基础功能（当前）
-- [x] 用户认证系统（登录/注册）
-- [x] 数据库模型设计
-- [ ] 工厂管理功能
-- [ ] 电力来源配置
+### Phase 1 - 基础功能 ✅
+- [x] 用户认证系统
+- [x] 工厂管理功能
+- [x] Docker 容器化
+- [x] 单页应用架构
 
-### Phase 2 - 核心功能
+### Phase 2 - 核心功能（进行中）
+- [ ] 仪表盘页面
 - [ ] 用电数据录入
-- [ ] 碳排放计算引擎
-- [ ] 分时电价管理
-- [ ] 电费优化算法
+- [ ] 碳排放计算
+- [ ] 成本分析
 
 ### Phase 3 - 数据可视化
-- [ ] 仪表盘设计
-- [ ] 图表集成（Chart.js）
+- [ ] Chart.js 图表集成
 - [ ] 实时数据展示
 - [ ] 对比分析功能
 
-### Phase 4 - 报告与优化
+### Phase 4 - 优化与部署
 - [ ] 报告生成系统
-- [ ] PDF 导出功能
 - [ ] 优化建议引擎
-- [ ] 生产时间调整工具
+- [ ] 虚拟机部署
+- [ ] 性能优化
+
+---
+
+## � 部署到虚拟机
+
+### 使用 Docker 部署（推荐）
+
+**在虚拟机上：**
+```bash
+# 1. 安装 Docker
+sudo apt update
+sudo apt install docker.io docker-compose
+sudo systemctl start docker
+
+# 2. 克隆项目
+git clone https://github.com/LittleJohn0601/software_project_2.git
+cd software_project_2
+
+# 3. 启动
+docker-compose up -d
+
+# 4. 查看状态
+docker-compose ps
+```
+
+**访问应用：**
+```
+http://虚拟机IP:5001
+```
+
+---
+
+## 📊 代码统计
+
+- **总提交次数**: 10+
+- **新增代码**: ~3,000 行
+- **删除旧代码**: ~760,000 行
+- **主要语言**: Python, HTML, CSS, JavaScript
 
 ---
 
 ## 🤝 贡献指南
 
 1. Fork 本项目
-2. 创建你的特性分支 (`git checkout -b branch-your-name`)
-3. 提交你的更改 (`git commit -m 'feat: 添加某功能'`)
+2. 创建特性分支 (`git checkout -b branch-your-name`)
+3. 提交更改 (`git commit -m 'feat: 添加某功能'`)
 4. 推送到分支 (`git push origin branch-your-name`)
 5. 创建 Pull Request
 
@@ -287,7 +353,7 @@ git commit -m "docs: 更新 API 文档"
 
 ## 📄 许可证
 
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+本项目采用 MIT 许可证
 
 ---
 
@@ -304,4 +370,4 @@ git commit -m "docs: 更新 API 文档"
 
 ---
 
-**最后更新**: 2026-03-14
+**最后更新**: 2026-03-22
