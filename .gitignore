@@ -7,14 +7,13 @@ __pycache__/
 *.pyd
 
 # Flask/数据库相关
-instance/
-*.db
-*.sqlite
+instance/*.db
+instance/*.sqlite
 .env
 
 # 日志文件
-logs/
-*.log
+logs/*.log
+logs/*.log.*
 
 # 编辑器与系统文件
 .vscode/

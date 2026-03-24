@@ -44,9 +44,9 @@ cd software_project_2
 
 #### 第三步：启动项目
 ```bash
-docker-compose up
+docker-compose up --build
 ```
-首次启动需要 3-5 分钟构建镜像，看到 `Running on http://0.0.0.0:5001` 就成功了。
+首次启动需要 3-5 分钟构建镜像，数据库会自动初始化，看到 `Running on http://0.0.0.0:5001` 就成功了。
 
 #### 第四步：访问应用
 打开浏览器：http://localhost:5001
@@ -155,6 +155,10 @@ kill <PID>
 
 **Q: 新增了 Python 依赖怎么办？**
 - Docker Desktop → 点击 ⋯ → Rebuild
+
+**Q: 首次运行没有数据库？**
+- 数据库会在首次启动时自动创建
+- 如果遇到问题，重新构建：`docker-compose up --build`
 
 ---
 

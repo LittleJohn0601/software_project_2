@@ -26,11 +26,12 @@ COPY . .
 # 创建必要的目录
 RUN mkdir -p instance logs
 
-# 初始化数据库
-RUN python init_db.py
+# 复制启动脚本并设置执行权限
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 # 暴露端口
 EXPOSE 5001
 
-# 启动命令
-CMD ["python", "microblog.py"]
+# 使用启动脚本
+CMD ["/app/entrypoint.sh"]
