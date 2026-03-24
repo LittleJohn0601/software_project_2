@@ -278,6 +278,44 @@ style: 代码格式调整
 - ✅ 新增脚本 → `blogapp/static/js/`
 - ❌ 不要在项目根目录新增 `.py` 文件
 
+### 数据库开发规范
+
+**数据库自动初始化机制：**
+- 应用启动时会自动调用 `db.create_all()`
+- 读取 `blogapp/models.py` 中的所有模型并创建对应表
+- 如果表已存在，不会覆盖或删除数据
+- 如果表不存在，自动创建
+
+**添加新表的流程：**
+
+1. 在 `blogapp/models.py` 中定义新模型
+   ```python
+   class YourNewTable(db.Model):
+       id = db.Column(db.Integer, primary_key=True)
+       name = db.Column(db.String(100))
+       # 添加其他字段...
+   ```
+
+2. 提交代码到 Git
+   ```bash
+   git add blogapp/models.py
+   git commit -m "feat: 添加新表 YourNewTable"
+   git push
+   ```
+
+3. 队友拉取代码后重启容器
+   ```bash
+   git pull
+   docker-compose restart
+   ```
+
+4. 新表自动创建，无需手动操作 ✅
+
+**注意事项：**
+- 所有数据模型必须定义在 `blogapp/models.py` 中
+- 修改表结构后需要重启应用才能生效
+- `db.create_all()` 不会修改已存在的表结构（如需修改字段，需要使用数据库迁移工具）
+
 ---
 
 ## 📝 开发计划
