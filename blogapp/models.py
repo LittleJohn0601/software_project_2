@@ -47,6 +47,19 @@ class Factory(db.Model):
     def __repr__(self):
         return f'<Factory {self.name}>'
 
+
+class HourlyElectricityPrice(db.Model):
+    """分时电价表 - 存储每小时的电价"""
+    __tablename__ = 'hourly_electricity_price'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    hour = db.Column(db.Integer, nullable=False)  # 小时 (0-23)
+    price = db.Column(db.Float, nullable=False)  # 电价 (元/kWh)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<HourlyPrice Hour:{self.hour} Price:{self.price}>'
+
 # class PowerSource(db.Model):
 #     """电力来源配置"""
 #     id = db.Column(db.Integer, primary_key=True)
