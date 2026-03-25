@@ -54,11 +54,47 @@ class HourlyElectricityPrice(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     hour = db.Column(db.Integer, nullable=False)  # 小时 (0-23)
+    time_range = db.Column(db.String(20), nullable=False)  # 时间段 (如 "0-1", "1-2")
     price = db.Column(db.Float, nullable=False)  # 电价 (元/kWh)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
+    @property
+    def actual_price(self):
+        """实际支付电价（含代理费 0.01 元/kWh）"""
+        return round(self.price + 0.01, 2)
+    
     def __repr__(self):
-        return f'<HourlyPrice Hour:{self.hour} Price:{self.price}>'
+        return f'<HourlyPrice {self.time_range} Price:{self.price}>'
+
+
+class GridElectricityPrice(db.Model):
+    """电网售卖价格表 - 不同电压等级的分时电价和容量电价"""
+    __tablename__ = 'grid_electricity_price'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    voltage_level = db.Column(db.Integer, nullable=False, unique=True)  # 电压等级 (10, 35, 110, 220)
+    peak_price = db.Column(db.Float, nullable=False)  # 高峰电价 (元/kWh)
+    normal_price = db.Column(db.Float, nullable=False)  # 平时电价 (元/kWh)
+    valley_price = db.Column(db.Float, nullable=False)  # 低谷电价 (元/kWh)
+    capacity_price = db.Column(db.Float, nullable=False)  # 容量电价 (元/kVA·月)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<GridPrice {self.voltage_level}kV>'
+
+
+class TimeOfUsePeriod(db.Model):
+    """分时电价时段表 - 定义每小时属于高峰/平时/低谷"""
+    __tablename__ = 'time_of_use_period'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    hour = db.Column(db.Integer, nullable=False, unique=True)  # 小时 (0-23)
+    time_range = db.Column(db.String(20), nullable=False)  # 时间段 (如 "0-1", "1-2")
+    period_type = db.Column(db.String(10), nullable=False)  # 时段类型: 高峰/平时/低谷
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<TOU {self.time_range} {self.period_type}>'
 
 # class PowerSource(db.Model):
 #     """电力来源配置"""
