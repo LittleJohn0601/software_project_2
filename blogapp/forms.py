@@ -20,15 +20,16 @@ class RegistrationForm(FlaskForm):
     """User registration form"""
     username = StringField('Username', validators=[
         DataRequired(message='Username is required'),
-        Length(min=3, max=64, message='Username must be between 3 and 64 characters')
+        Length(min=3, max=32, message='Username must be between 3 and 32 characters')
     ])
     email = StringField('Email', validators=[
         DataRequired(message='Email is required'),
-        Email(message='Please enter a valid email address')
+        Email(message='Please enter a valid email address'),
+        Length(max=120, message='Email cannot exceed 120 characters')
     ])
     password = PasswordField('Password', validators=[
         DataRequired(message='Password is required'),
-        Length(min=6, message='Password must be at least 6 characters')
+        Length(min=6, max=128, message='Password must be between 6 and 128 characters')
     ])
     company_name = StringField('Company Name', validators=[
         Length(max=100, message='Company name cannot exceed 100 characters')
