@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: peakshift-app
+    ports:
+      - "5001:5001"
+    volumes:
+      # 挂载整个 blogapp 目录（包含所有 Python 代码）
+      - ./blogapp:/app/blogapp
+      # 挂载启动文件
+      - ./microblog.py:/app/microblog.py
+      - ./init_db.py:/app/init_db.py
+      # 挂载数据库（数据持久化）
+      - ./instance:/app/instance
+      # 挂载日志
+      - ./logs:/app/logs
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+    restart: unless-stopped

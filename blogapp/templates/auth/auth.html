@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeakShift - Authentication</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    
+    <!-- 全局音乐播放器样式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='music-player/css/music-player.css') }}">
+</head>
+<body data-playlist="playlist-auth">
+    <div class="container-fluid">
+        <div class="row min-vh-100">
+            <!-- Left Content Section - Characters -->
+            <div class="col-lg-6 d-none d-lg-flex flex-column justify-content-between left-section">
+                <!-- Logo -->
+                <div class="logo-container">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="logo-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                        <span class="logo-text">PeakShift</span>
+                    </div>
+                </div>
+
+                <!-- Characters Container -->
+                <div class="characters-wrapper">
+                    <div class="characters-container">
+                        <!-- Purple Character -->
+                        <div class="character character-purple" id="purpleChar">
+                            <div class="eyes" id="purpleEyes">
+                                <div class="eyeball" id="purpleEye1">
+                                    <div class="pupil" id="purplePupil1"></div>
+                                </div>
+                                <div class="eyeball" id="purpleEye2">
+                                    <div class="pupil" id="purplePupil2"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Black Character -->
+                        <div class="character character-black" id="blackChar">
+                            <div class="eyes" id="blackEyes">
+                                <div class="eyeball" id="blackEye1">
+                                    <div class="pupil" id="blackPupil1"></div>
+                                </div>
+                                <div class="eyeball" id="blackEye2">
+                                    <div class="pupil" id="blackPupil2"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Orange Character -->
+                        <div class="character character-orange" id="orangeChar">
+                            <div class="eyes-simple" id="orangeEyes">
+                                <div class="pupil-simple" id="orangePupil1"></div>
+                                <div class="pupil-simple" id="orangePupil2"></div>
+                            </div>
+                        </div>
+
+                        <!-- Yellow Character -->
+                        <div class="character character-yellow" id="yellowChar">
+                            <div class="eyes-simple" id="yellowEyes">
+                                <div class="pupil-simple" id="yellowPupil1"></div>
+                                <div class="pupil-simple" id="yellowPupil2"></div>
+                            </div>
+                            <div class="mouth" id="yellowMouth"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Decorative elements -->
+                <div class="decorative-grid"></div>
+                <div class="decorative-blur decorative-blur-1"></div>
+                <div class="decorative-blur decorative-blur-2"></div>
+            </div>
+
+            <!-- Right Auth Section -->
+            <div class="col-lg-6 d-flex align-items-center justify-content-center right-section">
+                <div class="login-container">
+                    <!-- Mobile Logo -->
+                    <div class="d-lg-none text-center mb-5">
+                        <div class="d-inline-flex align-items-center gap-2">
+                            <div class="logo-icon-mobile">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </div>
+                            <span class="logo-text-mobile">PeakShift</span>
+                        </div>
+                    </div>
+
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div id="flashMessages" class="mb-3">
+                                {% for category, message in messages %}
+                                    <div class="flash-message flash-{{ category }}" role="alert">
+                                        <div class="flash-icon">
+                                            {% if category == 'success' %}
+                                                <i class="bi bi-check-circle-fill"></i>
+                                            {% elif category == 'danger' or category == 'error' %}
+                                                <i class="bi bi-exclamation-circle-fill"></i>
+                                            {% elif category == 'warning' %}
+                                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                            {% else %}
+                                                <i class="bi bi-info-circle-fill"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flash-content">
+                                            <div class="flash-text">{{ message }}</div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <script>
+                        // 自动关闭 Flash 消息（5秒后）
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const flashMessages = document.querySelectorAll('#flashMessages .flash-message');
+                            flashMessages.forEach(function(message) {
+                                // 添加淡入动画
+                                setTimeout(function() {
+                                    message.style.opacity = '1';
+                                    message.style.transform = 'translateY(0)';
+                                }, 10);
+                                
+                                // 5秒后淡出并移除
+                                setTimeout(function() {
+                                    message.style.opacity = '0';
+                                    message.style.transform = 'translateY(-20px)';
+                                    setTimeout(function() {
+                                        message.remove();
+                                    }, 300);
+                                }, 5000);
+                            });
+                        });
+                    </script>
+
+                    <!-- Login Form -->
+                    <div id="loginSection">
+                        <div class="text-center mb-4">
+                            <h1 class="login-title">Welcome back!</h1>
+                            <p class="login-subtitle">Please enter your details</p>
+                        </div>
+
+                        <form id="loginForm" method="POST">
+                            {{ login_form.hidden_tag() }}
+                            
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username or Email</label>
+                                <input 
+                                    type="text" 
+                                    class="form-control form-control-lg" 
+                                    id="username" 
+                                    name="username"
+                                    placeholder="Enter your username or email" 
+                                    required
+                                    autocomplete="username">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <div class="position-relative">
+                                    <input 
+                                        type="password" 
+                                        class="form-control form-control-lg" 
+                                        id="password" 
+                                        name="password"
+                                        placeholder="••••••••" 
+                                        required
+                                        autocomplete="current-password">
+                                    <button 
+                                        type="button" 
+                                        class="btn-toggle-password" 
+                                        id="togglePassword"
+                                        aria-label="Toggle password visibility">
+                                        <svg class="icon-eye" id="iconEye" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                        <svg class="icon-eye-off d-none" id="iconEyeOff" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="errorMessage" class="alert alert-danger d-none" role="alert"></div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3" id="loginBtn">
+                                Log in
+                            </button>
+                        </form>
+
+                        <div class="text-center signup-link">
+                            Don't have an account? 
+                            <a href="#" onclick="showRegister(); return false;" class="signup-link-text">Sign Up</a>
+                        </div>
+                    </div>
+
+                    <!-- Register Form (Hidden by default) -->
+                    <div id="registerSection" style="display: none;">
+                        <div class="text-center mb-4">
+                            <h1 class="login-title">Create an account</h1>
+                            <p class="login-subtitle">Join PeakShift to optimize your energy costs</p>
+                        </div>
+
+                        <form id="registerForm" method="POST">
+                            {{ register_form.hidden_tag() }}
+                            
+                            <div class="mb-3">
+                                <label for="register_username" class="form-label">Username</label>
+                                <input 
+                                    type="text" 
+                                    class="form-control form-control-lg" 
+                                    id="register_username" 
+                                    name="username"
+                                    placeholder="Choose a username" 
+                                    required
+                                    minlength="3"
+                                    maxlength="64"
+                                    autocomplete="username">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="register_email" class="form-label">Email</label>
+                                <input 
+                                    type="email" 
+                                    class="form-control form-control-lg" 
+                                    id="register_email" 
+                                    name="email"
+                                    placeholder="your.email@company.com" 
+                                    required
+                                    autocomplete="email">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="register_password" class="form-label">Password</label>
+                                <div class="position-relative">
+                                    <input 
+                                        type="password" 
+                                        class="form-control form-control-lg" 
+                                        id="register_password" 
+                                        name="password"
+                                        placeholder="••••••••" 
+                                        required
+                                        minlength="6"
+                                        autocomplete="new-password">
+                                    <button 
+                                        type="button" 
+                                        class="btn-toggle-password" 
+                                        id="toggleRegisterPassword"
+                                        aria-label="Toggle password visibility">
+                                        <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                        <svg class="icon-eye-off d-none" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                            <line x1="1" y1="1" x2="23" y2="23"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 隐藏字段，设置默认值 -->
+                            <input type="hidden" name="company_name" value="">
+                            <input type="hidden" name="user_type" value="user">
+
+                            <div id="registerErrorMessage" class="alert alert-danger d-none" role="alert"></div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                                Create Account
+                            </button>
+                        </form>
+
+                        <div class="text-center signup-link">
+                            Already have an account? 
+                            <a href="#" onclick="showLogin(); return false;" class="signup-link-text">Log in</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+    
+    <!-- Auth Toggle Script -->
+    <script>
+        // ========================================
+        // 输入限制：只允许英文、数字和常用符号（阻止中文等）
+        // ========================================
+        function restrictInput(inputElement, allowedPattern) {
+            inputElement.addEventListener('input', function(e) {
+                const cursorPosition = this.selectionStart;
+                const originalValue = this.value;
+                const filteredValue = this.value.replace(allowedPattern, '');
+                
+                if (filteredValue !== originalValue) {
+                    this.value = filteredValue;
+                    // 恢复光标位置
+                    this.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
+                }
+            });
+            
+            // 阻止粘贴非法字符
+            inputElement.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                const filteredText = pastedText.replace(allowedPattern, '');
+                
+                const cursorPosition = this.selectionStart;
+                const textBefore = this.value.substring(0, cursorPosition);
+                const textAfter = this.value.substring(this.selectionEnd);
+                
+                this.value = textBefore + filteredText + textAfter;
+                this.setSelectionRange(
+                    cursorPosition + filteredText.length,
+                    cursorPosition + filteredText.length
+                );
+                
+                // 触发 input 事件
+                this.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+        }
+        
+        // 应用输入限制
+        document.addEventListener('DOMContentLoaded', function() {
+            // 用户名/邮箱登录框：允许英文、数字、@._-+ 和空格（因为可能输入邮箱）
+            const usernamePattern = /[^a-zA-Z0-9@._+\-\s]/g;
+            const loginUsername = document.getElementById('username');
+            
+            if (loginUsername) restrictInput(loginUsername, usernamePattern);
+            
+            // 注册用户名：只允许英文、数字、下划线、连字符（不允许空格）
+            const registerUsernamePattern = /[^a-zA-Z0-9_-]/g;
+            const registerUsername = document.getElementById('register_username');
+            
+            if (registerUsername) restrictInput(registerUsername, registerUsernamePattern);
+            
+            // 邮箱：允许英文、数字、@._-+（不允许空格）
+            const emailPattern = /[^a-zA-Z0-9@._+-]/g;
+            const registerEmail = document.getElementById('register_email');
+            
+            if (registerEmail) restrictInput(registerEmail, emailPattern);
+            
+            // 密码：允许英文、数字、常用符号和空格
+            const passwordPattern = /[^a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?\s]/g;
+            const loginPassword = document.getElementById('password');
+            const registerPassword = document.getElementById('register_password');
+            
+            if (loginPassword) restrictInput(loginPassword, passwordPattern);
+            if (registerPassword) restrictInput(registerPassword, passwordPattern);
+        });
+        
+        // ========================================
+        // 切换到注册表单
+        // ========================================
+        function showRegister() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('registerSection').style.display = 'block';
+            
+            // 清除 flash 消息
+            const flashMessages = document.getElementById('flashMessages');
+            if (flashMessages) {
+                flashMessages.remove();
+            }
+            
+            // 重置状态
+            if (window.state) {
+                window.state.showPassword = false;
+                window.state.password = '';
+                window.state.isTyping = false;
+                window.state.isPurplePeeking = false;
+                clearTimeout(window.state.peekTimeout);
+                if (window.updateCharacters) window.updateCharacters();
+            }
+            
+            // 重新绑定注册表单的事件
+            bindRegisterEvents();
+        }
+        
+        // 切换到登录表单
+        function showLogin() {
+            document.getElementById('registerSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+            
+            // 清除 flash 消息
+            const flashMessages = document.getElementById('flashMessages');
+            if (flashMessages) {
+                flashMessages.remove();
+            }
+            
+            // 重置状态
+            if (window.state) {
+                window.state.showPassword = false;
+                window.state.password = '';
+                window.state.isTyping = false;
+                window.state.isPurplePeeking = false;
+                clearTimeout(window.state.peekTimeout);
+                if (window.updateCharacters) window.updateCharacters();
+            }
+            
+            // 重置登录表单的密码输入框和图标
+            const loginPassword = document.getElementById('password');
+            const togglePassword = document.getElementById('togglePassword');
+            if (loginPassword) {
+                loginPassword.type = 'password';
+                loginPassword.value = '';
+            }
+            if (togglePassword) {
+                const iconEye = togglePassword.querySelector('.icon-eye');
+                const iconEyeOff = togglePassword.querySelector('.icon-eye-off');
+                if (iconEye) iconEye.classList.remove('d-none');
+                if (iconEyeOff) iconEyeOff.classList.add('d-none');
+            }
+        }
+        
+        // 绑定注册表单事件
+        let registerEventsbound = false; // 防止重复绑定
+        
+        function bindRegisterEvents() {
+            // 如果已经绑定过，先解绑
+            if (registerEventsbound) {
+                return;
+            }
+            
+            const registerUsername = document.getElementById('register_username');
+            const registerEmail = document.getElementById('register_email');
+            const registerPassword = document.getElementById('register_password');
+            const toggleRegisterPassword = document.getElementById('toggleRegisterPassword');
+            
+            // 重置注册表单的输入框和图标
+            if (registerPassword) {
+                registerPassword.type = 'password';
+                registerPassword.value = '';
+            }
+            if (toggleRegisterPassword) {
+                const iconEye = toggleRegisterPassword.querySelector('.icon-eye');
+                const iconEyeOff = toggleRegisterPassword.querySelector('.icon-eye-off');
+                if (iconEye) iconEye.classList.remove('d-none');
+                if (iconEyeOff) iconEyeOff.classList.add('d-none');
+            }
+            
+            // 用户名输入框 - 触发小人探头动画
+            if (registerUsername) {
+                const usernameFocusHandler = () => {
+                    if (window.state) {
+                        window.state.isTyping = true;
+                        window.state.isLookingAtEachOther = true;
+                        if (window.updateCharacters) window.updateCharacters();
+                        
+                        clearTimeout(window.state.lookTimeout);
+                        window.state.lookTimeout = setTimeout(() => {
+                            window.state.isLookingAtEachOther = false;
+                            if (window.updateCharacters) window.updateCharacters();
+                        }, 800);
+                    }
+                };
+                
+                const usernameBlurHandler = () => {
+                    if (window.state) {
+                        window.state.isTyping = false;
+                        if (window.updateCharacters) window.updateCharacters();
+                    }
+                };
+                
+                registerUsername.addEventListener('focus', usernameFocusHandler);
+                registerUsername.addEventListener('blur', usernameBlurHandler);
+            }
+            
+            // 邮箱输入框 - 触发小人探头动画
+            if (registerEmail) {
+                const emailFocusHandler = () => {
+                    if (window.state) {
+                        window.state.isTyping = true;
+                        window.state.isLookingAtEachOther = true;
+                        if (window.updateCharacters) window.updateCharacters();
+                        
+                        clearTimeout(window.state.lookTimeout);
+                        window.state.lookTimeout = setTimeout(() => {
+                            window.state.isLookingAtEachOther = false;
+                            if (window.updateCharacters) window.updateCharacters();
+                        }, 800);
+                    }
+                };
+                
+                const emailBlurHandler = () => {
+                    if (window.state) {
+                        window.state.isTyping = false;
+                        if (window.updateCharacters) window.updateCharacters();
+                    }
+                };
+                
+                registerEmail.addEventListener('focus', emailFocusHandler);
+                registerEmail.addEventListener('blur', emailBlurHandler);
+            }
+            
+            // 密码输入框 - 触发小人看的动画
+            if (registerPassword) {
+                const passwordInputHandler = (e) => {
+                    if (window.state) {
+                        window.state.password = e.target.value;
+                        
+                        clearTimeout(window.state.peekTimeout);
+                        
+                        if (window.state.password.length > 0 && window.state.showPassword) {
+                            if (window.schedulePeek) window.schedulePeek();
+                        } else {
+                            window.state.isPurplePeeking = false;
+                        }
+                        
+                        if (window.updateCharacters) window.updateCharacters();
+                    }
+                };
+                
+                registerPassword.addEventListener('input', passwordInputHandler);
+            }
+            
+            // 密码显示/隐藏按钮
+            if (toggleRegisterPassword) {
+                const toggleClickHandler = () => {
+                    if (window.state) {
+                        window.state.showPassword = !window.state.showPassword;
+                        
+                        registerPassword.type = window.state.showPassword ? 'text' : 'password';
+                        
+                        // 切换图标
+                        const iconEye = toggleRegisterPassword.querySelector('.icon-eye');
+                        const iconEyeOff = toggleRegisterPassword.querySelector('.icon-eye-off');
+                        
+                        if (iconEye && iconEyeOff) {
+                            if (window.state.showPassword) {
+                                iconEye.classList.add('d-none');
+                                iconEyeOff.classList.remove('d-none');
+                            } else {
+                                iconEye.classList.remove('d-none');
+                                iconEyeOff.classList.add('d-none');
+                            }
+                        }
+                        
+                        clearTimeout(window.state.peekTimeout);
+                        
+                        if (window.state.password.length > 0 && window.state.showPassword) {
+                            if (window.schedulePeek) window.schedulePeek();
+                        } else {
+                            window.state.isPurplePeeking = false;
+                        }
+                        
+                        if (window.updateCharacters) window.updateCharacters();
+                    }
+                };
+                
+                toggleRegisterPassword.addEventListener('click', toggleClickHandler);
+            }
+            
+            registerEventsbound = true;
+        }
+        
+        // 根据 URL 参数决定显示哪个表单
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            
+            if (mode === 'register') {
+                showRegister();
+            } else {
+                // 确保登录页面也正常显示
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('registerSection').style.display = 'none';
+            }
+        });
+    </script>
+    
+    <!-- AJAX 表单提交（避免页面刷新） -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 登录表单 AJAX 提交
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const loginBtn = document.getElementById('loginBtn');
+                    const errorMessage = document.getElementById('errorMessage');
+                    
+                    // 禁用按钮
+                    loginBtn.disabled = true;
+                    loginBtn.textContent = 'Logging in...';
+                    errorMessage.classList.add('d-none');
+                    
+                    fetch('{{ url_for("auth.login") }}', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        // 检查是否登录成功（通过检查响应中是否有 dashboard 关键字）
+                        if (html.includes('dashboard') || html.includes('工厂管理')) {
+                            // 登录成功，跳转到 dashboard
+                            window.location.href = '{{ url_for("main.dashboard") }}';
+                        } else {
+                            // 登录失败，解析错误信息
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const flashMessages = doc.querySelectorAll('.flash-message');
+                            
+                            let errorMsg = '账号或密码错误';  // 默认错误信息
+                            
+                            if (flashMessages.length > 0) {
+                                const message = flashMessages[0].querySelector('.flash-text');
+                                if (message) {
+                                    const text = message.textContent.trim();
+                                    // 统一显示为"账号或密码错误"，不暴露具体信息
+                                    if (text.includes('Invalid') || text.includes('password') || text.includes('username')) {
+                                        errorMsg = '账号或密码错误';
+                                    } else if (text.includes('banned') || text.includes('BANNED')) {
+                                        errorMsg = text;  // 保留封禁信息
+                                    } else {
+                                        errorMsg = text;
+                                    }
+                                }
+                            }
+                            
+                            errorMessage.textContent = errorMsg;
+                            errorMessage.classList.remove('d-none');
+                            
+                            // 恢复按钮
+                            loginBtn.disabled = false;
+                            loginBtn.textContent = 'Log in';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        errorMessage.textContent = '登录失败，请稍后重试';
+                        errorMessage.classList.remove('d-none');
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'Log in';
+                    });
+                });
+            }
+            
+            // 注册表单 AJAX 提交
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                registerForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const registerBtn = this.querySelector('button[type="submit"]');
+                    const errorMessage = document.getElementById('registerErrorMessage');
+                    
+                    // 禁用按钮
+                    registerBtn.disabled = true;
+                    registerBtn.textContent = 'Creating Account...';
+                    errorMessage.classList.add('d-none');
+                    
+                    fetch('{{ url_for("auth.register") }}', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        // 检查是否注册成功
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const flashMessages = doc.querySelectorAll('.flash-message');
+                        
+                        if (flashMessages.length > 0) {
+                            const message = flashMessages[0].querySelector('.flash-text');
+                            const messageText = message ? message.textContent.trim() : '';
+                            const isSuccess = flashMessages[0].classList.contains('flash-success');
+                            
+                            if (isSuccess) {
+                                // 注册成功，显示成功消息并切换到登录表单
+                                showFlashMessage('注册成功！请登录', 'success');
+                                setTimeout(() => {
+                                    showLogin();
+                                    // 清空注册表单
+                                    registerForm.reset();
+                                }, 1500);
+                            } else {
+                                // 注册失败，显示具体错误信息
+                                let errorMsg = messageText;
+                                
+                                // 优化错误提示
+                                if (messageText.includes('already exists') || messageText.includes('已存在')) {
+                                    errorMsg = '该用户名已被注册';
+                                } else if (messageText.includes('already registered') || messageText.includes('已注册')) {
+                                    errorMsg = '该邮箱已被注册';
+                                } else if (!errorMsg) {
+                                    errorMsg = '注册失败，请检查输入信息';
+                                }
+                                
+                                errorMessage.textContent = errorMsg;
+                                errorMessage.classList.remove('d-none');
+                                registerBtn.disabled = false;
+                                registerBtn.textContent = 'Create Account';
+                            }
+                        } else {
+                            // 没有 flash 消息，可能是其他错误
+                            errorMessage.textContent = '注册失败，请检查输入信息';
+                            errorMessage.classList.remove('d-none');
+                            registerBtn.disabled = false;
+                            registerBtn.textContent = 'Create Account';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        errorMessage.textContent = '注册失败，请稍后重试';
+                        errorMessage.classList.remove('d-none');
+                        registerBtn.disabled = false;
+                        registerBtn.textContent = 'Create Account';
+                    });
+                });
+            }
+            
+            // 显示 Flash 消息的函数
+            function showFlashMessage(message, category) {
+                // 移除旧的 flash 消息
+                const oldFlash = document.getElementById('flashMessages');
+                if (oldFlash) {
+                    oldFlash.remove();
+                }
+                
+                // 创建新的 flash 消息
+                const flashDiv = document.createElement('div');
+                flashDiv.id = 'flashMessages';
+                flashDiv.className = 'mb-3';
+                flashDiv.innerHTML = `
+                    <div class="flash-message flash-${category}" role="alert">
+                        <div class="flash-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="flash-content">
+                            <div class="flash-text">${message}</div>
+                        </div>
+                    </div>
+                `;
+                
+                // 插入到登录表单前面
+                const loginSection = document.getElementById('loginSection');
+                const firstChild = loginSection.firstElementChild;
+                loginSection.insertBefore(flashDiv, firstChild);
+                
+                // 5秒后自动消失
+                setTimeout(() => {
+                    const flashMessage = flashDiv.querySelector('.flash-message');
+                    flashMessage.style.opacity = '0';
+                    flashMessage.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        flashDiv.remove();
+                    }, 300);
+                }, 5000);
+            }
+        });
+    </script>
+    
+    <!-- 全局音乐播放器脚本 -->
+    <script src="{{ url_for('static', filename='music-player/js/music-player.js') }}"></script>
+</body>
+</html>

@@ -1,1231 +1,313 @@
-{% extends "base.html" %}
-
-{% block content %}
-
-<!-- Add CSS variables for font size and color scheme -->
-<style>
-/* Font size variables - consistent with settings.html */
-:root {
-    --font-size-xs: 0.75rem;   /* 12px */
-    --font-size-sm: 0.875rem;  /* 14px */
-    --font-size-base: 1rem;    /* 16px */
-    --font-size-lg: 1.125rem;  /* 18px */
-    --font-size-xl: 1.25rem;   /* 20px */
-    --font-size-2xl: 1.5rem;   /* 24px */
-    --font-size-3xl: 1.875rem; /* 30px */
-    --font-size-4xl: 2.25rem;  /* 36px */
-    --font-size-5xl: 3rem;     /* 48px */
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeakShift - 工业用电成本与碳排放分析优化系统</title>
     
-    /* Default green scheme - will be overridden by JavaScript */
-    --primary-color: #2E8B57;
-    --primary-light: #4CAF50;
-    --primary-dark: #267c4d;
-    --primary-gradient: linear-gradient(90deg, #2E8B57, #4CAF50);
-}
-
-/* Green scheme */
-[data-color-scheme="green"] {
-    --primary-color: #2E8B57;
-    --primary-light: #4CAF50;
-    --primary-dark: #267c4d;
-    --primary-gradient: linear-gradient(90deg, #2E8B57, #4CAF50);
-}
-
-/* Blue scheme */
-[data-color-scheme="blue"] {
-    --primary-color: #2196F3;
-    --primary-light: #03A9F4;
-    --primary-dark: #0b7dda;
-    --primary-gradient: linear-gradient(90deg, #2196F3, #03A9F4);
-}
-
-/* Earth tone scheme */
-[data-color-scheme="earth"] {
-    --primary-color: #8B4513;
-    --primary-light: #228B22;
-    --primary-dark: #5D2906;
-    --primary-gradient: linear-gradient(90deg, #8B4513, #228B22);
-}
-
-/* Dashboard Main Container */
-.dashboard-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-    font-size: var(--font-size-base); /* Use variable */
-}
-
-/* Header Area */
-.dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid rgba(var(--primary-color-rgb, 46, 139, 87), 0.1);
-}
-
-.dashboard-title {
-    color: var(--primary-color);
-    font-size: var(--font-size-3xl);
-    font-weight: 600;
-    margin: 0;
-}
-
-/* User Badge */
-.user-badge .badge {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: var(--font-size-sm);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.badge-admin { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-.badge-staff { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
-.badge-student { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
-
-/* Grid Layout */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 1.5rem;
-}
-
-/* Card General Styles */
-.dashboard-card {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid #f0f0f0;
-    transition: all 0.3s ease;
-    overflow: hidden;
-}
-
-.dashboard-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-}
-
-/* Card Header */
-.card-header {
-    display: flex;
-    align-items: center;
-    padding: 1.5rem 1.5rem 1rem;
-    border-bottom: 1px solid #f5f5f5;
-}
-
-.card-icon {
-    font-size: var(--font-size-xl);
-    margin-right: 0.75rem;
-}
-
-.card-header h3 {
-    margin: 0;
-    color: #2c3e50;
-    font-size: var(--font-size-lg);
-    font-weight: 600;
-}
-
-/* Card Content */
-.card-content {
-    padding: 1.5rem;
-}
-
-/* Quick Actions Grid */
-.action-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.action-item {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    border-radius: 12px;
-    text-decoration: none;
-    color: inherit;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
-}
-
-.action-item:hover {
-    background: linear-gradient(135deg, rgba(var(--primary-color-rgb, 46, 139, 87), 0.05) 0%, rgba(var(--primary-color-rgb, 46, 139, 87), 0.1) 100%);
-    border-color: var(--primary-color);
-    transform: translateX(4px);
-}
-
-.action-icon {
-    font-size: var(--font-size-2xl);
-    margin-right: 1rem;
-    width: 40px;
-    text-align: center;
-}
-
-.action-text {
-    flex: 1;
-}
-
-.action-title {
-    display: block;
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 0.25rem;
-    font-size: var(--font-size-base);
-}
-
-.action-desc {
-    display: block;
-    font-size: var(--font-size-sm);
-    color: #7f8c8d;
-}
-
-.action-arrow {
-    color: var(--primary-color);
-    font-weight: bold;
-    font-size: var(--font-size-lg);
-}
-
-/* Impact Statistics */
-.impact-stats {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.stat-item {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    background: linear-gradient(135deg, rgba(var(--primary-color-rgb, 46, 139, 87), 0.05) 0%, rgba(var(--primary-color-rgb, 46, 139, 87), 0.1) 100%);
-    border-radius: 12px;
-    border-left: 4px solid var(--primary-color);
-}
-
-.stat-icon {
-    font-size: var(--font-size-2xl);
-    margin-right: 1rem;
-    width: 50px;
-    text-align: center;
-}
-
-.stat-info {
-    flex: 1;
-}
-
-.stat-value {
-    display: block;
-    font-size: var(--font-size-2xl);
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 0.25rem;
-}
-
-.stat-label {
-    display: block;
-    font-size: var(--font-size-sm);
-    color: #7f8c8d;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* New environmental impact metrics styles */
-.user-environmental-impact h4 {
-    font-size: var(--font-size-base);
-    margin-bottom: 0.75rem;
-    color: #2c3e50;
-}
-
-.impact-metrics {
-    display: flex;
-    gap: 1rem;
-}
-
-.impact-metric {
-    flex: 1;
-    text-align: center;
-}
-
-.metric-value {
-    display: block;
-    font-size: var(--font-size-xl);
-    font-weight: 700;
-    color: var(--primary-color);
-}
-
-.metric-label {
-    display: block;
-    font-size: var(--font-size-xs);
-    color: #7f8c8d;
-    margin-top: 0.25rem;
-}
-
-/* Progress Bar */
-.progress-section {
-    background: #f8f9fa;
-    padding: 1rem;
-    border-radius: 12px;
-}
-
-.progress-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-    font-size: var(--font-size-sm);
-    color: #7f8c8d;
-}
-
-.progress-bar {
-    height: 8px;
-    background: #e9ecef;
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background: var(--primary-gradient);
-    border-radius: 4px;
-    transition: width 0.3s ease;
-}
-
-/* Empty State */
-.empty-state {
-    text-align: center;
-    padding: 2rem 1rem;
-    color: #7f8c8d;
-    font-size: var(--font-size-base);
-}
-
-.empty-icon {
-    font-size: var(--font-size-4xl);
-    margin-bottom: 1rem;
-    opacity: 0.5;
-}
-
-.empty-state small {
-    font-size: var(--font-size-sm);
-}
-
-/* Badges Grid */
-.badges-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-}
-
-.badge-item {
-    position: relative;
-    text-align: center;
-    padding: 1rem 0.5rem;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    background: #f8f9fa;
-}
-
-.badge-item.unlocked {
-    background: linear-gradient(135deg, rgba(var(--primary-color-rgb, 46, 139, 87), 0.1), rgba(var(--primary-color-rgb, 46, 139, 87), 0.2));
-    border: 2px solid var(--primary-color);
-}
-
-.badge-item.locked {
-    opacity: 0.6;
-    filter: grayscale(0.8);
-}
-
-.badge-icon {
-    font-size: var(--font-size-3xl);
-    margin-bottom: 0.5rem;
-}
-
-.badge-name {
-    display: block;
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    color: #2c3e50;
-}
-
-.badge-status {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: var(--primary-color);
-    color: white;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: var(--font-size-xs);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Activities List */
-.activities-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.activity-item {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border-left: 3px solid var(--primary-color);
-}
-
-.activity-icon {
-    font-size: var(--font-size-xl);
-    margin-right: 1rem;
-    width: 40px;
-    text-align: center;
-}
-
-.activity-details {
-    flex: 1;
-}
-
-.activity-title {
-    font-weight: 600;
-    color: #2c3e50;
-    margin-bottom: 0.25rem;
-    font-size: var(--font-size-base);
-}
-
-.activity-meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: var(--font-size-sm);
-    color: #7f8c8d;
-}
-
-.carbon-amount {
-    color: var(--primary-color);
-    font-weight: 600;
-    font-size: var(--font-size-sm);
-}
-
-.activity-date {
-    font-size: var(--font-size-sm);
-}
-
-/* Admin Card */
-.admin-card {
-    border: 2px solid #673ab7;
-}
-
-.admin-card .action-item {
-    background: linear-gradient(135deg, #673ab7 0%, #512da8 100%);
-    color: white;
-    border: none;
-}
-
-.admin-card .action-item:hover {
-    background: linear-gradient(135deg, #512da8 0%, #4527a0 100%);
-    transform: translateY(-2px);
-}
-
-/* ============================================
-   Dark Mode Styles
-   ============================================ */
-
-/* Dark mode variables */
-[data-theme="dark"] {
-    --dark-bg-primary: #121212;
-    --dark-bg-secondary: #1a1a1a;
-    --dark-bg-card: #2d2d2d;
-    --dark-bg-card-hover: #333333;
-    --dark-bg-action-hover: rgba(var(--primary-color-rgb, 76, 175, 80), 0.15);
-    --dark-bg-stat-item: rgba(var(--primary-color-rgb, 76, 175, 80), 0.1);
-    --dark-bg-progress: #2d2d2d;
-    --dark-bg-badge: #333333;
-    --dark-bg-activity: #333333;
-    --dark-bg-empty: #2d2d2d;
-    --dark-text-primary: #ffffff;
-    --dark-text-secondary: #cccccc;
-    --dark-text-muted: #aaaaaa;
-    --dark-border: #333333;
-    --dark-border-light: #404040;
-    --dark-border-green: rgba(var(--primary-color-rgb, 46, 139, 87), 0.5);
-    --dark-primary-hover: rgba(var(--primary-color-rgb, 76, 175, 80), 0.8);
-    --dark-progress-bg: #444444;
-    --dark-progress-fill: var(--primary-gradient);
-}
-
-/* Dark mode global */
-[data-theme="dark"] .dashboard-container {
-    background: var(--dark-bg-primary);
-}
-
-[data-theme="dark"] .dashboard-header {
-    border-bottom-color: var(--dark-border);
-}
-
-[data-theme="dark"] .dashboard-title {
-    color: var(--primary-color);
-}
-
-/* Cards in dark mode */
-[data-theme="dark"] .dashboard-card {
-    background: var(--dark-bg-card);
-    border-color: var(--dark-border);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    color: var(--dark-text-primary);
-}
-
-[data-theme="dark"] .dashboard-card:hover {
-    background: var(--dark-bg-card-hover);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-}
-
-[data-theme="dark"] .card-header {
-    border-bottom-color: var(--dark-border);
-}
-
-[data-theme="dark"] .card-header h3 {
-    color: var(--dark-text-primary);
-}
-
-/* Quick actions in dark mode */
-[data-theme="dark"] .action-item {
-    background: var(--dark-bg-secondary);
-    border-color: var(--dark-border);
-    color: var(--dark-text-primary);
-}
-
-[data-theme="dark"] .action-item:hover {
-    background: var(--dark-bg-action-hover);
-    border-color: var(--primary-color);
-}
-
-[data-theme="dark"] .action-title {
-    color: var(--dark-text-primary);
-}
-
-[data-theme="dark"] .action-desc {
-    color: var(--dark-text-secondary);
-}
-
-[data-theme="dark"] .action-arrow {
-    color: var(--primary-color);
-}
-
-/* Statistics in dark mode */
-[data-theme="dark"] .stat-item {
-    background: var(--dark-bg-stat-item);
-    border-left-color: var(--primary-color);
-}
-
-[data-theme="dark"] .stat-value {
-    color: var(--primary-color);
-}
-
-[data-theme="dark"] .stat-label {
-    color: var(--dark-text-secondary);
-}
-
-/* Environmental metrics in dark mode */
-[data-theme="dark"] .user-environmental-impact h4 {
-    color: var(--dark-text-primary);
-}
-
-[data-theme="dark"] .metric-value {
-    color: var(--primary-color);
-}
-
-[data-theme="dark"] .metric-label {
-    color: var(--dark-text-secondary);
-}
-
-/* Progress bar in dark mode */
-[data-theme="dark"] .progress-section {
-    background: var(--dark-bg-progress);
-}
-
-[data-theme="dark"] .progress-header {
-    color: var(--dark-text-secondary);
-}
-
-[data-theme="dark"] .progress-bar {
-    background: var(--dark-progress-bg);
-}
-
-[data-theme="dark"] .progress-fill {
-    background: var(--dark-progress-fill);
-}
-
-/* Empty state in dark mode */
-[data-theme="dark"] .empty-state {
-    color: var(--dark-text-secondary);
-    background: var(--dark-bg-empty);
-    border-radius: 12px;
-}
-
-[data-theme="dark"] .empty-state small {
-    color: var(--dark-text-muted);
-}
-
-/* Badges in dark mode */
-[data-theme="dark"] .badge-item {
-    background: var(--dark-bg-badge);
-    border-color: var(--dark-border);
-}
-
-[data-theme="dark"] .badge-item.unlocked {
-    background: rgba(var(--primary-color-rgb, 46, 139, 87), 0.2);
-    border-color: var(--primary-color);
-}
-
-[data-theme="dark"] .badge-item.locked {
-    opacity: 0.4;
-}
-
-[data-theme="dark"] .badge-name {
-    color: var(--dark-text-primary);
-}
-
-/* Activities list in dark mode */
-[data-theme="dark"] .activity-item {
-    background: var(--dark-bg-activity);
-    border-left-color: var(--primary-color);
-}
-
-[data-theme="dark"] .activity-title {
-    color: var(--dark-text-primary);
-}
-
-[data-theme="dark"] .activity-meta {
-    color: var(--dark-text-secondary);
-}
-
-[data-theme="dark"] .carbon-amount {
-    color: var(--primary-color);
-}
-
-/* User badges in dark mode */
-[data-theme="dark"] .badge-admin {
-    background: linear-gradient(135deg, #4a1e8c 0%, #311b92 100%);
-}
-
-[data-theme="dark"] .badge-staff {
-    background: linear-gradient(135deg, #8b1e3c 0%, #6a1b9a 100%);
-}
-
-[data-theme="dark"] .badge-student {
-    background: linear-gradient(135deg, #0062cc 0%, #00838f 100%);
-}
-
-/* Admin card in dark mode */
-[data-theme="dark"] .admin-card {
-    border-color: #5e35b1;
-}
-
-[data-theme="dark"] .admin-card .action-item {
-    background: linear-gradient(135deg, #5e35b1 0%, #4527a0 100%);
-}
-
-[data-theme="dark"] .admin-card .action-item:hover {
-    background: linear-gradient(135deg, #4527a0 0%, #311b92 100%);
-}
-
-[data-theme="dark"] .admin-card p {
-    color: var(--dark-text-secondary);
-}
-
-/* Responsive design adjustments */
-@media (max-width: 768px) {
-    .dashboard-container {
-        padding: 1rem;
-    }
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    .dashboard-header {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
-    .dashboard-grid {
-        grid-template-columns: 1fr;
-    }
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     
-    .badges-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .stat-item {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .stat-icon {
-        margin-right: 0;
-        margin-bottom: 0.5rem;
-    }
-    
-    .impact-metrics {
-        flex-direction: column;
-    }
-}
-</style>
+    <!-- 全局音乐播放器样式 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='music-player/css/music-player.css') }}">
+</head>
+<body data-playlist="playlist-dashboard">
+    <!-- 主容器 -->
+    <div id="app" class="d-flex flex-column min-vh-100">
+        
+        <!-- Flash Messages - 顶部居中显示 -->
+        <div id="flashMessagesContainer" class="position-fixed start-50 translate-middle-x" style="z-index: 9999; min-width: 300px; top: 80px;">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}" role="alert">
+                            <div class="flash-icon">
+                                {% if category == 'success' %}
+                                    <i class="bi bi-check-circle-fill"></i>
+                                {% elif category == 'danger' or category == 'error' %}
+                                    <i class="bi bi-exclamation-circle-fill"></i>
+                                {% elif category == 'warning' %}
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                {% else %}
+                                    <i class="bi bi-info-circle-fill"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flash-content">
+                                <div class="flash-text">{{ message }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        
+        <!-- 顶部导航栏 -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <i class="bi bi-lightning-charge-fill me-2"></i>
+                    <span class="fw-bold">PeakShift</span>
+                </a>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-white">
+                        <i class="bi bi-person-circle me-1"></i>
+                        {{ current_user.username }}
+                    </span>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-box-arrow-right me-1"></i>
+                        退出
+                    </a>
+                </div>
+            </div>
+        </nav>
 
-<div class="dashboard-container">
-    <!-- Welcome Header Section -->
-    <div class="dashboard-header">
-        <h1 class="dashboard-title">🌿 Welcome, {{ current_user.username }}!</h1>
-        <div class="user-badge">
-            <span class="badge {{ 'badge-admin' if current_user.user_type == 'admin' else 'badge-staff' if current_user.user_type == 'staff' else 'badge-student' }}">
-                {{ current_user.user_type | title }}
-            </span>
+        <!-- 主内容区域 -->
+        <div class="flex-grow-1">
+            
+            <!-- 工厂管理视图 -->
+            <div id="factoryManagementView" class="view-container">
+                <div class="container py-5">
+                    <div class="row mb-4">
+                        <div class="col">
+                            <h2 class="mb-3">
+                                <i class="bi bi-building me-2"></i>
+                                工厂管理
+                            </h2>
+                            <p class="text-muted">管理您的工厂信息，查看用电数据和碳排放情况</p>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-primary" onclick="showCreateFactoryModal()">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                新建工厂
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 工厂列表 -->
+                    <div id="factoryList" class="row g-4">
+                        <!-- 工厂卡片将通过 JavaScript 动态加载 -->
+                    </div>
+
+                    <!-- 空状态 -->
+                    <div id="emptyState" class="text-center py-5" style="display: none;">
+                        <i class="bi bi-building text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="mt-3 text-muted">还没有工厂</h4>
+                        <p class="text-muted">点击"新建工厂"按钮创建您的第一个工厂</p>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- Main Content Grid -->
-    <div class="dashboard-grid">
-        <!-- Quick Actions Card -->
-        <div class="dashboard-card quick-actions-card">
-            <div class="card-header">
-                <div class="card-icon">🚀</div>
-                <h3>Quick Actions</h3>
-            </div>
-            <div class="card-content">
-                <div class="action-grid">
-                    <a href= "{{ url_for('main.impact_center') }}" class="action-item">
-                        <div class="action-icon">🌱</div>
-                        <div class="action-text">
-                            <span class="action-title">Impact Center</span>
-                            <span class="action-desc">View sustainability metrics</span>
-                        </div>
-                        <div class="action-arrow">→</div>
-                    </a >
-                    
-                    <a href="{{ url_for('main.log_activity') }}" class="action-item">
-                        <div class="action-icon">📊</div>
-                        <div class="action-text">
-                            <span class="action-title">Log Activity</span>
-                            <span class="action-desc">Record your eco-actions</span>
-                        </div>
-                        <div class="action-arrow">→</div>
-                    </a >
-                    
-                    <a href="{{ url_for('main.my_progress') }}" class="action-item">
-                        <div class="action-icon">🏆</div>
-                        <div class="action-text">
-                            <span class="action-title">My Progress</span>
-                            <span class="action-desc">Track achievements</span>
-                        </div>
-                        <div class="action-arrow">→</div>
-                    </a >
-                    
-                    <a href="{{ url_for('main.events') }}" class="action-item">
-                        <div class="action-icon">📅</div>
-                        <div class="action-text">
-                            <span class="action-title">Browse Events</span>
-                            <span class="action-desc">Join sustainability events</span>
-                        </div>
-                        <div class="action-arrow">→</div>
-                    </a >
+    <!-- 创建/编辑工厂模态框 -->
+    <div class="modal fade" id="createFactoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="factoryModalTitle">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        新建工厂
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-            </div>
-        </div>
-
-        <!-- Impact Statistics Card -->
-        <div class="dashboard-card impact-card">
-            <div class="card-header">
-                <div class="card-icon">📈</div>
-                <h3>Your Impact</h3>
-            </div>
-            <div class="card-content">
-                <div class="impact-stats">
-                    <!-- Add after existing impact-stats section -->
-                    <div class="user-environmental-impact">
-                        <h4>Your Environmental Impact</h4>
-                        <div class="impact-metrics">
-                            <div class="impact-metric">
-                                <span class="metric-value">{{ "%.2f"|format(user_stats.user_trees_equivalent|default(0)) }}</span>
-                                <span class="metric-label">Trees Equivalent</span>
+                <div class="modal-body">
+                    <form id="createFactoryForm">
+                        <!-- 基础信息 -->
+                        <div class="mb-3">
+                            <label for="factoryName" class="form-label">工厂名称 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="factoryName" required placeholder="例如：北京电解铝厂">
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="factoryLocation" class="form-label">工厂位置</label>
+                                <input type="text" class="form-control" id="factoryLocation" placeholder="例如：北京市朝阳区">
                             </div>
-                            <div class="impact-metric">
-                                <span class="metric-value">{{ "%.3f"|format(user_stats.user_cars_off_road|default(0)) }}</span>
-                                <span class="metric-label">Cars Off Road</span>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="industryType" class="form-label">行业类型</label>
+                                <select class="form-select" id="industryType">
+                                    <option value="">请选择</option>
+                                    <option value="电解铝">电解铝</option>
+                                    <option value="钢铁">钢铁</option>
+                                    <option value="水泥">水泥</option>
+                                    <option value="化工">化工</option>
+                                    <option value="炼煤">炼煤</option>
+                                    <option value="纺织">纺织</option>
+                                    <option value="其他">其他</option>
+                                </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon">🌍</div>
-                        <div class="stat-info">
-                            <span class="stat-value">{{ "%.1f"|format(user_stats.total_carbon_saved) }} kg</span>
-                            <span class="stat-label">CO₂ Saved</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-item">
-                        <div class="stat-icon">📝</div>
-                        <div class="stat-info">
-                            <span class="stat-value">{{ user_stats.activity_count }}</span>
-                            <span class="stat-label">Activities</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-item">
-                        <div class="stat-icon">🏅</div>
-                        <div class="stat-info">
-                            <span class="stat-value">{{ user_stats.rank }}</span>
-                            <span class="stat-label">Current Rank</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="progress-section">
-                    <div class="progress-header">
-                        <span>Next Level Progress</span>
-                        <span>
-                            {% if user_stats and user_stats.progress_percentage is defined %}
-                                {{ user_stats.progress_percentage }}%
-                            {% else %}
-                                0%
-                            {% endif %}
-                        </span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" 
-                             style="--progress-width: {{ user_stats.progress_percentage | default(0) }}%">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Activity Card -->
-        <div class="dashboard-card recent-activity-card">
-            <div class="card-header">
-                <div class="card-icon">🕒</div>
-                <h3>Recent Activity</h3>
-            </div>
-            <div class="card-content">
-                {% if recent_activities %}
-                    <div class="activities-list">
-                        {% for activity in recent_activities %}
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                {% if activity.activity_type == 'cycling' %}🚴
-                                {% elif activity.activity_type == 'recycling' %}♻️
-                                {% elif activity.activity_type == 'energy_saving' %}💡
-                                {% elif activity.activity_type == 'public_transport' %}🚆
-                                {% elif activity.activity_type == 'vegetarian_meal' %}🥗
-                                {% else %}🌱{% endif %}
+                        
+                        <!-- 电力参数 -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="voltageLevel" class="form-label">电压等级 <span class="text-danger">*</span></label>
+                                <select class="form-select" id="voltageLevel" required>
+                                    <option value="">请选择</option>
+                                    <option value="10">10 kV</option>
+                                    <option value="35">35 kV</option>
+                                    <option value="110">110 kV</option>
+                                    <option value="220">220 kV</option>
+                                </select>
                             </div>
-                            <div class="activity-details">
-                                <div class="activity-title">{{ activity.activity_type | replace('_', ' ') | title }}</div>
-                                <div class="activity-meta">
-                                    <span class="carbon-amount">+{{ "%.1f"|format(activity.carbon_saved) }} kg CO₂</span>
-                                    <span class="activity-date">{{ activity.activity_date.strftime('%b %d') }}</span>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="transformerCapacity" class="form-label">变压器容量 (kVA) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="transformerCapacity" required step="100" min="0" placeholder="例如：5000">
+                            </div>
+                        </div>
+                        
+                        <!-- 用电信息 -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="dailyUsage" class="form-label">日用电量 (kWh/天) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="dailyUsage" required step="1000" min="0" placeholder="例如：50000">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="workingDays" class="form-label">每月工作天数 <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="workingDays" required min="1" max="31" value="26" placeholder="例如：26">
+                            </div>
+                        </div>
+                        
+                        <!-- 工作时间段 -->
+                        <div class="mb-3">
+                            <label class="form-label">工作时间段 <span class="text-danger">*</span></label>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-5">
+                                            <select class="form-select form-select-sm" id="periodStart">
+                                                <option value="">开始时间</option>
+                                                <option value="0">00:00</option>
+                                                <option value="1">01:00</option>
+                                                <option value="2">02:00</option>
+                                                <option value="3">03:00</option>
+                                                <option value="4">04:00</option>
+                                                <option value="5">05:00</option>
+                                                <option value="6">06:00</option>
+                                                <option value="7">07:00</option>
+                                                <option value="8" selected>08:00</option>
+                                                <option value="9">09:00</option>
+                                                <option value="10">10:00</option>
+                                                <option value="11">11:00</option>
+                                                <option value="12">12:00</option>
+                                                <option value="13">13:00</option>
+                                                <option value="14">14:00</option>
+                                                <option value="15">15:00</option>
+                                                <option value="16">16:00</option>
+                                                <option value="17">17:00</option>
+                                                <option value="18">18:00</option>
+                                                <option value="19">19:00</option>
+                                                <option value="20">20:00</option>
+                                                <option value="21">21:00</option>
+                                                <option value="22">22:00</option>
+                                                <option value="23">23:00</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-auto d-flex align-items-center">
+                                            <span>至</span>
+                                        </div>
+                                        <div class="col-5">
+                                            <select class="form-select form-select-sm" id="periodEnd">
+                                                <option value="">结束时间</option>
+                                                <option value="1">01:00</option>
+                                                <option value="2">02:00</option>
+                                                <option value="3">03:00</option>
+                                                <option value="4">04:00</option>
+                                                <option value="5">05:00</option>
+                                                <option value="6">06:00</option>
+                                                <option value="7">07:00</option>
+                                                <option value="8">08:00</option>
+                                                <option value="9">09:00</option>
+                                                <option value="10">10:00</option>
+                                                <option value="11">11:00</option>
+                                                <option value="12">12:00</option>
+                                                <option value="13">13:00</option>
+                                                <option value="14">14:00</option>
+                                                <option value="15">15:00</option>
+                                                <option value="16">16:00</option>
+                                                <option value="17">17:00</option>
+                                                <option value="18" selected>18:00</option>
+                                                <option value="19">19:00</option>
+                                                <option value="20">20:00</option>
+                                                <option value="21">21:00</option>
+                                                <option value="22">22:00</option>
+                                                <option value="23">23:00</option>
+                                                <option value="24">24:00</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="button" class="btn btn-sm btn-primary" onclick="addWorkPeriod()">
+                                                <i class="bi bi-plus-circle"></i> 添加
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="workPeriodsList" class="mt-2">
+                                        <!-- 已添加的时间段会显示在这里 -->
+                                    </div>
+                                    
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle"></i> 
+                                        添加工厂的工作时间段，例如：8:00-12:00, 13:00-18:00
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="empty-state">
-                        <div class="empty-icon">📊</div>
-                        <p>No activities logged yet</p>
-                        <small>Start by logging your first sustainability action!</small>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Badges and Achievements Card -->
-        <div class="dashboard-card badges-card">
-            <div class="card-header">
-                <div class="card-icon">🏆</div>
-                <h3>Achievements</h3>
-            </div>
-            <div class="card-content">
-                <div class="badges-grid">
-                    <div class="badge-item {{ 'unlocked' if user_stats.achievements.eco_starter else 'locked' }}">
-                        <div class="badge-icon">🌱</div>
-                        <span class="badge-name">Eco Starter</span>
-                        {% if user_stats.achievements.eco_starter %}
-                        <span class="badge-status">✓</span>
-                        {% endif %}
-                    </div>
-                    <div class="badge-item {{ 'unlocked' if user_stats.achievements.green_commuter else 'locked' }}">
-                        <div class="badge-icon">🚲</div>
-                        <span class="badge-name">Green Commuter</span>
-                        {% if user_stats.achievements.green_commuter %}
-                        <span class="badge-status">✓</span>
-                        {% endif %}
-                    </div>
-                    <div class="badge-item {{ 'unlocked' if user_stats.achievements.energy_saver else 'locked' }}">
-                        <div class="badge-icon">💡</div>
-                        <span class="badge-name">Energy Saver</span>
-                        {% if user_stats.achievements.energy_saver %}
-                        <span class="badge-status">✓</span>
-                        {% endif %}
-                    </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="factorySubmitBtn" onclick="createFactory()">
+                        <i class="bi bi-check-circle me-1"></i>
+                        创建
+                    </button>
                 </div>
             </div>
         </div>
-        
-        {% if current_user.is_admin %}
-        <div class="dashboard-card admin-card">
-            <div class="card-header">
-                <div class="card-icon">👑</div>
-                <h3>Admin Dashboard</h3>
-            </div>
-            <div class="card-content">
-                <div style="text-align: center; padding: 1rem 0;">
-                    <a href="{{ url_for('main.admin_users') }}" 
-                     class="action-item" 
-                     style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #673ab7 0%, #512da8 100%); color: white; border-radius: 999px; text-decoration: none; font-weight: 600; margin-bottom: 1rem;">
-                        👑 Open Admin Panel
-                    </a>
-                    <p style="font-size: var(--font-size-sm); color: #7f8c8d; margin-top: 0.5rem;">
-                        Manage users, roles, and system settings
-                    </p>
-                </div>
-            </div>
-        </div>
-        {% endif %}
     </div>
-</div>
 
-<script>
-// Use caching strategy to reduce DOM queries
-document.addEventListener('DOMContentLoaded', function() {
-    // ============================================
-    // Global variable caching
-    // ============================================
-    let cachedElements = {};
-    let styleCache = {};
-    let isDarkMode = false;
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    // Cache frequently used elements
-    function cacheElements() {
-        if (!Object.keys(cachedElements).length) {
-            cachedElements.root = document.documentElement;
-            cachedElements.progressFill = document.querySelector('.progress-fill');
-            // Cache theme-related elements
-            cachedElements.dashboardCards = document.querySelectorAll('.dashboard-card');
-            cachedElements.actionItems = document.querySelectorAll('.action-item');
-            cachedElements.statItems = document.querySelectorAll('.stat-item');
-            cachedElements.badgeItems = document.querySelectorAll('.badge-item');
-            cachedElements.activityItems = document.querySelectorAll('.activity-item');
-        }
-    }
-    
-    // ============================================
-    // Theme management - optimized version
-    // ============================================
-    
-    function applyTheme(theme) {
-        cacheElements();
-        const root = cachedElements.root;
-        
-        // Check if the same theme is being set repeatedly
-        const currentTheme = root.getAttribute('data-theme');
-        const currentMode = root.getAttribute('data-theme-mode');
-        
-        if (theme === 'auto' && currentMode === 'auto') return;
-        if (theme !== 'auto' && currentTheme === theme) return;
-        
-        // Remove all theme attributes and reset
-        root.removeAttribute('data-theme');
-        root.removeAttribute('data-theme-mode');
-        
-        let effectiveTheme;
-        
-        if (theme === 'auto') {
-            // Use system theme
-            effectiveTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            root.setAttribute('data-theme', effectiveTheme);
-            root.setAttribute('data-theme-mode', 'auto');
-            isDarkMode = effectiveTheme === 'dark';
-        } else {
-            // Use specified theme
-            effectiveTheme = theme;
-            root.setAttribute('data-theme', theme);
-            root.setAttribute('data-theme-mode', theme);
-            isDarkMode = theme === 'dark';
-        }
-        
-        // Save to localStorage
-        localStorage.setItem('theme', theme);
-        
-        // Update theme-related styles
-        updateThemeStyles(effectiveTheme);
-    }
-    
-    // Batch update theme styles to reduce DOM operations
-    function updateThemeStyles(theme) {
-        if (!cachedElements.dashboardCards) cacheElements();
-        
-        if (theme === 'dark') {
-            // Batch set dark mode styles
-            updateElementsForDarkMode();
-        } else {
-            // Light mode: remove inline styles and let CSS take over
-            resetThemeStyles();
-        }
-    }
-    
-    // Batch update for dark mode
-    function updateElementsForDarkMode() {
-        const rgb = getComputedStyle(cachedElements.root).getPropertyValue('--primary-color-rgb') || '46, 139, 87';
-        
-        // Batch process cards
-        cachedElements.dashboardCards.forEach(card => {
-            card.style.backgroundColor = '#2d2d2d';
-            card.style.borderColor = '#333333';
-            card.style.color = '#ffffff';
-        });
-        
-        // Batch process action items
-        cachedElements.actionItems.forEach(item => {
-            item.style.backgroundColor = '#1a1a1a';
-            item.style.borderColor = '#333333';
-        });
-        
-        // Batch process stat items
-        cachedElements.statItems.forEach(item => {
-            item.style.background = `linear-gradient(135deg, rgba(${rgb}, 0.1), rgba(${rgb}, 0.15))`;
-        });
-        
-        // Batch process badge items
-        cachedElements.badgeItems.forEach(item => {
-            if (item.classList.contains('unlocked')) {
-                item.style.background = `rgba(${rgb}, 0.2)`;
-            } else {
-                item.style.background = '#333333';
-            }
-        });
-        
-        // Batch process activity items
-        cachedElements.activityItems.forEach(item => {
-            item.style.backgroundColor = '#333333';
-        });
-    }
-    
-    // Reset theme styles
-    function resetThemeStyles() {
-        const elements = [
-            cachedElements.dashboardCards,
-            cachedElements.actionItems,
-            cachedElements.statItems,
-            cachedElements.badgeItems,
-            cachedElements.activityItems
-        ];
-        
-        elements.forEach(elementList => {
-            if (elementList) {
-                elementList.forEach(element => {
-                    element.style.backgroundColor = '';
-                    element.style.borderColor = '';
-                    element.style.color = '';
-                    element.style.background = '';
-                });
-            }
-        });
-    }
-    
-    // ============================================
-    // Color scheme management - optimized version
-    // ============================================
-    
-    function applyColorScheme(colorScheme) {
-        cacheElements();
-        const root = cachedElements.root;
-        
-        // Check if the same color scheme is being set repeatedly
-        if (styleCache.colorScheme === colorScheme) return;
-        styleCache.colorScheme = colorScheme;
-        
-        // Set color scheme attribute
-        root.setAttribute('data-color-scheme', colorScheme);
-        
-        // Save to localStorage
-        localStorage.setItem('color_scheme', colorScheme);
-        
-        // Update color variables (single DOM operation)
-        updateColorVariables(colorScheme);
-        
-        // If in dark mode, update related styles
-        if (isDarkMode) {
-            setTimeout(() => updateElementsForDarkMode(), 0);
-        }
-    }
-    
-    // Update all color variables in one go
-    function updateColorVariables(colorScheme) {
-        const root = cachedElements.root;
-        
-        switch(colorScheme) {
-            case 'green':
-                root.style.setProperty('--primary-color', '#2E8B57');
-                root.style.setProperty('--primary-light', '#4CAF50');
-                root.style.setProperty('--primary-dark', '#267c4d');
-                root.style.setProperty('--primary-gradient', 'linear-gradient(90deg, #2E8B57, #4CAF50)');
-                root.style.setProperty('--primary-color-rgb', '46, 139, 87');
-                break;
+    <!-- Auto-dismiss Flash Messages -->
+    <script>
+        // 自动关闭 Flash 消息（5秒后）
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('#flashMessagesContainer .flash-message');
+            flashMessages.forEach(function(message) {
+                // 添加淡入动画
+                setTimeout(function() {
+                    message.style.opacity = '1';
+                    message.style.transform = 'translateY(0)';
+                }, 10);
                 
-            case 'blue':
-                root.style.setProperty('--primary-color', '#2196F3');
-                root.style.setProperty('--primary-light', '#03A9F4');
-                root.style.setProperty('--primary-dark', '#0b7dda');
-                root.style.setProperty('--primary-gradient', 'linear-gradient(90deg, #2196F3, #03A9F4)');
-                root.style.setProperty('--primary-color-rgb', '33, 150, 243');
-                break;
-                
-            case 'earth':
-                root.style.setProperty('--primary-color', '#8B4513');
-                root.style.setProperty('--primary-light', '#228B22');
-                root.style.setProperty('--primary-dark', '#5D2906');
-                root.style.setProperty('--primary-gradient', 'linear-gradient(90deg, #8B4513, #228B22)');
-                root.style.setProperty('--primary-color-rgb', '139, 69, 19');
-                break;
-        }
-        
-        // Update progress bar width (if needed)
-        if (cachedElements.progressFill) {
-            const progressWidth = cachedElements.progressFill.style.getPropertyValue('--progress-width') || '0%';
-            cachedElements.progressFill.style.width = progressWidth;
-        }
-    }
-    
-    // Simplified event broadcasting
-    function broadcastColorSchemeChange(colorScheme) {
-        // Simplified storage event
-        const event = new StorageEvent('storage', {
-            key: 'color_scheme',
-            newValue: colorScheme
+                // 5秒后淡出并移除
+                setTimeout(function() {
+                    message.style.opacity = '0';
+                    message.style.transform = 'translateY(-20px)';
+                    setTimeout(function() {
+                        message.remove();
+                    }, 300);
+                }, 5000);
+            });
         });
-        window.dispatchEvent(event);
-    }
+    </script>
     
-    // ============================================
-    // Initialization and event listening
-    // ============================================
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
     
-    // Apply saved settings when page loads
-    function loadSavedSettings() {
-        cacheElements();
-        
-        // 1. Load color scheme
-        const savedColorScheme = localStorage.getItem('color_scheme');
-        if (savedColorScheme) {
-            applyColorScheme(savedColorScheme);
-        } else {
-            applyColorScheme('green'); // Default green scheme
-        }
-        
-        // 2. Load theme
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            applyTheme(savedTheme);
-        } else {
-            applyTheme('light'); // Default light theme
-        }
-    }
-    
-    // Optimized theme change listener
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    let mediaQueryListener = null;
-    
-    function setupThemeListeners() {
-        // Check current theme mode
-        const root = cachedElements.root;
-        const currentMode = root.getAttribute('data-theme-mode');
-        
-        // Only listen to system theme changes in auto mode
-        if (currentMode === 'auto' && !mediaQueryListener) {
-            mediaQueryListener = function(e) {
-                const newTheme = e.matches ? 'dark' : 'light';
-                root.setAttribute('data-theme', newTheme);
-                isDarkMode = newTheme === 'dark';
-                updateThemeStyles(newTheme);
-            };
-            
-            mediaQuery.addEventListener('change', mediaQueryListener);
-        }
-    }
-    
-    // Simplified event listening
-    window.addEventListener('storage', function(e) {
-        if (e.key === 'color_scheme') {
-            applyColorScheme(e.newValue);
-        }
-        if (e.key === 'theme') {
-            applyTheme(e.newValue);
-            setupThemeListeners();
-        }
-    });
-    
-    // Listen for messages from settings page
-    window.addEventListener('message', function(e) {
-        if (e.data && e.data.type === 'themeChanged') {
-            applyTheme(e.data.theme);
-            setupThemeListeners();
-        }
-        if (e.data && e.data.type === 'colorSchemeChanged') {
-            applyColorScheme(e.data.colorScheme);
-        }
-    });
-    
-    // Initial load of settings
-    loadSavedSettings();
-    
-    // Set up listeners with delay to ensure DOM is fully loaded
-    setTimeout(() => {
-        setupThemeListeners();
-    }, 50);
-    
-    // Simplified MutationObserver (only used when necessary)
-    let themeObserver = null;
-    
-    function setupThemeObserver() {
-        // Disconnect existing observer if present
-        if (themeObserver) {
-            themeObserver.disconnect();
-        }
-        
-        // Only observe changes to data-theme attribute
-        themeObserver = new MutationObserver(function(mutations) {
-            for (const mutation of mutations) {
-                if (mutation.attributeName === 'data-theme') {
-                    const theme = cachedElements.root.getAttribute('data-theme');
-                    isDarkMode = theme === 'dark';
-                    updateThemeStyles(theme);
-                    break; // Exit after processing one change
-                }
-            }
-        });
-        
-        themeObserver.observe(cachedElements.root, {
-            attributes: true,
-            attributeFilter: ['data-theme']
-        });
-    }
-    
-    // Set up observer with delay
-    setTimeout(() => {
-        setupThemeObserver();
-    }, 100);
-    
-    // Cleanup function
-    window.addEventListener('beforeunload', function() {
-        if (themeObserver) {
-            themeObserver.disconnect();
-        }
-        if (mediaQueryListener) {
-            mediaQuery.removeEventListener('change', mediaQueryListener);
-        }
-    });
-});
-</script>
-
-{% endblock %}
+    <!-- 全局音乐播放器脚本 -->
+    <script src="{{ url_for('static', filename='music-player/js/music-player.js') }}"></script>
+</body>
+</html>
