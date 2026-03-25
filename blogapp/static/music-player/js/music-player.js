@@ -22,6 +22,9 @@
         // 音频文件夹路径
         audioFolder: '/static/music-player/audio/',
         
+        // 播放列表文件名（可通过 data-playlist 属性自定义）
+        playlistFile: 'playlist.json',
+        
         // 默认音量 (0.0 - 1.0)
         defaultVolume: 0.3,
         
@@ -31,15 +34,15 @@
         // 是否循环播放整个播放列表
         loop: true,
         
-        // 本地存储键名
-        storageKey: 'peakshift_music_state'
+        // 本地存储键名前缀
+        storageKeyPrefix: 'peakshift_music_'
     };
     
     // ========================================
     // 音乐播放器类
     // ========================================
     class MusicPlayer {
-        constructor() {
+        constructor(playlistName = 'playlist') {
             this.audio = null;
             this.isPlaying = false;
             this.isMuted = false;
@@ -49,6 +52,8 @@
             this.currentIndex = 0;
             this.savedTime = 0;  // 保存的播放位置
             this.userPaused = false;  // 用户是否手动暂停
+            this.playlistName = playlistName;  // 播放列表名称
+            this.storageKey = CONFIG.storageKeyPrefix + playlistName;  // 每个播放列表独立存储
             
             this.init();
         }
@@ -87,19 +92,20 @@
         
         async loadPlaylist() {
             try {
-                // 从 playlist.json 读取播放列表
-                const response = await fetch(CONFIG.audioFolder + 'playlist.json');
+                // 从指定的播放列表文件读取
+                const playlistFile = `${this.playlistName}.json`;
+                const response = await fetch(CONFIG.audioFolder + playlistFile);
                 const data = await response.json();
                 
                 this.playlist = data.playlist.map(filename => 
                     CONFIG.audioFolder + filename
                 );
                 
-                console.log('📋 Loaded playlist:', data.playlist);
+                console.log(`📋 Loaded playlist (${this.playlistName}):`, data.playlist);
                 
             } catch (error) {
-                console.warn('⚠️ Could not load playlist.json:', error);
-                console.log('💡 Please create playlist.json in audio folder with your mp3 files');
+                console.warn(`⚠️ Could not load ${this.playlistName}.json:`, error);
+                console.log('💡 Please create the playlist file in audio folder');
                 this.playlist = [];
             }
         }
@@ -305,7 +311,7 @@
         
         loadPlaybackState() {
             try {
-                const saved = localStorage.getItem(CONFIG.storageKey);
+                const saved = localStorage.getItem(this.storageKey);
                 if (saved) {
                     const state = JSON.parse(saved);
                     this.currentIndex = state.currentIndex || 0;
@@ -338,7 +344,7 @@
                     userPaused: this.userPaused, // 保存用户暂停状态
                     timestamp: Date.now()
                 };
-                localStorage.setItem(CONFIG.storageKey, JSON.stringify(state));
+                localStorage.setItem(this.storageKey, JSON.stringify(state));
             } catch (error) {
                 // 静默失败，不影响播放
             }
@@ -366,13 +372,23 @@
     // ========================================
     let player = null;
     
+    // 从 body 标签的 data-playlist 属性读取播放列表名称
+    const getPlaylistName = () => {
+        const bodyElement = document.body;
+        return bodyElement.getAttribute('data-playlist') || 'playlist';
+    };
+    
     // DOM 加载完成后初始化
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
-            player = new MusicPlayer();
+            const playlistName = getPlaylistName();
+            player = new MusicPlayer(playlistName);
+            console.log(`🎵 Music player initialized with playlist: ${playlistName}`);
         });
     } else {
-        player = new MusicPlayer();
+        const playlistName = getPlaylistName();
+        player = new MusicPlayer(playlistName);
+        console.log(`🎵 Music player initialized with playlist: ${playlistName}`);
     }
     
     // 暴露到全局（可选，用于调试）
