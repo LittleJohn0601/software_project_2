@@ -4,6 +4,7 @@ Main routes for PeakShift application
 工业用电成本与碳排放分析优化系统 - 主路由
 """
 
+import json
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from blogapp import db, csrf
@@ -50,9 +51,13 @@ def get_factories():
             'name': f.name,
             'location': f.location,
             'industry_type': f.industry_type,
+            'voltage_level': f.voltage_level,
+            'transformer_capacity': f.transformer_capacity,
+            'capacity_fee': f.capacity_fee,
+            'daily_usage': f.daily_usage,
+            'working_days_per_month': f.working_days_per_month,
             'monthly_usage': f.monthly_usage,
-            'monthly_cost': f.monthly_cost,
-            'carbon_emission': f.carbon_emission,
+            'work_periods': f.work_periods,
             'created_at': f.created_at.strftime('%Y-%m-%d')
         } for f in factories]
     })
@@ -73,23 +78,64 @@ def create_factory():
                 'message': '工厂名称不能为空'
             }), 400
         
-        # 处理数值字段，空字符串转为 0
-        monthly_usage = data.get('monthly_usage')
-        monthly_cost = data.get('monthly_cost')
-        carbon_emission = data.get('carbon_emission')
+        if not data.get('voltage_level'):
+            return jsonify({
+                'success': False,
+                'message': '电压等级不能为空'
+            }), 400
         
-        # 转换为浮点数，如果为空或空字符串则设为 0
-        monthly_usage = float(monthly_usage) if monthly_usage and str(monthly_usage).strip() else 0
-        monthly_cost = float(monthly_cost) if monthly_cost and str(monthly_cost).strip() else 0
-        carbon_emission = float(carbon_emission) if carbon_emission and str(carbon_emission).strip() else 0
+        if not data.get('transformer_capacity'):
+            return jsonify({
+                'success': False,
+                'message': '变压器容量不能为空'
+            }), 400
+        
+        if not data.get('daily_usage'):
+            return jsonify({
+                'success': False,
+                'message': '日用电量不能为空'
+            }), 400
+        
+        if not data.get('work_periods'):
+            return jsonify({
+                'success': False,
+                'message': '工作时间段不能为空'
+            }), 400
+        
+        # 验证电压等级是否有效
+        voltage_level = int(data.get('voltage_level'))
+        if voltage_level not in [10, 35, 110, 220]:
+            return jsonify({
+                'success': False,
+                'message': '电压等级必须是 10、35、110 或 220 kV'
+            }), 400
+        
+        # 处理数值字段
+        transformer_capacity = float(data.get('transformer_capacity'))
+        daily_usage = float(data.get('daily_usage'))
+        working_days_per_month = int(data.get('working_days_per_month', 26))
+        
+        # 验证工作时间段格式
+        work_periods = data.get('work_periods')
+        if isinstance(work_periods, str):
+            import json
+            work_periods = json.loads(work_periods)
+        
+        if not isinstance(work_periods, list) or len(work_periods) == 0:
+            return jsonify({
+                'success': False,
+                'message': '请至少添加一个工作时间段'
+            }), 400
         
         factory = Factory(
             name=data.get('name').strip(),
             location=data.get('location', '').strip() if data.get('location') else None,
             industry_type=data.get('industry_type', '').strip() if data.get('industry_type') else None,
-            monthly_usage=monthly_usage,
-            monthly_cost=monthly_cost,
-            carbon_emission=carbon_emission,
+            voltage_level=voltage_level,
+            transformer_capacity=transformer_capacity,
+            daily_usage=daily_usage,
+            working_days_per_month=working_days_per_month,
+            work_periods=data.get('work_periods') if isinstance(data.get('work_periods'), str) else json.dumps(work_periods),
             user_id=current_user.id
         )
         
@@ -104,9 +150,13 @@ def create_factory():
                 'name': factory.name,
                 'location': factory.location,
                 'industry_type': factory.industry_type,
+                'voltage_level': factory.voltage_level,
+                'transformer_capacity': factory.transformer_capacity,
+                'capacity_fee': factory.capacity_fee,
+                'daily_usage': factory.daily_usage,
+                'working_days_per_month': factory.working_days_per_month,
                 'monthly_usage': factory.monthly_usage,
-                'monthly_cost': factory.monthly_cost,
-                'carbon_emission': factory.carbon_emission,
+                'work_periods': factory.work_periods,
                 'created_at': factory.created_at.strftime('%Y-%m-%d')
             }
         })
@@ -152,6 +202,118 @@ def delete_factory(factory_id):
         return jsonify({
             'success': False,
             'message': f'删除失败: {str(e)}'
+        }), 400
+
+
+@bp.route('/api/factory/<int:factory_id>', methods=['PUT'])
+@login_required
+@csrf.exempt
+def update_factory(factory_id):
+    """API: 更新工厂"""
+    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id).first()
+    
+    if not factory:
+        return jsonify({
+            'success': False,
+            'message': '工厂不存在或无权限'
+        }), 404
+    
+    data = request.get_json()
+    
+    try:
+        # 验证必填字段
+        if not data.get('name'):
+            return jsonify({
+                'success': False,
+                'message': '工厂名称不能为空'
+            }), 400
+        
+        if not data.get('voltage_level'):
+            return jsonify({
+                'success': False,
+                'message': '电压等级不能为空'
+            }), 400
+        
+        if not data.get('transformer_capacity'):
+            return jsonify({
+                'success': False,
+                'message': '变压器容量不能为空'
+            }), 400
+        
+        if not data.get('daily_usage'):
+            return jsonify({
+                'success': False,
+                'message': '日用电量不能为空'
+            }), 400
+        
+        if not data.get('work_periods'):
+            return jsonify({
+                'success': False,
+                'message': '工作时间段不能为空'
+            }), 400
+        
+        # 验证电压等级是否有效
+        voltage_level = int(data.get('voltage_level'))
+        if voltage_level not in [10, 35, 110, 220]:
+            return jsonify({
+                'success': False,
+                'message': '电压等级必须是 10、35、110 或 220 kV'
+            }), 400
+        
+        # 验证工作时间段格式
+        work_periods = data.get('work_periods')
+        if isinstance(work_periods, str):
+            work_periods = json.loads(work_periods)
+        
+        if not isinstance(work_periods, list) or len(work_periods) == 0:
+            return jsonify({
+                'success': False,
+                'message': '请至少添加一个工作时间段'
+            }), 400
+        
+        # 更新工厂信息
+        factory.name = data.get('name').strip()
+        factory.location = data.get('location', '').strip() if data.get('location') else None
+        factory.industry_type = data.get('industry_type', '').strip() if data.get('industry_type') else None
+        factory.voltage_level = voltage_level
+        factory.transformer_capacity = float(data.get('transformer_capacity'))
+        factory.daily_usage = float(data.get('daily_usage'))
+        factory.working_days_per_month = int(data.get('working_days_per_month', 26))
+        factory.work_periods = data.get('work_periods') if isinstance(data.get('work_periods'), str) else json.dumps(work_periods)
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': '工厂更新成功',
+            'factory': {
+                'id': factory.id,
+                'name': factory.name,
+                'location': factory.location,
+                'industry_type': factory.industry_type,
+                'voltage_level': factory.voltage_level,
+                'transformer_capacity': factory.transformer_capacity,
+                'capacity_fee': factory.capacity_fee,
+                'daily_usage': factory.daily_usage,
+                'working_days_per_month': factory.working_days_per_month,
+                'monthly_usage': factory.monthly_usage,
+                'work_periods': factory.work_periods,
+                'created_at': factory.created_at.strftime('%Y-%m-%d')
+            }
+        })
+    except ValueError as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'message': f'数据格式错误: {str(e)}'
+        }), 400
+    except Exception as e:
+        db.session.rollback()
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'message': f'更新失败: {str(e)}'
         }), 400
 
 
