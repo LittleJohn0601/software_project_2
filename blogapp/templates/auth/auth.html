@@ -157,7 +157,7 @@
                             <p class="login-subtitle">Please enter your details</p>
                         </div>
 
-                        <form id="loginForm" action="{{ url_for('auth.login') }}" method="POST">
+                        <form id="loginForm" method="POST">
                             {{ login_form.hidden_tag() }}
                             
                             <div class="mb-3">
@@ -220,7 +220,7 @@
                             <p class="login-subtitle">Join PeakShift to optimize your energy costs</p>
                         </div>
 
-                        <form id="registerForm" action="{{ url_for('auth.register') }}" method="POST">
+                        <form id="registerForm" method="POST">
                             {{ register_form.hidden_tag() }}
                             
                             <div class="mb-3">
@@ -281,6 +281,8 @@
                             <!-- 隐藏字段，设置默认值 -->
                             <input type="hidden" name="company_name" value="">
                             <input type="hidden" name="user_type" value="user">
+
+                            <div id="registerErrorMessage" class="alert alert-danger d-none" role="alert"></div>
 
                             <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
                                 Create Account
@@ -586,6 +588,160 @@
                 // 确保登录页面也正常显示
                 document.getElementById('loginSection').style.display = 'block';
                 document.getElementById('registerSection').style.display = 'none';
+            }
+        });
+    </script>
+    
+    <!-- AJAX 表单提交（避免页面刷新） -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 登录表单 AJAX 提交
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const loginBtn = document.getElementById('loginBtn');
+                    const errorMessage = document.getElementById('errorMessage');
+                    
+                    // 禁用按钮
+                    loginBtn.disabled = true;
+                    loginBtn.textContent = 'Logging in...';
+                    errorMessage.classList.add('d-none');
+                    
+                    fetch('{{ url_for("auth.login") }}', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        // 检查是否登录成功（通过检查响应中是否有 dashboard 关键字）
+                        if (html.includes('dashboard') || html.includes('工厂管理')) {
+                            // 登录成功，跳转到 dashboard
+                            window.location.href = '{{ url_for("main.dashboard") }}';
+                        } else {
+                            // 登录失败，显示错误信息
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const flashMessages = doc.querySelectorAll('.flash-message');
+                            
+                            if (flashMessages.length > 0) {
+                                const message = flashMessages[0].querySelector('.flash-text').textContent;
+                                errorMessage.textContent = message;
+                                errorMessage.classList.remove('d-none');
+                            } else {
+                                errorMessage.textContent = 'Login failed. Please try again.';
+                                errorMessage.classList.remove('d-none');
+                            }
+                            
+                            // 恢复按钮
+                            loginBtn.disabled = false;
+                            loginBtn.textContent = 'Log in';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        errorMessage.textContent = 'An error occurred. Please try again.';
+                        errorMessage.classList.remove('d-none');
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'Log in';
+                    });
+                });
+            }
+            
+            // 注册表单 AJAX 提交
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                registerForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const registerBtn = this.querySelector('button[type="submit"]');
+                    const errorMessage = document.getElementById('registerErrorMessage');
+                    
+                    // 禁用按钮
+                    registerBtn.disabled = true;
+                    registerBtn.textContent = 'Creating Account...';
+                    errorMessage.classList.add('d-none');
+                    
+                    fetch('{{ url_for("auth.register") }}', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        // 检查是否注册成功
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const flashMessages = doc.querySelectorAll('.flash-message');
+                        
+                        if (flashMessages.length > 0) {
+                            const message = flashMessages[0].querySelector('.flash-text').textContent;
+                            const category = flashMessages[0].classList.contains('flash-success') ? 'success' : 'danger';
+                            
+                            if (category === 'success') {
+                                // 注册成功，显示成功消息并切换到登录表单
+                                showFlashMessage(message, 'success');
+                                setTimeout(() => {
+                                    showLogin();
+                                }, 1500);
+                            } else {
+                                // 注册失败，显示错误信息
+                                errorMessage.textContent = message;
+                                errorMessage.classList.remove('d-none');
+                                registerBtn.disabled = false;
+                                registerBtn.textContent = 'Create Account';
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        errorMessage.textContent = 'An error occurred. Please try again.';
+                        errorMessage.classList.remove('d-none');
+                        registerBtn.disabled = false;
+                        registerBtn.textContent = 'Create Account';
+                    });
+                });
+            }
+            
+            // 显示 Flash 消息的函数
+            function showFlashMessage(message, category) {
+                // 移除旧的 flash 消息
+                const oldFlash = document.getElementById('flashMessages');
+                if (oldFlash) {
+                    oldFlash.remove();
+                }
+                
+                // 创建新的 flash 消息
+                const flashDiv = document.createElement('div');
+                flashDiv.id = 'flashMessages';
+                flashDiv.className = 'mb-3';
+                flashDiv.innerHTML = `
+                    <div class="flash-message flash-${category}" role="alert">
+                        <div class="flash-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="flash-content">
+                            <div class="flash-text">${message}</div>
+                        </div>
+                    </div>
+                `;
+                
+                // 插入到登录表单前面
+                const loginSection = document.getElementById('loginSection');
+                const firstChild = loginSection.firstElementChild;
+                loginSection.insertBefore(flashDiv, firstChild);
+                
+                // 5秒后自动消失
+                setTimeout(() => {
+                    const flashMessage = flashDiv.querySelector('.flash-message');
+                    flashMessage.style.opacity = '0';
+                    flashMessage.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        flashDiv.remove();
+                    }, 300);
+                }, 5000);
             }
         });
     </script>
