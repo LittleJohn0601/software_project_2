@@ -107,12 +107,12 @@
         </div>
     </div>
 
-    <!-- 创建工厂模态框 -->
+    <!-- 创建/编辑工厂模态框 -->
     <div class="modal fade" id="createFactoryModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">
+                    <h5 class="modal-title" id="factoryModalTitle">
                         <i class="bi bi-plus-circle me-2"></i>
                         新建工厂
                     </h5>
@@ -120,49 +120,155 @@
                 </div>
                 <div class="modal-body">
                     <form id="createFactoryForm">
+                        <!-- 基础信息 -->
                         <div class="mb-3">
                             <label for="factoryName" class="form-label">工厂名称 <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="factoryName" required placeholder="例如：北京电解铝厂">
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="factoryLocation" class="form-label">工厂位置</label>
-                            <input type="text" class="form-control" id="factoryLocation" placeholder="例如：北京市朝阳区">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="factoryLocation" class="form-label">工厂位置</label>
+                                <input type="text" class="form-control" id="factoryLocation" placeholder="例如：北京市朝阳区">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="industryType" class="form-label">行业类型</label>
+                                <select class="form-select" id="industryType">
+                                    <option value="">请选择</option>
+                                    <option value="电解铝">电解铝</option>
+                                    <option value="钢铁">钢铁</option>
+                                    <option value="水泥">水泥</option>
+                                    <option value="化工">化工</option>
+                                    <option value="炼煤">炼煤</option>
+                                    <option value="纺织">纺织</option>
+                                    <option value="其他">其他</option>
+                                </select>
+                            </div>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="industryType" class="form-label">行业类型</label>
-                            <select class="form-select" id="industryType">
-                                <option value="">请选择</option>
-                                <option value="电解铝">电解铝</option>
-                                <option value="钢铁">钢铁</option>
-                                <option value="水泥">水泥</option>
-                                <option value="化工">化工</option>
-                                <option value="炼煤">炼煤</option>
-                                <option value="纺织">纺织</option>
-                                <option value="其他">其他</option>
-                            </select>
+                        <!-- 电力参数 -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="voltageLevel" class="form-label">电压等级 <span class="text-danger">*</span></label>
+                                <select class="form-select" id="voltageLevel" required>
+                                    <option value="">请选择</option>
+                                    <option value="10">10 kV</option>
+                                    <option value="35">35 kV</option>
+                                    <option value="110">110 kV</option>
+                                    <option value="220">220 kV</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="transformerCapacity" class="form-label">变压器容量 (kVA) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="transformerCapacity" required step="100" min="0" placeholder="例如：5000">
+                            </div>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="monthlyUsage" class="form-label">月用电量 (kWh)</label>
-                            <input type="number" class="form-control" id="monthlyUsage" step="0.01" min="0" placeholder="例如：1000000">
+                        <!-- 用电信息 -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="dailyUsage" class="form-label">日用电量 (kWh/天) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="dailyUsage" required step="1000" min="0" placeholder="例如：50000">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="workingDays" class="form-label">每月工作天数 <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="workingDays" required min="1" max="31" value="26" placeholder="例如：26">
+                            </div>
                         </div>
                         
+                        <!-- 工作时间段 -->
                         <div class="mb-3">
-                            <label for="monthlyCost" class="form-label">月电费 (元)</label>
-                            <input type="number" class="form-control" id="monthlyCost" step="0.01" min="0" placeholder="例如：800000">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="carbonEmission" class="form-label">碳排放量 (kg)</label>
-                            <input type="number" class="form-control" id="carbonEmission" step="0.01" min="0" placeholder="例如：820000">
+                            <label class="form-label">工作时间段 <span class="text-danger">*</span></label>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-5">
+                                            <select class="form-select form-select-sm" id="periodStart">
+                                                <option value="">开始时间</option>
+                                                <option value="0">00:00</option>
+                                                <option value="1">01:00</option>
+                                                <option value="2">02:00</option>
+                                                <option value="3">03:00</option>
+                                                <option value="4">04:00</option>
+                                                <option value="5">05:00</option>
+                                                <option value="6">06:00</option>
+                                                <option value="7">07:00</option>
+                                                <option value="8" selected>08:00</option>
+                                                <option value="9">09:00</option>
+                                                <option value="10">10:00</option>
+                                                <option value="11">11:00</option>
+                                                <option value="12">12:00</option>
+                                                <option value="13">13:00</option>
+                                                <option value="14">14:00</option>
+                                                <option value="15">15:00</option>
+                                                <option value="16">16:00</option>
+                                                <option value="17">17:00</option>
+                                                <option value="18">18:00</option>
+                                                <option value="19">19:00</option>
+                                                <option value="20">20:00</option>
+                                                <option value="21">21:00</option>
+                                                <option value="22">22:00</option>
+                                                <option value="23">23:00</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-auto d-flex align-items-center">
+                                            <span>至</span>
+                                        </div>
+                                        <div class="col-5">
+                                            <select class="form-select form-select-sm" id="periodEnd">
+                                                <option value="">结束时间</option>
+                                                <option value="1">01:00</option>
+                                                <option value="2">02:00</option>
+                                                <option value="3">03:00</option>
+                                                <option value="4">04:00</option>
+                                                <option value="5">05:00</option>
+                                                <option value="6">06:00</option>
+                                                <option value="7">07:00</option>
+                                                <option value="8">08:00</option>
+                                                <option value="9">09:00</option>
+                                                <option value="10">10:00</option>
+                                                <option value="11">11:00</option>
+                                                <option value="12">12:00</option>
+                                                <option value="13">13:00</option>
+                                                <option value="14">14:00</option>
+                                                <option value="15">15:00</option>
+                                                <option value="16">16:00</option>
+                                                <option value="17">17:00</option>
+                                                <option value="18" selected>18:00</option>
+                                                <option value="19">19:00</option>
+                                                <option value="20">20:00</option>
+                                                <option value="21">21:00</option>
+                                                <option value="22">22:00</option>
+                                                <option value="23">23:00</option>
+                                                <option value="24">24:00</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="button" class="btn btn-sm btn-primary" onclick="addWorkPeriod()">
+                                                <i class="bi bi-plus-circle"></i> 添加
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="workPeriodsList" class="mt-2">
+                                        <!-- 已添加的时间段会显示在这里 -->
+                                    </div>
+                                    
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle"></i> 
+                                        添加工厂的工作时间段，例如：8:00-12:00, 13:00-18:00
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" onclick="createFactory()">
+                    <button type="button" class="btn btn-primary" id="factorySubmitBtn" onclick="createFactory()">
                         <i class="bi bi-check-circle me-1"></i>
                         创建
                     </button>

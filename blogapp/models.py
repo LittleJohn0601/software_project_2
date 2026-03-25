@@ -38,11 +38,26 @@ class Factory(db.Model):
     name = db.Column(db.String(100), nullable=False)
     location = db.Column(db.String(200))
     industry_type = db.Column(db.String(50))  # 行业类型
-    monthly_usage = db.Column(db.Float, default=0)  # 月用电量 (kWh)
-    monthly_cost = db.Column(db.Float, default=0)  # 月电费 (元)
-    carbon_emission = db.Column(db.Float, default=0)  # 碳排放量 (kg)
+    voltage_level = db.Column(db.Integer, nullable=False)  # 电压等级 (kV): 10, 35, 110, 220
+    transformer_capacity = db.Column(db.Float, nullable=False)  # 变压器容量 (kVA)
+    daily_usage = db.Column(db.Float, nullable=False)  # 日用电量 (kWh/天)
+    work_periods = db.Column(db.Text, nullable=False)  # 工作时间段 JSON 格式: [{"start": 8, "end": 12}, {"start": 13, "end": 18}]
+    working_days_per_month = db.Column(db.Integer, default=26)  # 每月工作天数
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    @property
+    def capacity_fee(self):
+        """计算容量电费（基本电费）= 容量电价 × 变压器容量"""
+        grid_price = GridElectricityPrice.query.filter_by(voltage_level=self.voltage_level).first()
+        if grid_price:
+            return round(grid_price.capacity_price * self.transformer_capacity, 2)
+        return 0
+    
+    @property
+    def monthly_usage(self):
+        """计算月用电量 = 日用电量 × 每月工作天数"""
+        return round(self.daily_usage * self.working_days_per_month, 2)
     
     def __repr__(self):
         return f'<Factory {self.name}>'
