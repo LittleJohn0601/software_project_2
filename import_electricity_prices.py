@@ -54,20 +54,24 @@ def import_electricity_prices():
             else:
                 hour = int(time_str)
             
+            # 生成时间段字符串
+            time_range = f"{hour:02d}:00-{(hour+1):02d}:00"
+            
             original_price = float(row[price_col])
             
             # 价格除以 1000，保留两位小数
             price = round(original_price / 1000, 2)
             
-            # 创建记录
+            # 创建记录 - 现在包含了 time_range
             record = HourlyElectricityPrice(
                 hour=hour,
+                time_range=time_range,  # ← 添加这个字段
                 price=price
             )
             db.session.add(record)
             imported_count += 1
             
-            print(f"   Hour {hour:2d}: {original_price:8.2f} → {price:.2f} 元/kWh")
+            print(f"   Hour {hour:2d}: {time_range} - {original_price:8.2f} → {price:.2f} 元/kWh")
         
         # 提交到数据库
         db.session.commit()
@@ -77,8 +81,12 @@ def import_electricity_prices():
         print("\n🔍 验证数据:")
         all_records = HourlyElectricityPrice.query.order_by(HourlyElectricityPrice.hour).all()
         print(f"   数据库中共有 {len(all_records)} 条记录")
-        print(f"   小时范围: {all_records[0].hour} - {all_records[-1].hour}")
-        print(f"   价格范围: {min(r.price for r in all_records):.2f} - {max(r.price for r in all_records):.2f} 元/kWh")
+        if all_records:
+            print(f"   小时范围: {all_records[0].hour} - {all_records[-1].hour}")
+            print(f"   价格范围: {min(r.price for r in all_records):.2f} - {max(r.price for r in all_records):.2f} 元/kWh")
+            print(f"\n   前5条记录:")
+            for r in all_records[:5]:
+                print(f"     {r.time_range}: {r.price:.2f} 元/kWh")
 
 
 if __name__ == '__main__':

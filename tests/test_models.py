@@ -1,5 +1,18 @@
 # 测试代码，在项目根目录运行：python -m pytest tests/test_models.py -v
 
+# tests/test_models.py
+import sys
+import os
+
+# 获取项目根目录（tests的父目录）
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, project_root)
+
+print(f"项目根目录: {project_root}")
+print(f"Python路径: {sys.path[:3]}")
+
+
+
 import pytest
 from blogapp import create_app, db
 from blogapp.models import Factory, User

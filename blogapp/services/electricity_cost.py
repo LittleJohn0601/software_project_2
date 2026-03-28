@@ -1,0 +1,106 @@
+import json
+from typing import Dict, List, Optional
+from blogapp.models import Factory, GridElectricityPrice, TimeOfUsePeriod
+from blogapp import db
+
+
+class ElectricityCostCalculator:
+    """电费计算器"""
+    
+    def __init__(self, factory_id: int):
+        self.factory = Factory.query.get(factory_id)
+        if not self.factory:
+            raise ValueError(f"Factory with id {factory_id} not found")
+        
+        self.grid_price = GridElectricityPrice.query.filter_by(
+            voltage_level=self.factory.voltage_level
+        ).first()
+        
+        if not self.grid_price:
+            raise ValueError(f"Grid price not found for voltage level {self.factory.voltage_level}")
+        
+        self.tou_periods = self._load_tou_periods()
+    
+    def _load_tou_periods(self) -> Dict[int, str]:
+        """加载分时电价时段配置"""
+        periods = TimeOfUsePeriod.query.all()
+        return {p.hour: p.period_type for p in periods}
+    
+    def get_price_for_hour(self, hour: int) -> float:
+        """获取指定小时的电价"""
+        period_type = self.tou_periods.get(hour, '平时')
+        
+        if period_type == '高峰':
+            return self.grid_price.peak_price
+        elif period_type == '低谷':
+            return self.grid_price.valley_price
+        else:
+            return self.grid_price.normal_price
+    
+    def calculate_monthly_cost(self, month_days: int = None) -> Dict:
+        """计算月电费"""
+        if month_days is None:
+            month_days = self.factory.working_days_per_month
+        
+        total_usage = self.factory.monthly_usage
+        daily_usage = self.factory.daily_usage
+        
+        # 解析工作时间段
+        work_periods = json.loads(self.factory.work_periods)
+        
+        # 计算总工作小时数
+        total_work_hours = 0
+        for period in work_periods:
+            start = period.get('start', 0)
+            end = period.get('end', 0)
+            total_work_hours += (end - start)
+        
+        # 每小时用电量
+        usage_per_hour = daily_usage / total_work_hours if total_work_hours > 0 else 0
+        
+        # 计算每日电费
+        daily_cost = 0
+        hourly_breakdown = []
+        
+        for hour in range(24):
+            # 判断该小时是否在工作时间内
+            in_work = False
+            for period in work_periods:
+                if period.get('start', 0) <= hour < period.get('end', 0):
+                    in_work = True
+                    break
+            
+            usage = usage_per_hour if in_work else 0
+            price = self.get_price_for_hour(hour)
+            cost = usage * price
+            
+            daily_cost += cost
+            hourly_breakdown.append({
+                'hour': hour,
+                'time_range': f"{hour:02d}:00-{(hour+1):02d}:00",
+                'usage': round(usage, 2),
+                'price': price,
+                'cost': round(cost, 2),
+                'period_type': self.tou_periods.get(hour, '平时')
+            })
+        
+        # 计算月电费
+        monthly_energy_cost = daily_cost * month_days
+        capacity_fee = self.factory.capacity_fee
+        total_monthly_cost = monthly_energy_cost + capacity_fee
+        avg_price = monthly_energy_cost / total_usage if total_usage > 0 else 0
+        
+        return {
+            'factory_id': self.factory.id,
+            'factory_name': self.factory.name,
+            'voltage_level': self.factory.voltage_level,
+            'month_days': month_days,
+            'total_usage': round(total_usage, 2),
+            'daily_usage': round(daily_usage, 2),
+            'daily_energy_cost': round(daily_cost, 2),
+            'monthly_energy_cost': round(monthly_energy_cost, 2),
+            'capacity_fee': round(capacity_fee, 2),
+            'total_monthly_cost': round(total_monthly_cost, 2),
+            'average_price': round(avg_price, 4),
+            'hourly_breakdown': hourly_breakdown
+        }
