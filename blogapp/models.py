@@ -1,4 +1,6 @@
 # blogapp/models.py
+# 定义数据库模型：用户、工厂、分时电价、电网价格等，包含了基本算法和属性计算逻辑，如月用电量、碳排放等！
+
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -58,6 +60,11 @@ class Factory(db.Model):
     def monthly_usage(self):
         """计算月用电量 = 日用电量 × 每月工作天数"""
         return round(self.daily_usage * self.working_days_per_month, 2)
+    
+    @property
+    def carbon_emission(self):
+        """计算月碳排放量 = 月用电量 × 碳排放因子 (0.6634 kgCO2/kWh)"""
+        return round(self.monthly_usage * 0.6634, 2)
     
     def __repr__(self):
         return f'<Factory {self.name}>'
