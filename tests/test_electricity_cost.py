@@ -1,5 +1,6 @@
 import sys
 import os
+import pytest
 
 print("="*60)
 print("电费计算功能测试")
@@ -10,26 +11,42 @@ from blogapp.models import User, Factory, GridElectricityPrice, TimeOfUsePeriod
 from blogapp.services.electricity_cost import ElectricityCostCalculator
 
 
+@pytest.fixture
+def app():
+    """创建测试应用"""
+    app = create_app()
+    app.config['TESTING'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    
+    with app.app_context():
+        db.create_all()
+        setup_test_data()
+        yield app
+        db.drop_all()
+
+
 def setup_test_data():
     """设置测试数据"""
-    with app.app_context():
-        # 检查是否已有数据
-        if Factory.query.count() > 0:
-            print("✅ 已有工厂数据，直接使用")
-            return
-        
-        print("\n📝 创建测试数据...")
-        
-        # 创建用户
-        user = User(
-            username='testuser',
-            email='test@example.com',
-            user_type='user'
-        )
-        user.set_password('password123')
-        db.session.add(user)
-        db.session.flush()
-        
+    # 不需要 with app.app_context()，因为已经在 fixture 中了
+    # 检查是否已有数据
+    if Factory.query.count() > 0:
+        print("✅ 已有工厂数据，直接使用")
+        return
+    
+    print("\n📝 创建测试数据...")
+    
+    # 创建用户
+    user = User(
+        username='testuser',
+        email='test@example.com',
+        user_type='user'
+    )
+    user.set_password('password123')
+    db.session.add(user)
+    db.session.flush()
+    
+    # 检查电网电价是否已存在（create_app 可能已经导入）
+    if GridElectricityPrice.query.count() == 0:
         # 创建电网电价
         grid_prices = [
             GridElectricityPrice(voltage_level=10, peak_price=0.74, normal_price=0.57, valley_price=0.41, capacity_price=22.5),
@@ -37,7 +54,9 @@ def setup_test_data():
         ]
         for price in grid_prices:
             db.session.add(price)
-        
+    
+    # 检查分时时段是否已存在
+    if TimeOfUsePeriod.query.count() == 0:
         # 创建分时时段
         tou_config = [
             (0, 7, '低谷'), (7, 8, '平时'), (8, 11, '高峰'),
@@ -51,26 +70,26 @@ def setup_test_data():
                     period_type=period_type
                 )
                 db.session.add(tou)
-        
-        # 创建工厂
-        factory = Factory(
-            name='测试工厂',
-            location='上海',
-            industry_type='制造业',
-            voltage_level=10,
-            transformer_capacity=1000,
-            daily_usage=10000,
-            working_days_per_month=26,
-            work_periods='[{"start": 8, "end": 12}, {"start": 13, "end": 17}]',
-            user_id=user.id
-        )
-        db.session.add(factory)
-        
-        db.session.commit()
-        print(f"✅ 创建测试工厂: {factory.name}")
+    
+    # 创建工厂
+    factory = Factory(
+        name='测试工厂',
+        location='上海',
+        industry_type='制造业',
+        voltage_level=10,
+        transformer_capacity=1000,
+        daily_usage=10000,
+        working_days_per_month=26,
+        work_periods='[{"start": 8, "end": 12}, {"start": 13, "end": 17}]',
+        user_id=user.id
+    )
+    db.session.add(factory)
+    
+    db.session.commit()
+    print(f"✅ 创建测试工厂: {factory.name}")
 
 
-def test_calculator():
+def test_calculator(app):
     """测试电费计算器"""
     with app.app_context():
         factories = Factory.query.all()
@@ -111,7 +130,7 @@ def test_calculator():
             return result
 
 
-def test_capacity_fee():
+def test_capacity_fee(app):
     """测试容量电费计算"""
     with app.app_context():
         factories = Factory.query.all()
