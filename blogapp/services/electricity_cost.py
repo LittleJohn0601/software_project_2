@@ -47,6 +47,31 @@ class ElectricityCostCalculator:
         
         # 解析工作时间段
         work_periods = json.loads(self.factory.work_periods)
+
+        if not work_periods:
+            return {
+                'factory_id': self.factory.id,
+                'factory_name': self.factory.name,
+                'voltage_level': self.factory.voltage_level,
+                'month_days': month_days,
+                'total_usage': 0,
+                'daily_usage': self.factory.daily_usage,
+                'daily_energy_cost': 0,
+                'monthly_energy_cost': 0,
+                'capacity_fee': round(self.factory.transformer_capacity * 22.5, 2),
+                'total_monthly_cost': round(self.factory.transformer_capacity * 22.5, 2),
+                'average_price': 0,
+                'hourly_breakdown': [{
+                    'hour': hour,
+                    'time_range': f"{hour:02d}:00-{(hour+1):02d}:00",
+                    'usage': 0,
+                    'price': self.get_price_for_hour(hour),
+                    'cost': 0,
+                    'period_type': self.tou_periods.get(hour, '平时')
+                } for hour in range(24)]
+            }
+        
+        
         
         # 计算总工作小时数
         total_work_hours = 0
