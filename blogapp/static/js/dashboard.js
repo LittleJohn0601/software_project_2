@@ -411,6 +411,11 @@
                 
                 // 重新加载工厂列表
                 await loadFactories();
+                
+                // 如果当前在详情页面，刷新详情页面
+                if (AppState.currentView === 'factoryDetails' && AppState.currentFactory) {
+                    await viewFactoryDetails(editingFactoryId);
+                }
             } else {
                 showError(data.message || '更新工厂失败');
             }
@@ -421,11 +426,345 @@
     };
     
     // 查看工厂详情
-    window.viewFactoryDetails = function(factoryId) {
-        // TODO: 实现工厂详情页面
-        console.log('查看工厂详情:', factoryId);
-        showInfo('工厂详情功能开发中...');
+    window.viewFactoryDetails = async function(factoryId) {
+        try {
+            const response = await fetch(`/api/factory/${factoryId}/details`);
+            const data = await response.json();
+            
+            if (data.success) {
+                AppState.currentFactory = data;
+                renderFactoryDetails(data);
+                showView('factoryDetails');
+            } else {
+                showError(data.message || '加载工厂详情失败');
+            }
+        } catch (error) {
+            console.error('加载工厂详情失败:', error);
+            showError('加载工厂详情失败');
+        }
     };
+    
+    // 返回工厂管理页面
+    window.showFactoryManagement = function() {
+        showView('factoryManagement');
+        loadFactories();
+    };
+    
+    // 编辑当前工厂
+    window.editCurrentFactory = function() {
+        if (AppState.currentFactory && AppState.currentFactory.factory) {
+            const factoryId = AppState.currentFactory.factory.id;
+            editFactory(factoryId);
+        }
+    };
+    
+    // 渲染工厂详情
+    function renderFactoryDetails(data) {
+        const factory = data.factory;
+        const costAnalysis = data.cost_analysis;
+        
+        // 基本信息
+        document.getElementById('detailFactoryName').textContent = factory.name;
+        document.getElementById('detailFactoryLocation').textContent = factory.location || '-';
+        document.getElementById('detailFactoryIndustry').textContent = factory.industry_type || '-';
+        document.getElementById('detailVoltageLevel').textContent = `${factory.voltage_level} kV`;
+        document.getElementById('detailTransformerCapacity').textContent = `${formatNumber(factory.transformer_capacity)} kVA`;
+        document.getElementById('detailDailyUsage').textContent = `${formatNumber(factory.daily_usage)} kWh`;
+        document.getElementById('detailWorkingDays').textContent = `${factory.working_days_per_month} 天`;
+        
+        // 核心数据统计
+        document.getElementById('statTodayUsage').textContent = formatNumber(costAnalysis.daily_usage);
+        document.getElementById('statMonthCost').textContent = formatNumber(costAnalysis.total_monthly_cost);
+        // 使用队友写的 carbon_emission 属性
+        document.getElementById('statCarbonEmission').textContent = formatNumber(costAnalysis.carbon_emission);
+        
+        // 节省潜力 - 等待后端实现
+        // TODO: 调用后端 API /api/factory/<id>/optimization?mode=cost 或 mode=carbon
+        document.getElementById('statSavingPotential').innerHTML = '<span class="text-muted small">待后端实现</span>';
+        document.getElementById('statSavingUnit').textContent = '-';
+        
+        // 渲染图表
+        renderPriceChart(costAnalysis.hourly_breakdown);
+        renderEnergyPieChart(costAnalysis.hourly_breakdown);
+        
+        // 渲染成本报告
+        renderCostReport(costAnalysis);
+    }
+    
+    // 切换优化模式（省钱/减排）
+    window.switchOptimizationMode = async function(mode) {
+        if (!AppState.currentFactory || !AppState.currentFactory.factory) {
+            return;
+        }
+        
+        const factoryId = AppState.currentFactory.factory.id;
+        
+        // TODO: 调用后端 API 获取优化数据
+        // const response = await fetch(`/api/factory/${factoryId}/optimization?mode=${mode}`);
+        // const data = await response.json();
+        
+        // 临时占位
+        const valueElement = document.getElementById('statSavingPotential');
+        const unitElement = document.getElementById('statSavingUnit');
+        
+        if (mode === 'cost') {
+            valueElement.innerHTML = '<span class="text-muted small">待后端实现</span>';
+            unitElement.textContent = '元/月';
+        } else {
+            valueElement.innerHTML = '<span class="text-muted small">待后端实现</span>';
+            unitElement.textContent = 'kg CO₂/月';
+        }
+    };
+    
+    // 渲染电价曲线图
+    let priceChartInstance = null;
+    function renderPriceChart(hourlyData) {
+        const ctx = document.getElementById('priceChart');
+        
+        // 销毁旧图表
+        if (priceChartInstance) {
+            priceChartInstance.destroy();
+        }
+        
+        const labels = hourlyData.map(h => `${String(h.hour).padStart(2, '0')}:00`);
+        
+        // 获取价格对比数据
+        const priceComparison = AppState.currentFactory.cost_analysis.price_comparison;
+        const agentPrices = hourlyData.map(h => priceComparison.agent_prices[h.hour]);
+        const gridPrices = hourlyData.map(h => priceComparison.grid_prices[h.hour]);
+        
+        priceChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '代理公司价格 (含代理费)',
+                    data: agentPrices,
+                    borderColor: 'rgb(14, 165, 233)',
+                    backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
+                }, {
+                    label: '电网价格',
+                    data: gridPrices,
+                    borderColor: 'rgb(245, 158, 11)',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.label || '';
+                                const value = context.parsed.y;
+                                return `${label}: ¥${value.toFixed(4)}/kWh`;
+                            },
+                            afterLabel: function(context) {
+                                const index = context.dataIndex;
+                                return `时段: ${hourlyData[index].period_type}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: '电价 (元/kWh)',
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            }
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '¥' + value.toFixed(2);
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '时间',
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // 渲染能源结构饼图
+    let energyPieChartInstance = null;
+    function renderEnergyPieChart(hourlyData) {
+        const ctx = document.getElementById('energyPieChart');
+        
+        // 销毁旧图表
+        if (energyPieChartInstance) {
+            energyPieChartInstance.destroy();
+        }
+        
+        // 计算各时段用电量
+        const peakUsage = hourlyData.filter(h => h.period_type === '高峰').reduce((sum, h) => sum + h.usage, 0);
+        const normalUsage = hourlyData.filter(h => h.period_type === '平时').reduce((sum, h) => sum + h.usage, 0);
+        const valleyUsage = hourlyData.filter(h => h.period_type === '低谷').reduce((sum, h) => sum + h.usage, 0);
+        
+        energyPieChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['高峰', '平时', '低谷'],
+                datasets: [{
+                    data: [peakUsage, normalUsage, valleyUsage],
+                    backgroundColor: [
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(16, 185, 129, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgb(239, 68, 68)',
+                        'rgb(245, 158, 11)',
+                        'rgb(16, 185, 129)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: ${formatNumber(value)} kWh (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // 渲染成本报告
+    function renderCostReport(costAnalysis) {
+        const container = document.getElementById('costReportContent');
+        
+        const hourlyData = costAnalysis.hourly_breakdown;
+        
+        // 计算各时段汇总
+        const peakData = hourlyData.filter(h => h.period_type === '高峰');
+        const normalData = hourlyData.filter(h => h.period_type === '平时');
+        const valleyData = hourlyData.filter(h => h.period_type === '低谷');
+        
+        const peakUsage = peakData.reduce((sum, h) => sum + h.usage, 0);
+        const normalUsage = normalData.reduce((sum, h) => sum + h.usage, 0);
+        const valleyUsage = valleyData.reduce((sum, h) => sum + h.usage, 0);
+        
+        const peakCost = peakData.reduce((sum, h) => sum + h.cost, 0);
+        const normalCost = normalData.reduce((sum, h) => sum + h.cost, 0);
+        const valleyCost = valleyData.reduce((sum, h) => sum + h.cost, 0);
+        
+        const html = `
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>时段类型</th>
+                            <th>用电量 (kWh)</th>
+                            <th>电价 (元/kWh)</th>
+                            <th>电费 (元)</th>
+                            <th>占比</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <span class="badge bg-danger">高峰</span>
+                            </td>
+                            <td>${formatNumber(peakUsage)}</td>
+                            <td>¥${(peakCost / peakUsage).toFixed(4)}</td>
+                            <td class="fw-bold">¥${formatNumber(peakCost)}</td>
+                            <td>${((peakCost / costAnalysis.total_monthly_cost) * 100).toFixed(1)}%</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="badge bg-warning">平时</span>
+                            </td>
+                            <td>${formatNumber(normalUsage)}</td>
+                            <td>¥${(normalCost / normalUsage).toFixed(4)}</td>
+                            <td class="fw-bold">¥${formatNumber(normalCost)}</td>
+                            <td>${((normalCost / costAnalysis.total_monthly_cost) * 100).toFixed(1)}%</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="badge bg-success">低谷</span>
+                            </td>
+                            <td>${formatNumber(valleyUsage)}</td>
+                            <td>¥${(valleyCost / valleyUsage).toFixed(4)}</td>
+                            <td class="fw-bold">¥${formatNumber(valleyCost)}</td>
+                            <td>${((valleyCost / costAnalysis.total_monthly_cost) * 100).toFixed(1)}%</td>
+                        </tr>
+                        <tr class="table-light fw-bold">
+                            <td>容量电费</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>¥${formatNumber(costAnalysis.capacity_fee)}</td>
+                            <td>${((costAnalysis.capacity_fee / costAnalysis.total_monthly_cost) * 100).toFixed(1)}%</td>
+                        </tr>
+                        <tr class="table-primary fw-bold">
+                            <td>合计</td>
+                            <td>${formatNumber(costAnalysis.monthly_usage)}</td>
+                            <td>-</td>
+                            <td>¥${formatNumber(costAnalysis.total_monthly_cost)}</td>
+                            <td>100%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+    }
+    
     
     // 删除工厂
     window.deleteFactory = async function(factoryId, factoryName) {

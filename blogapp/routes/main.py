@@ -318,6 +318,88 @@ def update_factory(factory_id):
 
 
 # ============================================================
+# 工厂详情和电费计算路由
+# ============================================================
+
+@bp.route('/api/factory/<int:factory_id>/details', methods=['GET'])
+@login_required
+@csrf.exempt
+def get_factory_details(factory_id):
+    """API: 获取工厂详情和电费计算结果"""
+    from blogapp.services.electricity_cost import ElectricityCostCalculator
+    from blogapp.models import HourlyElectricityPrice, GridElectricityPrice, TimeOfUsePeriod
+    
+    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id).first()
+    
+    if not factory:
+        return jsonify({
+            'success': False,
+            'message': '工厂不存在或无权限'
+        }), 404
+    
+    try:
+        # 使用电费计算器
+        calculator = ElectricityCostCalculator(factory_id)
+        cost_result = calculator.calculate_monthly_cost()
+        
+        # 获取代理公司24小时电价（加上0.01代理费）
+        hourly_prices = HourlyElectricityPrice.query.order_by(HourlyElectricityPrice.hour).all()
+        agent_prices = {p.hour: round(p.price + 0.01, 4) for p in hourly_prices}
+        
+        # 获取电网价格（根据工厂电压等级）
+        grid_price = GridElectricityPrice.query.filter_by(voltage_level=factory.voltage_level).first()
+        
+        # 获取分时时段
+        tou_periods = TimeOfUsePeriod.query.order_by(TimeOfUsePeriod.hour).all()
+        tou_map = {p.hour: p.period_type for p in tou_periods}
+        
+        # 构建24小时电网价格数据
+        grid_prices = {}
+        if grid_price:
+            for hour in range(24):
+                period_type = tou_map.get(hour, '平时')
+                if period_type == '高峰':
+                    grid_prices[hour] = grid_price.peak_price
+                elif period_type == '低谷':
+                    grid_prices[hour] = grid_price.valley_price
+                else:
+                    grid_prices[hour] = grid_price.normal_price
+        
+        # 添加价格对比数据到返回结果
+        cost_result['price_comparison'] = {
+            'agent_prices': agent_prices,
+            'grid_prices': grid_prices
+        }
+        
+        # 添加碳排放数据（使用队友写的 carbon_emission 属性）
+        cost_result['carbon_emission'] = factory.carbon_emission
+        
+        return jsonify({
+            'success': True,
+            'factory': {
+                'id': factory.id,
+                'name': factory.name,
+                'location': factory.location,
+                'industry_type': factory.industry_type,
+                'voltage_level': factory.voltage_level,
+                'transformer_capacity': factory.transformer_capacity,
+                'daily_usage': factory.daily_usage,
+                'working_days_per_month': factory.working_days_per_month,
+                'work_periods': factory.work_periods,
+                'created_at': factory.created_at.strftime('%Y-%m-%d')
+            },
+            'cost_analysis': cost_result
+        })
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'message': f'计算失败: {str(e)}'
+        }), 400
+
+
+# ============================================================
 # 用电数据管理路由 (待实现)
 # ============================================================
 

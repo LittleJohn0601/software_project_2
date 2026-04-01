@@ -534,3 +534,293 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
 }
+
+
+/* ===== 工厂详情页面样式 ===== */
+
+/* 大图标 */
+.factory-icon-large {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    box-shadow: 0 8px 16px rgba(14, 165, 233, 0.3);
+}
+
+/* 详情信息项 */
+.detail-info-item {
+    padding: 1rem;
+    background: var(--bg-primary);
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+}
+
+.detail-label {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.detail-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+/* 统计卡片 */
+.stat-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-card:hover::before {
+    opacity: 1;
+}
+
+.stat-card-primary::before {
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+}
+
+.stat-card-warning::before {
+    background: linear-gradient(90deg, var(--warning-color), #fbbf24);
+}
+
+.stat-card-success::before {
+    background: linear-gradient(90deg, var(--success-color), #34d399);
+}
+
+.stat-card-info::before {
+    background: linear-gradient(90deg, var(--info-color), #60a5fa);
+}
+
+.stat-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    flex-shrink: 0;
+}
+
+.stat-card-primary .stat-icon {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(56, 189, 248, 0.1));
+    color: var(--primary-color);
+}
+
+.stat-card-warning .stat-icon {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1));
+    color: var(--warning-color);
+}
+
+.stat-card-success .stat-icon {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.1));
+    color: var(--success-color);
+}
+
+.stat-card-info .stat-icon {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(96, 165, 250, 0.1));
+    color: var(--info-color);
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.stat-unit {
+    font-size: 0.875rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+/* 标签页样式 */
+.nav-tabs {
+    border-bottom: 2px solid var(--border-light);
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    padding: 0.875rem 1.5rem;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-light);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--primary-color);
+    background: transparent;
+    border-bottom-color: var(--primary-color);
+}
+
+/* 成本报告表格 */
+.cost-table {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.cost-table th {
+    background: var(--bg-primary);
+    color: var(--text-dark);
+    font-weight: 600;
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.cost-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.cost-table tr:hover {
+    background: var(--bg-primary);
+}
+
+/* 优化建议卡片 */
+.suggestion-card {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--primary-color);
+    transition: all 0.2s ease;
+}
+
+.suggestion-card:hover {
+    background: var(--bg-secondary);
+    transform: translateX(4px);
+}
+
+.suggestion-title {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.suggestion-desc {
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+}
+
+.suggestion-impact {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin-top: 0.75rem;
+}
+
+.impact-high {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+}
+
+.impact-medium {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning-color);
+}
+
+.impact-low {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--info-color);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .stat-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 1.75rem;
+    }
+}
+
+
+/* ===== 优化模式切换按钮 ===== */
+.btn-xs {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 4px;
+}
+
+.btn-group-sm {
+    display: inline-flex;
+}
+
+.btn-check:checked + .btn-outline-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.btn-check:checked + .btn-outline-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+    color: white;
+}
+
+.stat-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
