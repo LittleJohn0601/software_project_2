@@ -11,20 +11,27 @@ app = create_app()
 # 自动初始化数据库（确保表结构存在）
 with app.app_context():
     db_path = os.path.join(app.instance_path, 'greenlife.db')
-    if not os.path.exists(db_path):
-        print("📦 Database not found, creating...")
+    db_exists = os.path.exists(db_path)
+    
+    if not db_exists:
+        print("📦 Database not found, creating new database...")
     else:
         print("📦 Database file exists, checking tables...")
     
     # 无论数据库文件是否存在，都执行 create_all()
     # create_all() 只会创建不存在的表，不会覆盖已有数据
     db.create_all()
-    print("✅ Database initialized successfully!")
+    print("✅ Database tables initialized!")
     
     # ========================================
     # 1. 导入代理公司电价数据
     # ========================================
-    price_count = HourlyElectricityPrice.query.count()
+    try:
+        price_count = HourlyElectricityPrice.query.count()
+    except:
+        # 如果查询失败，说明表可能损坏，设置为 0 强制重新导入
+        price_count = 0
+    
     if price_count == 0:
         print("📊 Importing hourly electricity price data...")
         excel_path = os.path.join('blogapp', 'data', 'hourly_avg_30days(1).xlsx')
@@ -73,7 +80,11 @@ with app.app_context():
     # ========================================
     # 2. 导入电网售卖价格数据
     # ========================================
-    grid_price_count = GridElectricityPrice.query.count()
+    try:
+        grid_price_count = GridElectricityPrice.query.count()
+    except:
+        grid_price_count = 0
+    
     if grid_price_count == 0:
         print("📊 Importing grid electricity price data...")
         excel_path = os.path.join('blogapp', 'data', '电网售卖价格.xlsx')
@@ -113,7 +124,11 @@ with app.app_context():
     # ========================================
     # 3. 导入分时电价时段数据
     # ========================================
-    tou_count = TimeOfUsePeriod.query.count()
+    try:
+        tou_count = TimeOfUsePeriod.query.count()
+    except:
+        tou_count = 0
+    
     if tou_count == 0:
         print("📊 Importing time-of-use period data...")
         excel_path = os.path.join('blogapp', 'data', '分时价格详情.xlsx')
