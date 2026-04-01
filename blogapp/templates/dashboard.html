@@ -15,7 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v={{ cache_bust }}">
     
     <!-- 全局音乐播放器样式 -->
     <link rel="stylesheet" href="{{ url_for('static', filename='music-player/css/music-player.css') }}">
@@ -255,19 +255,24 @@
 
                     <!-- 图表区域 -->
                     <div class="row g-3 mb-3">
-                        <!-- 实时电价曲线图 -->
-                        <div class="col-lg-8">
+                        <!-- 实时电价曲线图 - 独占一行 -->
+                        <div class="col-12">
                             <div class="card border-0 shadow-sm">
                                 <div class="card-body p-3">
                                     <h5 class="card-title mb-3" style="font-size: 1rem;">
                                         <i class="bi bi-graph-up me-2"></i>
                                         实时电价曲线图
                                     </h5>
-                                    <canvas id="priceChart" height="60"></canvas>
+                                    <div style="height: 280px;">
+                                        <canvas id="priceChart"></canvas>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
+                    <!-- 饼图和成本报告 -->
+                    <div class="row g-3 mb-3">
                         <!-- 能源结构饼图 -->
                         <div class="col-lg-4">
                             <div class="card border-0 shadow-sm">
@@ -276,54 +281,47 @@
                                         <i class="bi bi-pie-chart-fill me-2"></i>
                                         能源结构饼图
                                     </h5>
-                                    <canvas id="energyPieChart" height="160"></canvas>
+                                    <div style="height: 280px;">
+                                        <canvas id="energyPieChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 成本报告表格 -->
+                        <div class="col-lg-8">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body p-3">
+                                    <h5 class="card-title mb-3" style="font-size: 1rem;">
+                                        <i class="bi bi-calculator me-2"></i>
+                                        成本报告
+                                    </h5>
+                                    <div id="costReportContent">
+                                        <!-- 成本报告内容将通过 JavaScript 动态加载 -->
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 底部标签页 -->
+                    <!-- 优化建议 -->
                     <div class="row">
                         <div class="col-12">
                             <div class="card border-0 shadow-sm">
-                                <div class="card-header bg-white border-0 pt-3 px-3 pb-0">
-                                    <ul class="nav nav-tabs card-header-tabs" id="detailTabs" role="tablist">
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link active" id="cost-tab" data-bs-toggle="tab" data-bs-target="#cost-panel" type="button" role="tab" style="font-size: 0.875rem; padding: 0.625rem 1rem;">
-                                                <i class="bi bi-calculator me-2"></i>
-                                                成本报告
-                                            </button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="optimization-tab" data-bs-toggle="tab" data-bs-target="#optimization-panel" type="button" role="tab" style="font-size: 0.875rem; padding: 0.625rem 1rem;">
-                                                <i class="bi bi-lightbulb me-2"></i>
-                                                优化建议
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
                                 <div class="card-body p-3">
-                                    <div class="tab-content" id="detailTabsContent">
-                                        <!-- 成本报告 -->
-                                        <div class="tab-pane fade show active" id="cost-panel" role="tabpanel">
-                                            <div id="costReportContent">
-                                                <!-- 成本报告内容将通过 JavaScript 动态加载 -->
-                                            </div>
-                                        </div>
-
-                                        <!-- 优化建议 -->
-                                        <div class="tab-pane fade" id="optimization-panel" role="tabpanel">
-                                            <div class="alert alert-info" role="alert" style="font-size: 0.875rem; padding: 0.75rem;">
-                                                <i class="bi bi-info-circle me-2"></i>
-                                                <strong>功能开发中</strong> - 等待后端完成优化算法逻辑
-                                            </div>
-                                            <div id="optimizationContent">
-                                                <div class="text-center py-4 text-muted">
-                                                    <i class="bi bi-gear" style="font-size: 2.5rem;"></i>
-                                                    <p class="mt-2 mb-1" style="font-size: 0.9375rem;">优化建议功能正在开发中...</p>
-                                                    <p class="small mb-0">后端需要实现 <code>/api/factory/&lt;id&gt;/optimization</code> 接口</p>
-                                                </div>
-                                            </div>
+                                    <h5 class="card-title mb-3" style="font-size: 1rem;">
+                                        <i class="bi bi-lightbulb me-2"></i>
+                                        优化建议
+                                    </h5>
+                                    <div class="alert alert-info" role="alert" style="font-size: 0.875rem; padding: 0.75rem;">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        <strong>功能开发中</strong> - 等待后端完成优化算法逻辑
+                                    </div>
+                                    <div id="optimizationContent">
+                                        <div class="text-center py-4 text-muted">
+                                            <i class="bi bi-gear" style="font-size: 2.5rem;"></i>
+                                            <p class="mt-2 mb-1" style="font-size: 0.9375rem;">优化建议功能正在开发中...</p>
+                                            <p class="small mb-0">后端需要实现 <code>/api/factory/&lt;id&gt;/optimization</code> 接口</p>
                                         </div>
                                     </div>
                                 </div>
@@ -534,7 +532,7 @@
     </script>
     
     <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}?v={{ cache_bust }}"></script>
     
     <!-- 全局音乐播放器脚本 -->
     <script src="{{ url_for('static', filename='music-player/js/music-player.js') }}"></script>

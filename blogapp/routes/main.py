@@ -31,7 +31,8 @@ def index():
 @login_required
 def dashboard():
     """主应用页面 - 单页应用"""
-    return render_template('dashboard.html')
+    import time
+    return render_template('dashboard.html', cache_bust=int(time.time()))
 
 
 # ============================================================

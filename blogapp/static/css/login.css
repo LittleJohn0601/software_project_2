@@ -267,25 +267,40 @@ body {
     background: rgba(255, 255, 255, 0.05);
 }
 
-/* ===== Right Section - Login Form ===== */
+/* ===== Right Section - Login Form - 现代化表单 ===== */
 .right-section {
-    background-color: white;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     padding: 2rem;
+    position: relative;
+}
+
+.right-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+        radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+    pointer-events: none;
 }
 
 .login-container {
     width: 100%;
     max-width: 420px;
+    position: relative;
+    z-index: 1;
 }
 
 .logo-icon-mobile {
-    width: 32px;
-    height: 32px;
-    background: rgba(99, 102, 241, 0.1);
-    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+    backdrop-filter: blur(8px);
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
 }
 
 .logo-icon-mobile svg {
@@ -293,37 +308,49 @@ body {
 }
 
 .logo-text-mobile {
-    font-size: 1.125rem;
-    font-weight: 600;
+    font-size: 1.25rem;
+    font-weight: 700;
     color: var(--text-dark);
+    letter-spacing: -0.02em;
 }
 
 .login-title {
-    font-size: 1.875rem;
-    font-weight: 700;
+    font-size: 2rem;
+    font-weight: 800;
     color: var(--text-dark);
     margin-bottom: 0.5rem;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #1f2937, #374151);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .login-subtitle {
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     color: var(--text-muted);
     margin-bottom: 0;
+    line-height: 1.5;
 }
 
-/* ===== Form Styles ===== */
+/* ===== Form Styles - 现代化表单 ===== */
 .form-label {
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-dark);
     margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
 }
 
 .form-control {
-    height: 48px;
-    background-color: white;
-    border: 1px solid rgba(229, 231, 235, 0.6);
+    height: 52px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(229, 231, 235, 0.8);
+    border-radius: 10px;
     font-size: 1rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 /* 禁用浏览器自带的密码显示按钮 */
@@ -342,7 +369,8 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
 
 .form-control:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
+    background: white;
 }
 
 .btn-toggle-password {
@@ -359,39 +387,87 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
     align-items: center;
     justify-content: center;
     transition: color 0.2s;
+    z-index: 10;
 }
 
 .btn-toggle-password:hover {
-    color: var(--text-dark);
+    color: var(--primary-color);
 }
 
 .btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border-color: transparent;
     font-size: 1rem;
-    font-weight: 500;
-    height: 48px;
+    font-weight: 600;
+    height: 52px;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+    transition: all 0.3s ease;
+    letter-spacing: -0.01em;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
 }
 
 .btn-primary:hover {
-    background-color: var(--primary-dark);
-    border-color: var(--primary-dark);
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-primary:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-primary:active {
+    transform: translateY(0);
 }
 
 .signup-link {
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     color: var(--text-muted);
     margin-top: 2rem;
+    line-height: 1.5;
 }
 
 .signup-link-text {
-    color: var(--text-dark);
-    font-weight: 500;
+    color: var(--primary-color);
+    font-weight: 600;
     text-decoration: none;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.signup-link-text::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-dark));
+    transition: width 0.3s ease;
 }
 
 .signup-link-text:hover {
-    text-decoration: underline;
+    color: var(--primary-dark);
+}
+
+.signup-link-text:hover::after {
+    width: 100%;
 }
 
 /* ===== Responsive ===== */
@@ -473,4 +549,77 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
 
 .flash-info .flash-icon {
     color: rgba(255, 255, 255, 0.9);
+}
+
+/* ===== 增强视觉效果 ===== */
+
+/* Logo 容器增强 */
+.logo-container {
+    position: relative;
+    z-index: 20;
+    transition: all 0.3s ease;
+}
+
+.logo-container:hover {
+    transform: scale(1.02);
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.logo-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    letter-spacing: -0.02em;
+}
+
+/* 表单容器增强 */
+.login-container {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(20px);
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+/* 输入框图标增强 */
+.input-group-text {
+    background: rgba(248, 250, 252, 0.8);
+    border: 1.5px solid rgba(229, 231, 235, 0.8);
+    border-right: none;
+    border-radius: 10px 0 0 10px;
+}
+
+.input-group .form-control {
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+}
+
+/* 按钮悬停增强 */
+.btn-toggle-password {
+    transition: color 0.2s ease;
+}
+
+.btn-toggle-password:hover {
+    color: var(--primary-color);
+}
+
+/* Flash 消息增强 */
+.flash-message {
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }

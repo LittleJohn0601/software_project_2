@@ -1,6 +1,9 @@
 /* ========================================
    PeakShift Dashboard - Single Page Application
+   Version: 2.0 - 图表动画已禁用
    ======================================== */
+
+console.log('Dashboard.js v2.0 loaded - Animation disabled');
 
 (function() {
     'use strict';
@@ -519,6 +522,7 @@
     // 渲染电价曲线图
     let priceChartInstance = null;
     function renderPriceChart(hourlyData) {
+        console.log('渲染折线图 - 动画已启用');
         const ctx = document.getElementById('priceChart');
         
         // 销毁旧图表
@@ -561,7 +565,11 @@
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 800,
+                    easing: 'easeOutQuart'
+                },
                 interaction: {
                     mode: 'index',
                     intersect: false
@@ -630,6 +638,7 @@
     // 渲染能源结构饼图
     let energyPieChartInstance = null;
     function renderEnergyPieChart(hourlyData) {
+        console.log('渲染饼图 - 动画已启用');
         const ctx = document.getElementById('energyPieChart');
         
         // 销毁旧图表
@@ -663,7 +672,11 @@
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 800,
+                    easing: 'easeOutQuart'
+                },
                 plugins: {
                     legend: {
                         position: 'bottom'
@@ -707,63 +720,59 @@
         // 电能费总和（不含容量费）
         const totalEnergyCost = costAnalysis.monthly_energy_cost;
         
+        // 计算总用电量
+        const totalUsage = peakUsage + normalUsage + valleyUsage;
+        
         const html = `
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-light">
-                        <tr>
-                            <th>时段类型</th>
-                            <th>用电量 (kWh)</th>
-                            <th>电价 (元/kWh)</th>
-                            <th>电费 (元)</th>
-                            <th>占比</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <span class="badge bg-danger">高峰</span>
-                            </td>
-                            <td>${formatNumber(peakUsage)}</td>
-                            <td>¥${peakUsage > 0 ? (peakCost / peakUsage).toFixed(4) : '0.0000'}</td>
-                            <td class="fw-bold">¥${formatNumber(peakCost)}</td>
-                            <td>${totalEnergyCost > 0 ? ((peakCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <span class="badge bg-warning">平时</span>
-                            </td>
-                            <td>${formatNumber(normalUsage)}</td>
-                            <td>¥${normalUsage > 0 ? (normalCost / normalUsage).toFixed(4) : '0.0000'}</td>
-                            <td class="fw-bold">¥${formatNumber(normalCost)}</td>
-                            <td>${totalEnergyCost > 0 ? ((normalCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <span class="badge bg-success">低谷</span>
-                            </td>
-                            <td>${formatNumber(valleyUsage)}</td>
-                            <td>¥${valleyUsage > 0 ? (valleyCost / valleyUsage).toFixed(4) : '0.0000'}</td>
-                            <td class="fw-bold">¥${formatNumber(valleyCost)}</td>
-                            <td>${totalEnergyCost > 0 ? ((valleyCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
-                        </tr>
-                        <tr class="table-light fw-bold">
-                            <td colspan="3">容量电费</td>
-                            <td>¥${formatNumber(costAnalysis.capacity_fee)}</td>
-                            <td>-</td>
-                        </tr>
-                        <tr class="table-primary fw-bold">
-                            <td>合计</td>
-                            <td>${formatNumber(costAnalysis.monthly_usage)}</td>
-                            <td>-</td>
-                            <td>¥${formatNumber(costAnalysis.total_monthly_cost)}</td>
-                            <td>-</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+                <thead>
+                    <tr style="background: linear-gradient(135deg, rgba(240, 249, 255, 0.8), rgba(240, 253, 244, 0.8));">
+                        <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">时段类型</th>
+                        <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">用电量 (kWh)</th>
+                        <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">电价 (元/kWh)</th>
+                        <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">电费 (元)</th>
+                        <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">占比</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 0.75rem; text-align: center; background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15)); color: rgb(185, 28, 28); font-weight: 600;">高峰</td>
+                        <td style="padding: 0.75rem; text-align: center;">${formatNumber(peakUsage)}</td>
+                        <td style="padding: 0.75rem; text-align: center;">¥${peakUsage > 0 ? (peakCost / peakUsage).toFixed(4) : '0.0000'}</td>
+                        <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(peakCost)}</td>
+                        <td style="padding: 0.75rem; text-align: center;">${totalEnergyCost > 0 ? ((peakCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem; text-align: center; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.15)); color: rgb(180, 83, 9); font-weight: 600;">平时</td>
+                        <td style="padding: 0.75rem; text-align: center;">${formatNumber(normalUsage)}</td>
+                        <td style="padding: 0.75rem; text-align: center;">¥${normalUsage > 0 ? (normalCost / normalUsage).toFixed(4) : '0.0000'}</td>
+                        <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(normalCost)}</td>
+                        <td style="padding: 0.75rem; text-align: center;">${totalEnergyCost > 0 ? ((normalCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem; text-align: center; background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15)); color: rgb(4, 120, 87); font-weight: 600;">低谷</td>
+                        <td style="padding: 0.75rem; text-align: center;">${formatNumber(valleyUsage)}</td>
+                        <td style="padding: 0.75rem; text-align: center;">¥${valleyUsage > 0 ? (valleyCost / valleyUsage).toFixed(4) : '0.0000'}</td>
+                        <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(valleyCost)}</td>
+                        <td style="padding: 0.75rem; text-align: center;">${totalEnergyCost > 0 ? ((valleyCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
+                    </tr>
+                    <tr style="background: linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.95));">
+                        <td colspan="3" style="padding: 0.75rem; text-align: left; font-weight: bold;">容量电费</td>
+                        <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(costAnalysis.capacity_fee)}</td>
+                        <td style="padding: 0.75rem; text-align: center;">-</td>
+                    </tr>
+                    <tr style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(16, 185, 129, 0.1));">
+                        <td style="padding: 0.75rem; text-align: center; font-weight: bold;">合计</td>
+                        <td style="padding: 0.75rem; text-align: center; font-weight: bold;">${formatNumber(totalUsage)}</td>
+                        <td style="padding: 0.75rem; text-align: center;">-</td>
+                        <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(costAnalysis.total_monthly_cost)}</td>
+                        <td style="padding: 0.75rem; text-align: center; font-weight: bold;">100%</td>
+                    </tr>
+                </tbody>
+            </table>
         `;
         
+        console.log('表格 HTML:', html);
         container.innerHTML = html;
     }
     
