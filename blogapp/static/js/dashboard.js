@@ -689,19 +689,23 @@
         const container = document.getElementById('costReportContent');
         
         const hourlyData = costAnalysis.hourly_breakdown;
+        const monthDays = costAnalysis.month_days;
         
-        // 计算各时段汇总
+        // 计算各时段汇总（hourly_breakdown 是每日数据，需要乘以工作天数）
         const peakData = hourlyData.filter(h => h.period_type === '高峰');
         const normalData = hourlyData.filter(h => h.period_type === '平时');
         const valleyData = hourlyData.filter(h => h.period_type === '低谷');
         
-        const peakUsage = peakData.reduce((sum, h) => sum + h.usage, 0);
-        const normalUsage = normalData.reduce((sum, h) => sum + h.usage, 0);
-        const valleyUsage = valleyData.reduce((sum, h) => sum + h.usage, 0);
+        const peakUsage = peakData.reduce((sum, h) => sum + h.usage, 0) * monthDays;
+        const normalUsage = normalData.reduce((sum, h) => sum + h.usage, 0) * monthDays;
+        const valleyUsage = valleyData.reduce((sum, h) => sum + h.usage, 0) * monthDays;
         
-        const peakCost = peakData.reduce((sum, h) => sum + h.cost, 0);
-        const normalCost = normalData.reduce((sum, h) => sum + h.cost, 0);
-        const valleyCost = valleyData.reduce((sum, h) => sum + h.cost, 0);
+        const peakCost = peakData.reduce((sum, h) => sum + h.cost, 0) * monthDays;
+        const normalCost = normalData.reduce((sum, h) => sum + h.cost, 0) * monthDays;
+        const valleyCost = valleyData.reduce((sum, h) => sum + h.cost, 0) * monthDays;
+        
+        // 电能费总和（不含容量费）
+        const totalEnergyCost = costAnalysis.monthly_energy_cost;
         
         const html = `
             <div class="table-responsive">
@@ -721,41 +725,39 @@
                                 <span class="badge bg-danger">高峰</span>
                             </td>
                             <td>${formatNumber(peakUsage)}</td>
-                            <td>¥${(peakCost / peakUsage).toFixed(4)}</td>
+                            <td>¥${peakUsage > 0 ? (peakCost / peakUsage).toFixed(4) : '0.0000'}</td>
                             <td class="fw-bold">¥${formatNumber(peakCost)}</td>
-                            <td>${((peakCost / costAnalysis.total_monthly_cost) * 100).toFixed(1)}%</td>
+                            <td>${totalEnergyCost > 0 ? ((peakCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
                         </tr>
                         <tr>
                             <td>
                                 <span class="badge bg-warning">平时</span>
                             </td>
                             <td>${formatNumber(normalUsage)}</td>
-                            <td>¥${(normalCost / normalUsage).toFixed(4)}</td>
+                            <td>¥${normalUsage > 0 ? (normalCost / normalUsage).toFixed(4) : '0.0000'}</td>
                             <td class="fw-bold">¥${formatNumber(normalCost)}</td>
-                            <td>${((normalCost / costAnalysis.total_monthly_cost) * 100).toFixed(1)}%</td>
+                            <td>${totalEnergyCost > 0 ? ((normalCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
                         </tr>
                         <tr>
                             <td>
                                 <span class="badge bg-success">低谷</span>
                             </td>
                             <td>${formatNumber(valleyUsage)}</td>
-                            <td>¥${(valleyCost / valleyUsage).toFixed(4)}</td>
+                            <td>¥${valleyUsage > 0 ? (valleyCost / valleyUsage).toFixed(4) : '0.0000'}</td>
                             <td class="fw-bold">¥${formatNumber(valleyCost)}</td>
-                            <td>${((valleyCost / costAnalysis.total_monthly_cost) * 100).toFixed(1)}%</td>
+                            <td>${totalEnergyCost > 0 ? ((valleyCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
                         </tr>
                         <tr class="table-light fw-bold">
-                            <td>容量电费</td>
-                            <td>-</td>
-                            <td>-</td>
+                            <td colspan="3">容量电费</td>
                             <td>¥${formatNumber(costAnalysis.capacity_fee)}</td>
-                            <td>${((costAnalysis.capacity_fee / costAnalysis.total_monthly_cost) * 100).toFixed(1)}%</td>
+                            <td>-</td>
                         </tr>
                         <tr class="table-primary fw-bold">
                             <td>合计</td>
                             <td>${formatNumber(costAnalysis.monthly_usage)}</td>
                             <td>-</td>
                             <td>¥${formatNumber(costAnalysis.total_monthly_cost)}</td>
-                            <td>100%</td>
+                            <td>-</td>
                         </tr>
                     </tbody>
                 </table>

@@ -38,25 +38,27 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
     background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
     min-height: 100vh;
+    font-size: 14px;
 }
 
 /* ===== Navbar Styles ===== */
 .navbar {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%) !important;
-    box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.2);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 1rem;
 }
 
 .navbar-brand {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
     letter-spacing: -0.5px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-brand i {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
@@ -86,6 +88,7 @@ body {
     color: var(--text-dark);
     font-weight: 700;
     letter-spacing: -0.5px;
+    font-size: 1.5rem;
 }
 
 .container h2 i {
@@ -93,13 +96,18 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    font-size: 1.5rem;
+}
+
+.container .text-muted {
+    font-size: 0.875rem;
 }
 
 /* ===== Factory Card Styles ===== */
 .factory-card {
     background: var(--bg-card);
-    border-radius: 16px;
-    padding: 1.75rem;
+    border-radius: 12px;
+    padding: 1.25rem;
     box-shadow: var(--shadow-md);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     height: 100%;
@@ -134,20 +142,20 @@ body {
     display: flex;
     align-items: start;
     justify-content: space-between;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.875rem;
 }
 
 .factory-icon {
-    width: 56px;
-    height: 56px;
+    width: 44px;
+    height: 44px;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    border-radius: 14px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 1.75rem;
-    box-shadow: 0 8px 16px rgba(14, 165, 233, 0.3);
+    font-size: 1.25rem;
+    box-shadow: 0 4px 8px rgba(14, 165, 233, 0.3);
     position: relative;
 }
 
@@ -167,16 +175,16 @@ body {
 }
 
 .factory-name {
-    font-size: 1.375rem;
+    font-size: 1.125rem;
     font-weight: 700;
     color: var(--text-dark);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.375rem;
     letter-spacing: -0.3px;
 }
 
 .factory-location {
     color: var(--text-muted);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     display: flex;
     align-items: center;
     gap: 0.375rem;
@@ -190,11 +198,11 @@ body {
 .factory-stats {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0.875rem;
-    margin: 1.25rem 0;
-    padding: 1.25rem;
+    gap: 0.5rem;
+    margin: 0.875rem 0;
+    padding: 0.875rem;
     background: var(--bg-primary);
-    border-radius: 12px;
+    border-radius: 10px;
     border: 1px solid var(--border-light);
 }
 
@@ -202,7 +210,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.625rem 0;
+    padding: 0.375rem 0;
 }
 
 .stat-item:not(:last-child) {
@@ -211,7 +219,7 @@ body {
 
 .stat-label {
     color: var(--text-muted);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -219,12 +227,12 @@ body {
 }
 
 .stat-label i {
-    font-size: 1rem;
+    font-size: 0.875rem;
 }
 
 .stat-value {
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.9375rem;
     color: var(--text-dark);
 }
 
@@ -243,9 +251,9 @@ body {
 /* 工作时间段徽章 */
 .badge {
     font-weight: 600;
-    padding: 0.375rem 0.75rem;
-    border-radius: 6px;
-    font-size: 0.8125rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
 }
 
 .badge.bg-secondary {
@@ -254,16 +262,17 @@ body {
 
 .factory-actions {
     display: flex;
-    gap: 0.625rem;
-    margin-top: 1.25rem;
-    padding-top: 1.25rem;
+    gap: 0.5rem;
+    margin-top: 0.875rem;
+    padding-top: 0.875rem;
     border-top: 1px solid var(--border-color);
 }
 
 .factory-actions .btn {
     flex: 1;
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.75rem;
 }
 
 /* ===== Empty State ===== */
@@ -285,7 +294,7 @@ body {
 
 /* ===== Modal Styles ===== */
 .modal-content {
-    border-radius: 16px;
+    border-radius: 12px;
     border: none;
     box-shadow: var(--shadow-xl);
     overflow: hidden;
@@ -294,12 +303,13 @@ body {
 .modal-header {
     background: linear-gradient(135deg, var(--bg-primary), var(--bg-card));
     border-bottom: 1px solid var(--border-color);
-    padding: 1.5rem 1.75rem;
+    padding: 1rem 1.25rem;
 }
 
 .modal-title {
     font-weight: 700;
     color: var(--text-dark);
+    font-size: 1.125rem;
 }
 
 .modal-title i {
@@ -310,62 +320,62 @@ body {
 }
 
 .modal-body {
-    padding: 1.75rem;
+    padding: 1.25rem;
 }
 
 .modal-footer {
     background: var(--bg-primary);
     border-top: 1px solid var(--border-color);
-    padding: 1.25rem 1.75rem;
+    padding: 0.875rem 1.25rem;
 }
 
 /* ===== Form Styles ===== */
 .form-label {
     font-weight: 600;
     color: var(--text-dark);
-    margin-bottom: 0.5rem;
-    font-size: 0.9375rem;
+    margin-bottom: 0.375rem;
+    font-size: 0.875rem;
 }
 
 .form-control,
 .form-select {
     border: 2px solid var(--border-color);
-    border-radius: 10px;
-    padding: 0.75rem 1rem;
-    font-size: 0.9375rem;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
     transition: all 0.2s ease;
 }
 
 .form-control:focus,
 .form-select:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
     background-color: var(--bg-card);
 }
 
 .form-text {
     color: var(--text-light);
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
 }
 
 /* 工作时间段卡片 */
 .card {
     border: 2px solid var(--border-light);
-    border-radius: 12px;
+    border-radius: 10px;
 }
 
 .card-body {
-    padding: 1.25rem;
+    padding: 1rem;
 }
 
 /* ===== Button Styles ===== */
 .btn {
-    border-radius: 10px;
-    padding: 0.625rem 1.25rem;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
     font-weight: 600;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
 }
 
 .btn-primary {
@@ -500,20 +510,21 @@ body {
 /* ===== 页面标题区域 ===== */
 .row.mb-4 {
     background: var(--bg-card);
-    padding: 2rem;
-    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    border-radius: 12px;
     box-shadow: var(--shadow-md);
-    margin-bottom: 2rem !important;
+    margin-bottom: 1.25rem !important;
     border: 1px solid var(--border-light);
 }
 
 .row.mb-4 h2 {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .row.mb-4 p {
     color: var(--text-muted);
     margin-bottom: 0;
+    font-size: 0.875rem;
 }
 
 /* ===== 滚动条美化 ===== */
@@ -540,35 +551,35 @@ body {
 
 /* 大图标 */
 .factory-icon-large {
-    width: 72px;
-    height: 72px;
+    width: 52px;
+    height: 52px;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    border-radius: 16px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 2rem;
-    box-shadow: 0 8px 16px rgba(14, 165, 233, 0.3);
+    font-size: 1.5rem;
+    box-shadow: 0 4px 8px rgba(14, 165, 233, 0.3);
 }
 
 /* 详情信息项 */
 .detail-info-item {
-    padding: 1rem;
+    padding: 0.75rem;
     background: var(--bg-primary);
-    border-radius: 10px;
+    border-radius: 8px;
     border: 1px solid var(--border-light);
 }
 
 .detail-label {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.375rem;
     font-weight: 500;
 }
 
 .detail-value {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--text-dark);
 }
@@ -576,13 +587,13 @@ body {
 /* 统计卡片 */
 .stat-card {
     background: var(--bg-card);
-    border-radius: 16px;
-    padding: 1.5rem;
+    border-radius: 12px;
+    padding: 1rem;
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border-light);
     display: flex;
     align-items: center;
-    gap: 1.25rem;
+    gap: 0.875rem;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -625,13 +636,13 @@ body {
 }
 
 .stat-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 14px;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.75rem;
+    font-size: 1.375rem;
     flex-shrink: 0;
 }
 
@@ -657,25 +668,26 @@ body {
 
 .stat-content {
     flex: 1;
+    min-width: 0;
 }
 
 .stat-label {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
     font-weight: 500;
 }
 
 .stat-value {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-dark);
-    line-height: 1;
-    margin-bottom: 0.25rem;
+    line-height: 1.2;
+    margin-bottom: 0.125rem;
 }
 
 .stat-unit {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: var(--text-light);
     font-weight: 500;
 }
@@ -689,9 +701,10 @@ body {
     border: none;
     color: var(--text-muted);
     font-weight: 600;
-    padding: 0.875rem 1.5rem;
+    padding: 0.625rem 1rem;
     border-bottom: 3px solid transparent;
     transition: all 0.2s ease;
+    font-size: 0.875rem;
 }
 
 .nav-tabs .nav-link:hover {
@@ -706,6 +719,19 @@ body {
 }
 
 /* 成本报告表格 */
+.table {
+    font-size: 0.875rem;
+}
+
+.table th {
+    padding: 0.625rem;
+    font-weight: 600;
+}
+
+.table td {
+    padding: 0.625rem;
+}
+
 .cost-table {
     width: 100%;
     margin-top: 1rem;
@@ -715,14 +741,16 @@ body {
     background: var(--bg-primary);
     color: var(--text-dark);
     font-weight: 600;
-    padding: 1rem;
+    padding: 0.75rem;
     text-align: left;
     border-bottom: 2px solid var(--border-color);
+    font-size: 0.875rem;
 }
 
 .cost-table td {
-    padding: 1rem;
+    padding: 0.75rem;
     border-bottom: 1px solid var(--border-light);
+    font-size: 0.875rem;
 }
 
 .cost-table tr:hover {
@@ -732,10 +760,10 @@ body {
 /* 优化建议卡片 */
 .suggestion-card {
     background: var(--bg-primary);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    border-left: 4px solid var(--primary-color);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border-left: 3px solid var(--primary-color);
     transition: all 0.2s ease;
 }
 
@@ -747,25 +775,26 @@ body {
 .suggestion-title {
     font-weight: 600;
     color: var(--text-dark);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.375rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-size: 0.9375rem;
 }
 
 .suggestion-desc {
     color: var(--text-muted);
-    font-size: 0.9375rem;
-    line-height: 1.6;
+    font-size: 0.875rem;
+    line-height: 1.5;
 }
 
 .suggestion-impact {
     display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 6px;
-    font-size: 0.8125rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
     font-weight: 600;
-    margin-top: 0.75rem;
+    margin-top: 0.5rem;
 }
 
 .impact-high {
@@ -788,11 +817,43 @@ body {
     .stat-card {
         flex-direction: column;
         text-align: center;
+        padding: 0.875rem;
     }
     
     .stat-value {
-        font-size: 1.75rem;
+        font-size: 1.25rem;
     }
+    
+    .factory-card {
+        padding: 1rem;
+    }
+    
+    .factory-name {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .stat-value {
+        font-size: 1.25rem;
+    }
+    
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.125rem;
+    }
+}
+
+/* 容器间距优化 */
+.container {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+}
+
+.row.g-4 {
+    --bs-gutter-y: 1rem;
+    --bs-gutter-x: 1rem;
 }
 
 
@@ -823,4 +884,153 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+
+/* ===== 增强响应式布局 ===== */
+
+/* 超小屏幕 (手机竖屏) */
+@media (max-width: 576px) {
+    body {
+        font-size: 13px;
+    }
+    
+    .navbar-brand {
+        font-size: 1rem;
+    }
+    
+    .navbar-brand i {
+        font-size: 1.25rem;
+    }
+    
+    .container h2 {
+        font-size: 1.25rem;
+    }
+    
+    .factory-card {
+        padding: 1rem;
+    }
+    
+    .factory-name {
+        font-size: 1rem;
+    }
+    
+    .factory-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+    
+    .stat-card {
+        padding: 0.75rem;
+    }
+    
+    .stat-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1.125rem;
+    }
+    
+    .stat-value {
+        font-size: 1.125rem;
+    }
+    
+    .stat-label {
+        font-size: 0.6875rem;
+    }
+    
+    .stat-unit {
+        font-size: 0.6875rem;
+    }
+    
+    .factory-icon-large {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+    }
+    
+    .detail-value {
+        font-size: 0.875rem;
+    }
+    
+    .detail-label {
+        font-size: 0.6875rem;
+    }
+}
+
+/* 小屏幕 (平板竖屏) */
+@media (min-width: 577px) and (max-width: 768px) {
+    .stat-value {
+        font-size: 1.375rem;
+    }
+    
+    .factory-name {
+        font-size: 1.0625rem;
+    }
+}
+
+/* 中等屏幕 (平板横屏) */
+@media (min-width: 769px) and (max-width: 992px) {
+    .stat-value {
+        font-size: 1.375rem;
+    }
+    
+    .stat-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.25rem;
+    }
+}
+
+/* 大屏幕优化 */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1320px;
+    }
+}
+
+/* 图表容器响应式 */
+@media (max-width: 992px) {
+    #priceChart {
+        height: 250px !important;
+    }
+    
+    #energyPieChart {
+        height: 200px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    #priceChart {
+        height: 200px !important;
+    }
+    
+    #energyPieChart {
+        height: 180px !important;
+    }
+}
+
+/* 表格响应式 */
+@media (max-width: 768px) {
+    .table {
+        font-size: 0.8125rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.5rem 0.375rem;
+    }
+}
+
+/* 优化按钮组在小屏幕上的显示 */
+@media (max-width: 576px) {
+    .btn-xs {
+        padding: 0.1875rem 0.375rem;
+        font-size: 0.6875rem;
+    }
+    
+    .stat-label {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
 }
