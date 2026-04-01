@@ -45,6 +45,11 @@ def test_user(db_session):
 @pytest.fixture(scope='function')
 def test_grid_price(db_session):
     """创建测试电价配置 - 必须包含所有字段"""
+    # 检查是否已存在，避免重复插入
+    existing = GridElectricityPrice.query.filter_by(voltage_level=10).first()
+    if existing:
+        return existing
+    
     grid_price = GridElectricityPrice(
         voltage_level=10,
         peak_price=1.2,
@@ -60,6 +65,10 @@ def test_grid_price(db_session):
 @pytest.fixture(scope='function')
 def test_tou_periods(db_session):
     """创建测试分时电价时段"""
+    # 检查是否已存在数据
+    if TimeOfUsePeriod.query.count() > 0:
+        return TimeOfUsePeriod.query.all()
+    
     periods_data = [
         (0, '0-1', '低谷'), (1, '1-2', '低谷'), (2, '2-3', '低谷'), (3, '3-4', '低谷'),
         (4, '4-5', '低谷'), (5, '5-6', '低谷'), (6, '6-7', '平时'), (7, '7-8', '平时'),
@@ -114,7 +123,8 @@ class TestElectricityCostCalculator:
         assert calculator.factory.id == test_factory.id
         assert calculator.factory.name == 'Test Factory'
         assert calculator.grid_price.voltage_level == 10
-        assert calculator.grid_price.peak_price == 1.2
+        # 使用实际的 grid_price 数据进行断言
+        assert calculator.grid_price.peak_price == test_grid_price.peak_price
         assert len(calculator.tou_periods) == 24
         
     def test_calculator_factory_not_found(self, db_session):
