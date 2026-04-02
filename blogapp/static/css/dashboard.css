@@ -797,7 +797,8 @@ body::after {
     border-radius: var(--radius-xl);
     padding: var(--spacing-lg);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    border: 2px solid transparent;
+    background-clip: padding-box;
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
@@ -1966,48 +1967,6 @@ canvas {
 
 /* ===== 特殊卡片样式 - 数据仪表板专用 ===== */
 
-/* 数据卡片悬停时的彩虹边框 */
-.stat-card {
-    border: 2px solid transparent;
-    background-clip: padding-box;
-}
-
-.stat-card::after {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: var(--radius-xl);
-    background: linear-gradient(135deg, #0ea5e9, #10b981, #f59e0b, #8b5cf6);
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.stat-card:hover::after {
-    opacity: 0.3;
-}
-
-/* 工厂卡片悬停时的彩虹边框 */
-.factory-card {
-    border: 2px solid transparent;
-    background-clip: padding-box;
-}
-
-.factory-card::after {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: var(--radius-xl);
-    background: linear-gradient(135deg, #0ea5e9, #10b981, #f59e0b);
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.factory-card:hover::after {
-    opacity: 0.3;
-}
-
 /* ===== 图表容器增强 ===== */
 /* card-body 已在前面定义，此处删除重复 */
 
@@ -2108,12 +2067,6 @@ canvas {
 }
 
 /* ===== 特殊交互效果 ===== */
-
-/* 卡片磁吸效果 */
-.factory-card,
-.stat-card {
-    will-change: transform;
-}
 
 /* 鼠标跟随光效 */
 .stat-card,
