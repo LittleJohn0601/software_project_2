@@ -19,6 +19,13 @@
 </head>
 <body data-playlist="playlist-auth">
     <div class="container-fluid">
+        <!-- 全局云朵 -->
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        
+        <!-- 全局太阳 -->
+        <div class="sun"></div>
+        
         <div class="row min-vh-100">
             <!-- Left Content Section - Characters -->
             <div class="col-lg-6 d-none d-lg-flex flex-column justify-content-between left-section">
@@ -80,19 +87,32 @@
                     </div>
                 </div>
 
-                <!-- Decorative elements -->
-                <div class="decorative-grid"></div>
-                <div class="decorative-blur decorative-blur-1"></div>
-                <div class="decorative-blur decorative-blur-2"></div>
             </div>
 
             <!-- Right Auth Section -->
             <div class="col-lg-6 d-flex align-items-center justify-content-center right-section">
-                <!-- 背景装饰元素 -->
-                <div class="auth-decorations">
-                    <div class="auth-decoration auth-decoration-1">⚡</div>
-                    <div class="auth-decoration auth-decoration-2">⚡</div>
-                    <div class="auth-decoration auth-decoration-3">⚡</div>
+                <!-- 能源背景装饰 - 右侧底部 -->
+                <div class="energy-background">
+                    
+                    <!-- 火电厂烟囱 -->
+                    <div class="chimney">
+                        <div class="smoke"></div>
+                        <div class="smoke"></div>
+                        <div class="smoke"></div>
+                    </div>
+                    
+                    <!-- 风力发电机 -->
+                    <div class="windmill">
+                        <div class="windmill-blades">
+                            <div class="blade"></div>
+                            <div class="blade"></div>
+                            <div class="blade"></div>
+                        </div>
+                        <div class="windmill-tower"></div>
+                    </div>
+                    
+                    <!-- 光伏板 -->
+                    <div class="solar-panel"></div>
                 </div>
                 
                 <div class="login-container">
@@ -187,7 +207,7 @@
                                         class="form-control form-control-lg" 
                                         id="password" 
                                         name="password"
-                                        placeholder="••••••••" 
+                                        placeholder="" 
                                         required
                                         autocomplete="current-password">
                                     <button 
@@ -267,7 +287,7 @@
                                         class="form-control form-control-lg" 
                                         id="register_password" 
                                         name="password"
-                                        placeholder="••••••••" 
+                                        placeholder="" 
                                         required
                                         minlength="6"
                                         maxlength="128"
