@@ -401,6 +401,120 @@ def get_factory_details(factory_id):
 
 
 # ============================================================
+# 供应商优化和节省潜力 API
+# ============================================================
+
+@bp.route('/api/factory/<int:factory_id>/optimization', methods=['GET'])
+@login_required
+@csrf.exempt
+def get_optimization(factory_id):
+    """API: 获取节省潜力（省钱/减排模式）"""
+    from blogapp.services.supplier_optimizer import SupplierOptimizer
+    from blogapp.models import HourlyElectricityPrice, GridElectricityPrice, TimeOfUsePeriod
+    
+    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id).first()
+    
+    if not factory:
+        return jsonify({
+            'success': False,
+            'message': '工厂不存在或无权限'
+        }), 404
+    
+    # 获取优化模式参数
+    mode = request.args.get('mode', 'cost')
+    if mode not in ['cost', 'carbon']:
+        return jsonify({
+            'success': False,
+            'message': '无效的优化模式，必须是 cost 或 carbon'
+        }), 400
+    
+    try:
+        # 获取必要的数据
+        grid_price = GridElectricityPrice.query.filter_by(voltage_level=factory.voltage_level).first()
+        supplier_prices = HourlyElectricityPrice.query.order_by(HourlyElectricityPrice.hour).all()
+        tou_periods = TimeOfUsePeriod.query.order_by(TimeOfUsePeriod.hour).all()
+        
+        if not grid_price:
+            return jsonify({
+                'success': False,
+                'message': f'未找到电压等级 {factory.voltage_level} kV 的电网价格数据'
+            }), 404
+        
+        if not supplier_prices:
+            return jsonify({
+                'success': False,
+                'message': '未找到售电公司价格数据'
+            }), 404
+        
+        # 创建优化器
+        optimizer = SupplierOptimizer(factory, grid_price, supplier_prices, tou_periods)
+        
+        # 获取节省潜力
+        result = optimizer.get_saving_potential(mode=mode)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'message': f'优化计算失败: {str(e)}'
+        }), 400
+
+
+@bp.route('/api/factory/<int:factory_id>/suggestions', methods=['GET'])
+@login_required
+@csrf.exempt
+def get_suggestions(factory_id):
+    """API: 获取优化建议"""
+    from blogapp.services.supplier_optimizer import SupplierOptimizer
+    from blogapp.models import HourlyElectricityPrice, GridElectricityPrice, TimeOfUsePeriod
+    
+    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id).first()
+    
+    if not factory:
+        return jsonify({
+            'success': False,
+            'message': '工厂不存在或无权限'
+        }), 404
+    
+    try:
+        # 获取必要的数据
+        grid_price = GridElectricityPrice.query.filter_by(voltage_level=factory.voltage_level).first()
+        supplier_prices = HourlyElectricityPrice.query.order_by(HourlyElectricityPrice.hour).all()
+        tou_periods = TimeOfUsePeriod.query.order_by(TimeOfUsePeriod.hour).all()
+        
+        if not grid_price:
+            return jsonify({
+                'success': False,
+                'message': f'未找到电压等级 {factory.voltage_level} kV 的电网价格数据'
+            }), 404
+        
+        if not supplier_prices:
+            return jsonify({
+                'success': False,
+                'message': '未找到售电公司价格数据'
+            }), 404
+        
+        # 创建优化器
+        optimizer = SupplierOptimizer(factory, grid_price, supplier_prices, tou_periods)
+        
+        # 获取优化建议
+        result = optimizer.get_suggestions()
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'message': f'生成建议失败: {str(e)}'
+        }), 400
+
+
+# ============================================================
 # 用电数据管理路由 (待实现)
 # ============================================================
 

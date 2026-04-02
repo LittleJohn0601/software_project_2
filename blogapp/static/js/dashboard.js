@@ -487,10 +487,11 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         // 使用队友写的 carbon_emission 属性
         document.getElementById('statCarbonEmission').textContent = formatNumber(costAnalysis.carbon_emission);
         
-        // 节省潜力 - 等待后端实现
-        // TODO: 调用后端 API /api/factory/<id>/optimization?mode=cost 或 mode=carbon
-        document.getElementById('statSavingPotential').innerHTML = '<span class="text-muted small">待后端实现</span>';
-        document.getElementById('statSavingUnit').textContent = '-';
+        // 节省潜力 - 调用后端API（默认省钱模式）
+        switchOptimizationMode('cost');
+        
+        // 加载优化建议
+        loadOptimizationSuggestions(factory.id);
         
         // 渲染图表
         renderPriceChart(costAnalysis.hourly_breakdown);
@@ -498,6 +499,82 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         // 渲染成本报告
         renderCostReport(costAnalysis);
+    }
+    
+    // 加载优化建议
+    async function loadOptimizationSuggestions(factoryId) {
+        const container = document.getElementById('optimizationContent');
+        
+        try {
+            const response = await fetch(`/api/factory/${factoryId}/suggestions?t=${Date.now()}`);
+            const data = await response.json();
+            
+            if (data.success && data.suggestions && data.suggestions.length > 0) {
+                // 渲染建议列表
+                container.innerHTML = data.suggestions.map((suggestion, index) => `
+                    <div class="suggestion-item mb-3 p-3" style="background: rgba(255, 255, 255, 0.5); border-radius: 12px; border-left: 4px solid ${
+                        suggestion.impact === 'high' ? '#ef4444' : 
+                        suggestion.impact === 'medium' ? '#f59e0b' : '#10b981'
+                    };">
+                        <div class="d-flex align-items-start justify-content-between mb-2">
+                            <h6 class="mb-0" style="font-size: 0.9375rem; font-weight: 600;">
+                                <i class="bi bi-lightbulb-fill me-2" style="color: ${
+                                    suggestion.impact === 'high' ? '#ef4444' : 
+                                    suggestion.impact === 'medium' ? '#f59e0b' : '#10b981'
+                                };"></i>
+                                ${suggestion.title}
+                            </h6>
+                            <span class="badge" style="background: ${
+                                suggestion.impact === 'high' ? '#ef4444' : 
+                                suggestion.impact === 'medium' ? '#f59e0b' : '#10b981'
+                            }; font-size: 0.75rem;">
+                                ${suggestion.impact === 'high' ? '高影响' : 
+                                  suggestion.impact === 'medium' ? '中影响' : '低影响'}
+                            </span>
+                        </div>
+                        <p class="text-muted mb-2" style="font-size: 0.875rem;">${suggestion.description}</p>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <div class="small">
+                                    <i class="bi bi-cash-coin me-1"></i>
+                                    预计节省: <strong>${formatNumber(suggestion.potential_saving)}</strong> 元/月
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="small">
+                                    <i class="bi bi-tree me-1"></i>
+                                    减排: <strong>${formatNumber(suggestion.potential_carbon_reduction)}</strong> kg CO₂/月
+                                </div>
+                            </div>
+                        </div>
+                        ${suggestion.action_items && suggestion.action_items.length > 0 ? `
+                            <div class="mt-2">
+                                <div class="small text-muted mb-1">行动建议:</div>
+                                <ul class="small mb-0" style="padding-left: 1.25rem;">
+                                    ${suggestion.action_items.map(item => `<li>${item}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } else {
+                // 无建议
+                container.innerHTML = `
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-check-circle" style="font-size: 2.5rem; color: #10b981;"></i>
+                        <p class="mt-2 mb-0" style="font-size: 0.9375rem;">当前用电方案已经很优化了！</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('加载优化建议失败:', error);
+            container.innerHTML = `
+                <div class="alert alert-warning" role="alert" style="font-size: 0.875rem;">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    加载优化建议失败，请稍后重试
+                </div>
+            `;
+        }
     }
     
     // 切换优化模式（省钱/减排）
@@ -508,20 +585,29 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         const factoryId = AppState.currentFactory.factory.id;
         
-        // TODO: 调用后端 API 获取优化数据
-        // const response = await fetch(`/api/factory/${factoryId}/optimization?mode=${mode}`);
-        // const data = await response.json();
-        
-        // 临时占位
-        const valueElement = document.getElementById('statSavingPotential');
-        const unitElement = document.getElementById('statSavingUnit');
-        
-        if (mode === 'cost') {
-            valueElement.innerHTML = '<span class="text-muted small">待后端实现</span>';
-            unitElement.textContent = '元/月';
-        } else {
-            valueElement.innerHTML = '<span class="text-muted small">待后端实现</span>';
-            unitElement.textContent = 'kg CO₂/月';
+        try {
+            // 调用后端 API 获取优化数据
+            const response = await fetch(`/api/factory/${factoryId}/optimization?mode=${mode}&t=${Date.now()}`);
+            const data = await response.json();
+            
+            const valueElement = document.getElementById('statSavingPotential');
+            const unitElement = document.getElementById('statSavingUnit');
+            
+            if (data.success && data.saving_potential) {
+                // 显示节省潜力
+                valueElement.textContent = formatNumber(data.saving_potential.value);
+                unitElement.textContent = data.saving_potential.unit;
+            } else {
+                // 显示错误或无数据
+                valueElement.innerHTML = '<span class="text-muted small">暂无数据</span>';
+                unitElement.textContent = mode === 'cost' ? '元/月' : 'kg CO₂/月';
+            }
+        } catch (error) {
+            console.error('获取优化数据失败:', error);
+            const valueElement = document.getElementById('statSavingPotential');
+            const unitElement = document.getElementById('statSavingUnit');
+            valueElement.innerHTML = '<span class="text-muted small">加载失败</span>';
+            unitElement.textContent = mode === 'cost' ? '元/月' : 'kg CO₂/月';
         }
     };
     

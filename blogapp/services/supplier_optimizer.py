@@ -96,12 +96,13 @@ class SupplierOptimizer:
             tou_map = self._get_tou_map()
             
             for hour in range(24):
-                period_type = tou_map.get(hour, 'normal')
-                if period_type == 'peak':
+                period_type = tou_map.get(hour, '平时')
+                # 支持中文和英文
+                if period_type in ['peak', '高峰']:
                     price = self.grid_price.peak_price if self.grid_price else 0
-                elif period_type == 'valley':
+                elif period_type in ['valley', '低谷']:
                     price = self.grid_price.valley_price if self.grid_price else 0
-                else:
+                else:  # normal, 平时
                     price = self.grid_price.normal_price if self.grid_price else 0
                 self._grid_hourly_prices[hour] = price
         return self._grid_hourly_prices
@@ -121,12 +122,13 @@ class SupplierOptimizer:
             tou_map = self._get_tou_map()
             
             for hour in range(24):
-                period_type = tou_map.get(hour, 'normal')
-                if period_type == 'peak':
+                period_type = tou_map.get(hour, '平时')
+                # 支持中文和英文
+                if period_type in ['peak', '高峰']:
                     self._carbon_factors[hour] = 0.75
-                elif period_type == 'valley':
+                elif period_type in ['valley', '低谷']:
                     self._carbon_factors[hour] = 0.55
-                else:
+                else:  # normal, 平时
                     self._carbon_factors[hour] = 0.65
         return self._carbon_factors
     
