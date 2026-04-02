@@ -618,6 +618,7 @@ body::after {
 
 .card-body {
     padding: 1rem;
+    position: relative;
 }
 
 .mb-3 {
@@ -2008,9 +2009,7 @@ canvas {
 }
 
 /* ===== 图表容器增强 ===== */
-.card-body {
-    position: relative;
-}
+/* card-body 已在前面定义，此处删除重复 */
 
 .card-body::before {
     content: '';
@@ -2443,17 +2442,7 @@ canvas {
 #factoryDetailsView .card.border-0,
 #factoryDetailsView .card.shadow-sm,
 #factoryDetailsView .card.border-0.shadow-sm,
-.row .col-12 .card.border-0.shadow-sm,
-.row .col-lg-4 .card.border-0.shadow-sm,
-.row .col-lg-8 .card.border-0.shadow-sm,
-.card.border-0.shadow-sm,
-.card.border-0,
-.card.shadow-sm,
-div.card {
-    background: rgba(255, 255, 255, 0.35) !important;
-    backdrop-filter: blur(30px) saturate(200%) !important;
-    -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
-}
+/* card 样式已在前面统一定义（609 行），此处删除重复 */
 
 /* 确保 card-body 和 card-header 不覆盖背景 */
 .card-body,

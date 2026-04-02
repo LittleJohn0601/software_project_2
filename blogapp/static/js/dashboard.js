@@ -732,7 +732,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         const html = `
             <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
                 <thead>
-                    <tr style="background: linear-gradient(135deg, rgba(240, 249, 255, 0.3), rgba(240, 253, 244, 0.3));">
+                    <tr style="background: transparent;">
                         <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">时段类型</th>
                         <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">用电量 (kWh)</th>
                         <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">电价 (元/kWh)</th>
@@ -762,12 +762,12 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(valleyCost)}</td>
                         <td style="padding: 0.75rem; text-align: center;">${totalEnergyCost > 0 ? ((valleyCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
                     </tr>
-                    <tr style="background: linear-gradient(135deg, rgba(248, 250, 252, 0.3), rgba(241, 245, 249, 0.3));">
+                    <tr style="background: transparent;">
                         <td colspan="3" style="padding: 0.75rem; text-align: left; font-weight: bold;">容量电费</td>
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(costAnalysis.capacity_fee)}</td>
                         <td style="padding: 0.75rem; text-align: center;">-</td>
                     </tr>
-                    <tr style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(16, 185, 129, 0.15));">
+                    <tr style="background: transparent;">
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">合计</td>
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">${formatNumber(totalUsage)}</td>
                         <td style="padding: 0.75rem; text-align: center;">-</td>
