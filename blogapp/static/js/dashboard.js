@@ -885,6 +885,258 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     }
     
     // ========================================
+    // 性能监测和设置
+    // ========================================
+    
+    // FPS 监测
+    const FPSMonitor = {
+        frames: [],
+        lastTime: performance.now(),
+        rafId: null,
+        isRunning: false,
+        
+        start() {
+            if (this.isRunning) return;
+            this.isRunning = true;
+            this.frames = [];
+            this.lastTime = performance.now();
+            this.tick();
+        },
+        
+        stop() {
+            this.isRunning = false;
+            if (this.rafId) {
+                cancelAnimationFrame(this.rafId);
+                this.rafId = null;
+            }
+        },
+        
+        tick() {
+            if (!this.isRunning) return;
+            
+            const now = performance.now();
+            const delta = now - this.lastTime;
+            this.lastTime = now;
+            
+            // 记录 FPS（1000ms / delta）
+            if (delta > 0) {
+                const fps = 1000 / delta;
+                this.frames.push(fps);
+                
+                // 基准测试时不限制帧数，实时显示时只保留最近 60 帧
+                if (!this.isBenchmarking && this.frames.length > 60) {
+                    this.frames.shift();
+                }
+            }
+            
+            this.rafId = requestAnimationFrame(() => this.tick());
+        },
+        
+        getAverageFPS() {
+            if (this.frames.length === 0) return 0;
+            const sum = this.frames.reduce((a, b) => a + b, 0);
+            return Math.round(sum / this.frames.length);
+        },
+        
+        getMinFPS() {
+            if (this.frames.length === 0) return 0;
+            return Math.round(Math.min(...this.frames));
+        },
+        
+        getCurrentFPS() {
+            if (this.frames.length === 0) return 0;
+            // 取最近 10 帧的平均值
+            const recent = this.frames.slice(-10);
+            const sum = recent.reduce((a, b) => a + b, 0);
+            return Math.round(sum / recent.length);
+        },
+        
+        reset() {
+            this.frames = [];
+            this.lastTime = performance.now();
+        }
+    };
+    
+    // 打开设置面板
+    window.openSettings = function() {
+        const modal = new bootstrap.Modal(document.getElementById('settingsModal'));
+        
+        // 加载当前设置
+        const currentMode = localStorage.getItem('uiMode') || 'full';
+        document.getElementById('uiMode' + currentMode.charAt(0).toUpperCase() + currentMode.slice(1)).checked = true;
+        
+        const showFps = localStorage.getItem('showFps') === 'true';
+        document.getElementById('showFpsToggle').checked = showFps;
+        
+        modal.show();
+    };
+    
+    // 运行基准测试
+    window.runBenchmark = async function() {
+        const btn = document.getElementById('benchmarkBtn');
+        const resultDiv = document.getElementById('benchmarkResult');
+        const alertDiv = document.getElementById('benchmarkAlert');
+        
+        // 禁用按钮
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>测试中...';
+        
+        // 隐藏之前的结果
+        resultDiv.style.display = 'none';
+        
+        // 保存当前 UI 模式
+        const wasLiteMode = document.body.classList.contains('ui-lite');
+        
+        // 强制切换到满血版进行测试
+        if (wasLiteMode) {
+            document.body.classList.remove('ui-lite');
+            document.body.classList.add('ui-full');
+        }
+        
+        // 等待 100ms 让样式生效
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // 标记为基准测试模式
+        FPSMonitor.isBenchmarking = true;
+        FPSMonitor.reset();
+        FPSMonitor.start();
+        
+        // 强制触发所有页面元素的悬停效果
+        const allCards = document.querySelectorAll('.stat-card, .factory-card, .card');
+        let hoverIndex = 0;
+        const hoverInterval = setInterval(() => {
+            // 移除所有 hover
+            allCards.forEach(card => {
+                card.style.transform = '';
+                card.style.boxShadow = '';
+            });
+            
+            // 强制触发当前卡片的 hover 效果
+            if (allCards[hoverIndex]) {
+                const card = allCards[hoverIndex];
+                if (card.classList.contains('stat-card')) {
+                    card.style.transform = 'translateY(-8px) scale(1.02)';
+                    card.style.boxShadow = '0 20px 60px rgba(99, 102, 241, 0.3), 0 0 40px rgba(99, 102, 241, 0.2)';
+                } else if (card.classList.contains('factory-card')) {
+                    card.style.transform = 'translateY(-8px) scale(1.02)';
+                    card.style.boxShadow = '0 20px 60px rgba(99, 102, 241, 0.25), 0 0 40px rgba(99, 102, 241, 0.15)';
+                } else {
+                    card.style.transform = 'translateY(-5px)';
+                    card.style.boxShadow = '0 15px 40px rgba(0, 0, 0, 0.15)';
+                }
+            }
+            hoverIndex = (hoverIndex + 1) % allCards.length;
+        }, 300); // 每 0.3 秒切换一个卡片
+        
+        // 测试 10 秒
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        
+        // 停止监测和悬停效果
+        FPSMonitor.stop();
+        FPSMonitor.isBenchmarking = false;
+        clearInterval(hoverInterval);
+        
+        // 恢复所有卡片样式
+        allCards.forEach(card => {
+            card.style.transform = '';
+            card.style.boxShadow = '';
+        });
+        
+        // 恢复原来的 UI 模式
+        if (wasLiteMode) {
+            document.body.classList.remove('ui-full');
+            document.body.classList.add('ui-lite');
+        }
+        
+        // 计算平均 FPS 和最低 FPS
+        const avgFps = FPSMonitor.getAverageFPS();
+        const minFps = FPSMonitor.getMinFPS();
+        
+        // 显示结果
+        document.getElementById('avgFps').textContent = avgFps;
+        document.getElementById('minFps').textContent = minFps;
+        
+        let recommendation = '';
+        let alertClass = '';
+        
+        // 根据最低 FPS 来判断（最坏情况）
+        if (minFps >= 50) {
+            recommendation = '✅ 设备性能优秀，推荐使用满血版 UI';
+            alertClass = 'alert-success';
+        } else if (minFps >= 30) {
+            recommendation = '⚠️ 设备性能中等，可使用满血版但可能有轻微卡顿';
+            alertClass = 'alert-warning';
+        } else {
+            recommendation = '❌ 设备性能较低，强烈推荐使用精简版 UI';
+            alertClass = 'alert-danger';
+        }
+        
+        document.getElementById('recommendation').textContent = recommendation;
+        alertDiv.className = 'alert ' + alertClass;
+        
+        resultDiv.style.display = 'block';
+        
+        // 恢复按钮
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-play-circle me-1"></i>重新测试';
+    };
+    
+    // 切换 FPS 显示
+    window.toggleFpsDisplay = function() {
+        const showFps = document.getElementById('showFpsToggle').checked;
+        const fpsDisplay = document.getElementById('fpsDisplay');
+        
+        if (showFps) {
+            fpsDisplay.style.display = 'block';
+            FPSMonitor.start();
+            updateFpsDisplay();
+        } else {
+            fpsDisplay.style.display = 'none';
+            FPSMonitor.stop();
+        }
+    };
+    
+    // 更新 FPS 显示
+    function updateFpsDisplay() {
+        if (!FPSMonitor.isRunning) return;
+        
+        const fps = FPSMonitor.getCurrentFPS();
+        document.getElementById('fpsValue').textContent = fps;
+        
+        setTimeout(updateFpsDisplay, 500); // 每 0.5 秒更新一次
+    }
+    
+    // 保存设置
+    window.saveSettings = function() {
+        const uiMode = document.querySelector('input[name="uiMode"]:checked').value;
+        const showFps = document.getElementById('showFpsToggle').checked;
+        
+        // 保存到 localStorage
+        localStorage.setItem('uiMode', uiMode);
+        localStorage.setItem('showFps', showFps);
+        
+        // 应用 UI 模式
+        applyUIMode(uiMode);
+        
+        // 关闭模态框
+        const modal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+        modal.hide();
+        
+        showSuccess('设置已保存');
+    };
+    
+    // 应用 UI 模式
+    function applyUIMode(mode) {
+        if (mode === 'lite') {
+            document.body.classList.add('ui-lite');
+            document.body.classList.remove('ui-full');
+        } else {
+            document.body.classList.add('ui-full');
+            document.body.classList.remove('ui-lite');
+        }
+    }
+    
+    // ========================================
     // 初始化
     // ========================================
     function init() {
@@ -895,6 +1147,17 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         // 加载工厂列表
         loadFactories();
+        
+        // 加载保存的设置
+        const savedMode = localStorage.getItem('uiMode') || 'full';
+        applyUIMode(savedMode);
+        
+        const showFps = localStorage.getItem('showFps') === 'true';
+        if (showFps) {
+            document.getElementById('fpsDisplay').style.display = 'block';
+            FPSMonitor.start();
+            updateFpsDisplay();
+        }
         
         console.log('✅ Dashboard 初始化完成');
     }

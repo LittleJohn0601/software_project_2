@@ -59,6 +59,17 @@
                 </a>
                 
                 <div class="d-flex align-items-center gap-3">
+                    <!-- FPS 显示 -->
+                    <div id="fpsDisplay" class="text-white small" style="display: none;">
+                        <i class="bi bi-speedometer2 me-1"></i>
+                        <span id="fpsValue">--</span> FPS
+                    </div>
+                    
+                    <!-- 设置按钮 -->
+                    <button class="btn btn-outline-light btn-sm" onclick="openSettings()" title="设置">
+                        <i class="bi bi-gear-fill"></i>
+                    </button>
+                    
                     <span class="text-white">
                         <i class="bi bi-person-circle me-1"></i>
                         {{ current_user.username }}
@@ -498,6 +509,88 @@
                     <button type="button" class="btn btn-primary" id="factorySubmitBtn" onclick="createFactory()">
                         <i class="bi bi-check-circle me-1"></i>
                         创建
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置面板模态框 -->
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-gear-fill me-2"></i>
+                        系统设置
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- UI 模式选择 -->
+                    <div class="mb-4">
+                        <h6 class="mb-3">
+                            <i class="bi bi-palette me-2"></i>
+                            UI 模式
+                        </h6>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="uiMode" id="uiModeFull" value="full" checked>
+                            <label class="btn btn-outline-primary" for="uiModeFull">
+                                <i class="bi bi-stars me-1"></i>
+                                满血版
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="uiMode" id="uiModeLite" value="lite">
+                            <label class="btn btn-outline-primary" for="uiModeLite">
+                                <i class="bi bi-lightning me-1"></i>
+                                精简版
+                            </label>
+                        </div>
+                        <div class="form-text mt-2">
+                            满血版：完整特效，适合高性能设备<br>
+                            精简版：减少动画，适合低性能设备
+                        </div>
+                    </div>
+                    
+                    <!-- 性能基准测试 -->
+                    <div class="mb-4">
+                        <h6 class="mb-3">
+                            <i class="bi bi-speedometer2 me-2"></i>
+                            性能测试
+                        </h6>
+                        <button class="btn btn-primary w-100" id="benchmarkBtn" onclick="runBenchmark()">
+                            <i class="bi bi-play-circle me-1"></i>
+                            开始基准测试（10秒）
+                        </button>
+                        <div id="benchmarkResult" class="mt-3" style="display: none;">
+                            <div class="alert" id="benchmarkAlert">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-speedometer2 me-2" style="font-size: 1.5rem;"></i>
+                                    <div>
+                                        <strong>平均 FPS: <span id="avgFps">--</span></strong><br>
+                                        <strong>最低 FPS: <span id="minFps">--</span></strong><br>
+                                        <small id="recommendation">--</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FPS 显示开关 -->
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="showFpsToggle" onchange="toggleFpsDisplay()">
+                            <label class="form-check-label" for="showFpsToggle">
+                                显示实时 FPS
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSettings()">
+                        <i class="bi bi-check-circle me-1"></i>
+                        保存设置
                     </button>
                 </div>
             </div>

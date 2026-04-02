@@ -2452,3 +2452,87 @@ canvas {
     background-color: transparent !important;
 }
 
+
+
+/* ========================================
+   精简版 UI - 低性能设备优化
+   ======================================== */
+
+/* 关闭所有动画 */
+.ui-lite * {
+    animation: none !important;
+    transition: opacity 0.2s ease !important; /* 只保留淡入淡出 */
+}
+
+body.ui-lite::before,
+body.ui-lite::after {
+    display: none !important; /* 完全隐藏背景网格 */
+}
+
+/* 完全去掉模糊效果 */
+.ui-lite .stat-card,
+.ui-lite .factory-card,
+.ui-lite .card,
+.ui-lite .navbar,
+.ui-lite .login-container {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* 纯色卡片 - 不透明 */
+.ui-lite .stat-card {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.ui-lite .factory-card {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.ui-lite .card {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.ui-lite .navbar {
+    background: #6366f1 !important;
+}
+
+/* 关闭悬停效果 */
+.ui-lite .stat-card:hover,
+.ui-lite .factory-card:hover,
+.ui-lite .card:hover {
+    transform: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 纯色静态背景 */
+body.ui-lite {
+    background: linear-gradient(135deg, #f0f9ff 0%, #f0fdf4 100%) !important;
+    background-size: 100% 100% !important;
+    animation: none !important;
+}
+
+/* 隐藏所有装饰性伪元素 */
+.ui-lite .stat-card::before,
+.ui-lite .stat-card::after,
+.ui-lite .factory-card::before,
+.ui-lite .factory-card::after {
+    display: none !important;
+}
+
+/* 简化图标动画 */
+.ui-lite .stat-icon,
+.ui-lite .factory-icon {
+    animation: none !important;
+}
+
+/* 简化按钮效果 */
+.ui-lite .btn::before {
+    display: none !important;
+}
+
+.ui-lite .btn:hover {
+    transform: none !important;
+}
