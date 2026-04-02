@@ -41,7 +41,8 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     // 加载工厂列表
     async function loadFactories() {
         try {
-            const response = await fetch('/api/factories');
+            // 添加时间戳防止缓存
+            const response = await fetch(`/api/factories?t=${Date.now()}`);
             const data = await response.json();
             
             if (data.success) {
@@ -412,12 +413,16 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                 // 显示成功消息
                 showSuccess('工厂更新成功');
                 
-                // 重新加载工厂列表
+                // 始终重新加载工厂列表
                 await loadFactories();
                 
-                // 如果当前在详情页面，刷新详情页面
-                if (AppState.currentView === 'factoryDetails' && AppState.currentFactory) {
-                    await viewFactoryDetails(editingFactoryId);
+                // 如果当前在详情页面，刷新详情页面（无论编辑的是不是当前工厂）
+                if (AppState.currentView === 'factoryDetails') {
+                    // 如果编辑的就是当前查看的工厂，刷新详情
+                    if (AppState.currentFactory && AppState.currentFactory.factory.id === editingFactoryId) {
+                        await viewFactoryDetails(editingFactoryId);
+                    }
+                    // 如果编辑的是其他工厂，也要更新列表数据（虽然看不到列表，但数据要同步）
                 }
             } else {
                 showError(data.message || '更新工厂失败');
@@ -431,7 +436,8 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     // 查看工厂详情
     window.viewFactoryDetails = async function(factoryId) {
         try {
-            const response = await fetch(`/api/factory/${factoryId}/details`);
+            // 添加时间戳防止缓存
+            const response = await fetch(`/api/factory/${factoryId}/details?t=${Date.now()}`);
             const data = await response.json();
             
             if (data.success) {
