@@ -358,9 +358,14 @@ elements.togglePassword.addEventListener('click', () => {
     // Toggle password visibility
     elements.passwordInput.type = state.showPassword ? 'text' : 'password';
     
-    // Toggle icons
-    elements.iconEye.classList.toggle('d-none');
-    elements.iconEyeOff.classList.toggle('d-none');
+    // Toggle icons - 显示密码时显示眼睛图标，隐藏密码时显示斜线眼睛图标
+    if (state.showPassword) {
+        elements.iconEye.classList.remove('d-none');
+        elements.iconEyeOff.classList.add('d-none');
+    } else {
+        elements.iconEye.classList.add('d-none');
+        elements.iconEyeOff.classList.remove('d-none');
+    }
     
     // Clear existing peek timeout
     clearTimeout(state.peekTimeout);

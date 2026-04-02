@@ -16,29 +16,284 @@ body {
 /* ===== Left Section - Characters ===== */
 .left-section {
     position: relative;
-    background: linear-gradient(135deg, 
-        #5b21b6 0%,      /* 深紫色 */
-        #7c3aed 20%,     /* 紫色 */
-        #ec4899 40%,     /* 粉红色 */
-        #f97316 60%,     /* 橙色 */
-        #eab308 80%,     /* 黄色 */
-        #10b981 100%);   /* 绿色 */
-    background-size: 400% 400%;
-    animation: gradientShift 15s ease infinite;
+    background: linear-gradient(180deg, 
+        #87CEEB 0%,      /* 天空蓝 */
+        #B0D4E3 50%,     /* 浅蓝 */
+        #D4E8F0 100%);   /* 更浅的蓝 */
     color: white;
     padding: 3rem;
     overflow: hidden;
 }
 
-@keyframes gradientShift {
-    0% {
-        background-position: 0% 50%;
+/* 能源背景装饰 */
+.energy-background {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* 太阳 - 全局定位 */
+.sun {
+    position: fixed;
+    top: 60px;
+    right: 80px;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, #FFD700 0%, #FFA500 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+    animation: sunPulse 4s ease-in-out infinite;
+    z-index: 5;
+}
+
+@keyframes sunPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
     }
     50% {
-        background-position: 100% 50%;
+        transform: scale(1.05);
+        box-shadow: 0 0 60px rgba(255, 215, 0, 0.8);
+    }
+}
+
+/* 云朵 - 全局飘动 */
+.cloud {
+    position: fixed;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 100px;
+    animation: cloudFloat 25s linear infinite;
+    z-index: 5;
+}
+
+.cloud::before,
+.cloud::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 100px;
+}
+
+.cloud-1 {
+    width: 100px;
+    height: 40px;
+    top: 100px;
+    left: -100px;
+}
+
+.cloud-1::before {
+    width: 50px;
+    height: 50px;
+    top: -25px;
+    left: 10px;
+}
+
+.cloud-1::after {
+    width: 60px;
+    height: 40px;
+    top: -20px;
+    right: 10px;
+}
+
+.cloud-2 {
+    width: 80px;
+    height: 35px;
+    top: 180px;
+    left: -80px;
+    animation-delay: -12s;
+}
+
+.cloud-2::before {
+    width: 40px;
+    height: 40px;
+    top: -20px;
+    left: 10px;
+}
+
+.cloud-2::after {
+    width: 50px;
+    height: 35px;
+    top: -15px;
+    right: 10px;
+}
+
+@keyframes cloudFloat {
+    0% {
+        transform: translateX(0);
     }
     100% {
-        background-position: 0% 50%;
+        transform: translateX(calc(100vw + 200px));
+    }
+}
+
+/* 火电厂烟囱 - 移到右侧 */
+.chimney {
+    position: absolute;
+    bottom: 0;
+    right: 150px;
+    width: 40px;
+    height: 180px;
+    background: linear-gradient(90deg, #5A5A5A 0%, #7A7A7A 50%, #5A5A5A 100%);
+    border-radius: 4px 4px 0 0;
+    z-index: 1;
+}
+
+.chimney::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: -5px;
+    width: 50px;
+    height: 20px;
+    background: linear-gradient(90deg, #4A4A4A 0%, #6A6A6A 50%, #4A4A4A 100%);
+    border-radius: 4px 4px 0 0;
+}
+
+/* 烟雾 */
+.smoke {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    background: rgba(200, 200, 200, 0.5);
+    border-radius: 50%;
+    animation: smokeRise 4s ease-in-out infinite;
+}
+
+.smoke:nth-child(2) {
+    animation-delay: 1.3s;
+}
+
+.smoke:nth-child(3) {
+    animation-delay: 2.6s;
+}
+
+@keyframes smokeRise {
+    0% {
+        transform: translateX(-50%) translateY(0) scale(1);
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateX(-50%) translateY(-150px) scale(2);
+        opacity: 0;
+    }
+}
+
+/* 风力发电机 - 移到右侧 */
+.windmill {
+    position: absolute;
+    bottom: 0;
+    right: 50px;
+    z-index: 1;
+}
+
+.windmill-tower {
+    width: 12px;
+    height: 160px;
+    background: linear-gradient(90deg, #E0E0E0 0%, #F5F5F5 50%, #E0E0E0 100%);
+    margin: 0 auto;
+    border-radius: 6px 6px 0 0;
+}
+
+.windmill-blades {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    animation: windmillRotate 3s linear infinite;
+}
+
+.blade {
+    position: absolute;
+    width: 6px;
+    height: 30px;
+    background: linear-gradient(180deg, #FFFFFF 0%, #D0D0D0 100%);
+    border-radius: 3px;
+    top: 50%;
+    left: 50%;
+    transform-origin: center bottom;
+}
+
+.blade:nth-child(1) {
+    transform: translate(-50%, -100%) rotate(0deg);
+}
+
+.blade:nth-child(2) {
+    transform: translate(-50%, -100%) rotate(120deg);
+}
+
+.blade:nth-child(3) {
+    transform: translate(-50%, -100%) rotate(240deg);
+}
+
+@keyframes windmillRotate {
+    0% {
+        transform: translateX(-50%) rotate(0deg);
+    }
+    100% {
+        transform: translateX(-50%) rotate(360deg);
+    }
+}
+
+/* 光伏板 - 移到右侧 */
+.solar-panel {
+    position: absolute;
+    bottom: 0;
+    right: 280px;
+    width: 100px;
+    height: 60px;
+    background: linear-gradient(135deg, #1a3a52 0%, #2d5a7b 50%, #1a3a52 100%);
+    border: 2px solid #0d2438;
+    border-radius: 4px;
+    z-index: 1;
+    transform: perspective(200px) rotateX(20deg);
+}
+
+.solar-panel::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 18px,
+            rgba(255, 255, 255, 0.1) 18px,
+            rgba(255, 255, 255, 0.1) 20px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 18px,
+            rgba(255, 255, 255, 0.1) 18px,
+            rgba(255, 255, 255, 0.1) 20px
+        );
+    border-radius: 2px;
+}
+
+.solar-panel::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 10%;
+    width: 80%;
+    height: 30%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    border-radius: 50%;
+    animation: solarGlint 3s ease-in-out infinite;
+}
+
+@keyframes solarGlint {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.7;
     }
 }
 
@@ -48,19 +303,26 @@ body {
 }
 
 .logo-icon {
-    width: 32px;
-    height: 32px;
-    background: rgba(255, 255, 255, 0.1);
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(10px);
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.logo-icon svg {
+    stroke: #6366f1;
 }
 
 .logo-text {
-    font-size: 1.125rem;
-    font-weight: 600;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    text-shadow: 0 2px 4px rgba(255, 255, 255, 0.8);
 }
 
 /* ===== Characters Container ===== */
@@ -233,83 +495,17 @@ body {
     top: 88px;
 }
 
-/* ===== Decorative Elements ===== */
-.decorative-grid {
-    position: absolute;
-    inset: 0;
-    background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-    background-size: 20px 20px;
-    z-index: 1;
-}
-
-.decorative-blur {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    z-index: 1;
-}
-
-.decorative-blur-1 {
-    top: 25%;
-    right: 25%;
-    width: 256px;
-    height: 256px;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.decorative-blur-2 {
-    bottom: 25%;
-    left: 25%;
-    width: 384px;
-    height: 384px;
-    background: rgba(255, 255, 255, 0.05);
-}
+/* ===== 移除旧的装饰元素样式 ===== */
 
 /* ===== Right Section - Login Form - 现代化表单 ===== */
 .right-section {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    background: linear-gradient(180deg, 
+        #87CEEB 0%,      /* 天空蓝 */
+        #B0D4E3 50%,     /* 浅蓝 */
+        #D4E8F0 100%);   /* 更浅的蓝 */
     padding: 2rem;
     position: relative;
     overflow: hidden;
-}
-
-/* 背景装饰 - 淡淡的网格 */
-.right-section::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: 
-        linear-gradient(rgba(99, 102, 241, 0.08) 2px, transparent 2px),
-        linear-gradient(90deg, rgba(99, 102, 241, 0.08) 2px, transparent 2px);
-    background-size: 60px 60px;
-    pointer-events: none;
-    z-index: 1;
-}
-
-/* 背景装饰 - Logo 水印图案 */
-.right-section::after {
-    content: '⚡';
-    position: absolute;
-    font-size: 600px;
-    color: rgba(99, 102, 241, 0.15);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-15deg);
-    pointer-events: none;
-    z-index: 1;
-    font-weight: 900;
-    line-height: 1;
-}
-
-@keyframes gridMove {
-    0% {
-        transform: translate(0, 0);
-    }
-    100% {
-        transform: translate(40px, 40px);
-    }
 }
 
 .login-container {
@@ -317,15 +513,16 @@ body {
     max-width: 420px;
     position: relative;
     z-index: 10;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(40px) saturate(180%);
-    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     padding: 2.5rem;
-    border-radius: 20px;
+    border-radius: 24px;
     box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.08),
-        inset 0 0 60px rgba(255, 255, 255, 0.3);
-    border: none;
+        0 8px 32px rgba(31, 38, 135, 0.15),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
+        inset 0 -1px 0 0 rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .logo-icon-mobile {
@@ -381,14 +578,16 @@ body {
 
 .form-control {
     height: 52px;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1.5px solid rgba(229, 231, 235, 0.8);
-    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
     font-size: 1rem;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
 }
 
 /* 禁用浏览器自带的密码显示按钮 */
@@ -406,11 +605,14 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
 }
 
 .form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
+    border-color: rgba(99, 102, 241, 0.6);
+    box-shadow: 
+        0 0 0 4px rgba(99, 102, 241, 0.15), 
+        0 4px 16px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
 }
 
 .btn-toggle-password {
@@ -654,127 +856,4 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* ===== 创意背景装饰元素 ===== */
 
-/* ===== 右侧背景装饰 - 明显版本 ===== */
-
-/* 重新定义 right-section 背景 - 多层渐变光斑 */
-.right-section {
-    background: 
-        radial-gradient(circle 600px at 80% 20%, rgba(99, 102, 241, 0.4), transparent),
-        radial-gradient(circle 550px at 20% 80%, rgba(16, 185, 129, 0.38), transparent),
-        radial-gradient(circle 500px at 60% 60%, rgba(245, 158, 11, 0.35), transparent),
-        linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
-}
-
-/* 斜线装饰 - 明显版本 */
-.right-section::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: 
-        repeating-linear-gradient(
-            45deg,
-            transparent,
-            transparent 50px,
-            rgba(99, 102, 241, 0.08) 50px,
-            rgba(99, 102, 241, 0.08) 52px
-        );
-    pointer-events: none;
-    z-index: 5;
-}
-
-/* 三个闪电 logo - 明显版本 */
-.right-section::after {
-    content: '⚡ ⚡ ⚡';
-    position: absolute;
-    font-size: 280px;
-    color: rgba(99, 102, 241, 0.15);
-    top: 15%;
-    left: 50%;
-    transform: translateX(-50%);
-    pointer-events: none;
-    z-index: 5;
-    font-weight: 900;
-    line-height: 1;
-    letter-spacing: 120px;
-    animation: logoFloat 6s ease-in-out infinite;
-}
-
-@keyframes logoFloat {
-    0%, 100% {
-        transform: translateX(-50%) translateY(0) rotate(0deg);
-        opacity: 0.8;
-    }
-    50% {
-        transform: translateX(-50%) translateY(-30px) rotate(5deg);
-        opacity: 1;
-    }
-}
-
-/* ===== 背景装饰元素 - HTML 方式 ===== */
-.auth-decorations {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 5;
-}
-
-.auth-decoration {
-    position: absolute;
-    font-size: 300px;
-    font-weight: 900;
-    line-height: 1;
-    pointer-events: none;
-}
-
-.auth-decoration-1 {
-    color: rgba(99, 102, 241, 0.5);
-    top: 10%;
-    left: 15%;
-    transform: rotate(-20deg);
-    animation: float1 8s ease-in-out infinite;
-}
-
-.auth-decoration-2 {
-    color: rgba(16, 185, 129, 0.48);
-    top: 50%;
-    right: 10%;
-    transform: rotate(15deg);
-    animation: float2 10s ease-in-out infinite;
-}
-
-.auth-decoration-3 {
-    color: rgba(245, 158, 11, 0.46);
-    bottom: 15%;
-    left: 50%;
-    transform: translateX(-50%) rotate(-10deg);
-    animation: float3 12s ease-in-out infinite;
-}
-
-@keyframes float1 {
-    0%, 100% {
-        transform: rotate(-20deg) translateY(0);
-    }
-    50% {
-        transform: rotate(-15deg) translateY(-30px);
-    }
-}
-
-@keyframes float2 {
-    0%, 100% {
-        transform: rotate(15deg) translateY(0);
-    }
-    50% {
-        transform: rotate(20deg) translateY(30px);
-    }
-}
-
-@keyframes float3 {
-    0%, 100% {
-        transform: translateX(-50%) rotate(-10deg) translateY(0);
-    }
-    50% {
-        transform: translateX(-50%) rotate(-5deg) translateY(-20px);
-    }
-}
