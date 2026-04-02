@@ -530,6 +530,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             priceChartInstance.destroy();
         }
         
+        // 设置 Canvas 透明背景
+        ctx.style.backgroundColor = 'transparent';
+        
         const labels = hourlyData.map(h => `${String(h.hour).padStart(2, '0')}:00`);
         
         // 获取价格对比数据
@@ -646,6 +649,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             energyPieChartInstance.destroy();
         }
         
+        // 设置 Canvas 透明背景
+        ctx.style.backgroundColor = 'transparent';
+        
         // 计算各时段用电量
         const peakUsage = hourlyData.filter(h => h.period_type === '高峰').reduce((sum, h) => sum + h.usage, 0);
         const normalUsage = hourlyData.filter(h => h.period_type === '平时').reduce((sum, h) => sum + h.usage, 0);
@@ -726,7 +732,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         const html = `
             <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
                 <thead>
-                    <tr style="background: linear-gradient(135deg, rgba(240, 249, 255, 0.8), rgba(240, 253, 244, 0.8));">
+                    <tr style="background: linear-gradient(135deg, rgba(240, 249, 255, 0.3), rgba(240, 253, 244, 0.3));">
                         <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">时段类型</th>
                         <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">用电量 (kWh)</th>
                         <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">电价 (元/kWh)</th>
@@ -736,32 +742,32 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="padding: 0.75rem; text-align: center; background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15)); color: rgb(185, 28, 28); font-weight: 600;">高峰</td>
+                        <td style="padding: 0.75rem; text-align: center; color: #dc2626; font-weight: 700; font-size: 0.9375rem;">高峰</td>
                         <td style="padding: 0.75rem; text-align: center;">${formatNumber(peakUsage)}</td>
                         <td style="padding: 0.75rem; text-align: center;">¥${peakUsage > 0 ? (peakCost / peakUsage).toFixed(4) : '0.0000'}</td>
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(peakCost)}</td>
                         <td style="padding: 0.75rem; text-align: center;">${totalEnergyCost > 0 ? ((peakCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
                     </tr>
                     <tr>
-                        <td style="padding: 0.75rem; text-align: center; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.15)); color: rgb(180, 83, 9); font-weight: 600;">平时</td>
+                        <td style="padding: 0.75rem; text-align: center; color: #f59e0b; font-weight: 700; font-size: 0.9375rem;">平时</td>
                         <td style="padding: 0.75rem; text-align: center;">${formatNumber(normalUsage)}</td>
                         <td style="padding: 0.75rem; text-align: center;">¥${normalUsage > 0 ? (normalCost / normalUsage).toFixed(4) : '0.0000'}</td>
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(normalCost)}</td>
                         <td style="padding: 0.75rem; text-align: center;">${totalEnergyCost > 0 ? ((normalCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
                     </tr>
                     <tr>
-                        <td style="padding: 0.75rem; text-align: center; background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15)); color: rgb(4, 120, 87); font-weight: 600;">低谷</td>
+                        <td style="padding: 0.75rem; text-align: center; color: #10b981; font-weight: 700; font-size: 0.9375rem;">低谷</td>
                         <td style="padding: 0.75rem; text-align: center;">${formatNumber(valleyUsage)}</td>
                         <td style="padding: 0.75rem; text-align: center;">¥${valleyUsage > 0 ? (valleyCost / valleyUsage).toFixed(4) : '0.0000'}</td>
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(valleyCost)}</td>
                         <td style="padding: 0.75rem; text-align: center;">${totalEnergyCost > 0 ? ((valleyCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
                     </tr>
-                    <tr style="background: linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.95));">
+                    <tr style="background: linear-gradient(135deg, rgba(248, 250, 252, 0.3), rgba(241, 245, 249, 0.3));">
                         <td colspan="3" style="padding: 0.75rem; text-align: left; font-weight: bold;">容量电费</td>
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(costAnalysis.capacity_fee)}</td>
                         <td style="padding: 0.75rem; text-align: center;">-</td>
                     </tr>
-                    <tr style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(16, 185, 129, 0.1));">
+                    <tr style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(16, 185, 129, 0.15));">
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">合计</td>
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">${formatNumber(totalUsage)}</td>
                         <td style="padding: 0.75rem; text-align: center;">-</td>

@@ -51,7 +51,14 @@
 /* ===== Body - 现代化渐变背景（满血版）===== */
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 25%, #f0fdf4 50%, #fef3c7 75%, #fef2f2 100%);
+    background: linear-gradient(135deg, 
+        #dbeafe 0%,    /* 更深的蓝色 */
+        #bfdbfe 20%,   /* 中蓝 */
+        #d1fae5 40%,   /* 浅绿 */
+        #fef3c7 60%,   /* 黄色 */
+        #fecaca 80%,   /* 浅红 */
+        #e0e7ff 100%   /* 淡紫 */
+    );
     background-size: 400% 400%;
     animation: gradientFlow 15s ease infinite;
     background-attachment: fixed;
@@ -109,9 +116,9 @@ body::after {
 
 /* ===== Navbar - 玻璃态导航栏 ===== */
 .navbar {
-    background: rgba(255, 255, 255, 0.7) !important;
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background: rgba(255, 255, 255, 0.4) !important;
+    backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.3);
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
     padding: 1rem 1.5rem;
@@ -199,16 +206,12 @@ body::after {
 
 /* ===== Page Header - 玻璃态标题卡片 ===== */
 .row.mb-3 {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background: transparent;
     padding: var(--spacing-lg);
     border-radius: var(--radius-xl);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5);
     margin-bottom: var(--spacing-lg) !important;
-    border: 1px solid rgba(255, 255, 255, 0.6);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     transition: all 0.3s ease;
 }
 
@@ -257,11 +260,11 @@ body::after {
 /* ===== Factory Card - 现代化渐变玻璃卡片 ===== */
 .factory-card {
     background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.9) 0%, 
-        rgba(240, 249, 255, 0.9) 50%, 
-        rgba(240, 253, 244, 0.9) 100%);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+        rgba(255, 255, 255, 0.25) 0%, 
+        rgba(240, 249, 255, 0.25) 50%, 
+        rgba(240, 253, 244, 0.25) 100%);
+    backdrop-filter: blur(35px) saturate(180%);
+    -webkit-backdrop-filter: blur(35px) saturate(180%);
     border-radius: var(--radius-xl);
     padding: 1.25rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5);
@@ -386,10 +389,10 @@ body::after {
     gap: 0.5rem;
     margin: 0.75rem 0;
     padding: 0.875rem;
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(12px);
+    background: transparent !important;
+    backdrop-filter: blur(35px);
     border-radius: var(--radius-md);
-    border: 1px solid rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
@@ -603,10 +606,14 @@ body::after {
     margin-top: 0.375rem;
 }
 
-.card {
+.card,
+.card.border-0,
+.card.shadow-sm {
     border: 1.5px solid rgba(226, 232, 240, 0.8);
     border-radius: var(--radius-lg);
-    background: rgba(248, 250, 252, 0.5);
+    background: rgba(255, 255, 255, 0.25) !important;
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
 }
 
 .card-body {
@@ -782,10 +789,10 @@ body::after {
 /* ===== 统计卡片 - 渐变玻璃卡片 ===== */
 .stat-card {
     background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.9) 0%, 
-        rgba(240, 249, 255, 0.9) 100%);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+        rgba(255, 255, 255, 0.4) 0%, 
+        rgba(240, 249, 255, 0.4) 100%);
+    backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
     border-radius: var(--radius-xl);
     padding: var(--spacing-lg);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5);
@@ -816,8 +823,8 @@ body::after {
 
 .stat-card-primary {
     background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.9) 0%, 
-        rgba(240, 249, 255, 0.9) 100%);
+        rgba(255, 255, 255, 0.35) 0%, 
+        rgba(240, 249, 255, 0.35) 100%);
 }
 
 .stat-card-primary::before {
@@ -826,8 +833,8 @@ body::after {
 
 .stat-card-warning {
     background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.9) 0%, 
-        rgba(255, 251, 235, 0.9) 100%);
+        rgba(255, 255, 255, 0.35) 0%, 
+        rgba(255, 251, 235, 0.35) 100%);
 }
 
 .stat-card-warning::before {
@@ -836,8 +843,8 @@ body::after {
 
 .stat-card-success {
     background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.9) 0%, 
-        rgba(240, 253, 244, 0.9) 100%);
+        rgba(255, 255, 255, 0.35) 0%, 
+        rgba(240, 253, 244, 0.35) 100%);
 }
 
 .stat-card-success::before {
@@ -846,8 +853,8 @@ body::after {
 
 .stat-card-info {
     background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.9) 0%, 
-        rgba(245, 243, 255, 0.9) 100%);
+        rgba(255, 255, 255, 0.35) 0%, 
+        rgba(245, 243, 255, 0.35) 100%);
 }
 
 .stat-card-info::before {
@@ -967,9 +974,9 @@ body::after {
 
 /* ===== 图表卡片 - 玻璃态卡片 ===== */
 .card.border-0.shadow-sm {
-    background: rgba(255, 255, 255, 0.85) !important;
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background: rgba(255, 255, 255, 0.4) !important;
+    backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5) !important;
     border: 1px solid rgba(255, 255, 255, 0.6) !important;
     border-radius: var(--radius-xl) !important;
@@ -1252,16 +1259,17 @@ body::after {
 
 .detail-info-item {
     padding: var(--spacing-md);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 249, 255, 0.9));
-    backdrop-filter: blur(12px);
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border-radius: var(--radius-lg);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     transition: all 0.3s ease;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
 .detail-info-item:hover {
-    background: linear-gradient(135deg, rgba(240, 249, 255, 0.95), rgba(240, 253, 244, 0.95));
+    background: rgba(255, 255, 255, 0.35);
     border-color: rgba(14, 165, 233, 0.3);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     transform: translateY(-4px);
@@ -1285,7 +1293,7 @@ body::after {
 
 /* ===== 详情页面卡片增强 ===== */
 #factoryDetailsView .card {
-    background: rgba(255, 255, 255, 0.85) !important;
+    background: rgba(255, 255, 255, 0.4) !important;
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.5) !important;
@@ -2427,4 +2435,31 @@ canvas {
 }
 
 /* 注意：成本报告表格使用内联样式，不依赖这些 class */
+
+
+
+/* ===== 强制所有卡片使用玻璃态效果 - 超高优先级 ===== */
+#factoryDetailsView .card,
+#factoryDetailsView .card.border-0,
+#factoryDetailsView .card.shadow-sm,
+#factoryDetailsView .card.border-0.shadow-sm,
+.row .col-12 .card.border-0.shadow-sm,
+.row .col-lg-4 .card.border-0.shadow-sm,
+.row .col-lg-8 .card.border-0.shadow-sm,
+.card.border-0.shadow-sm,
+.card.border-0,
+.card.shadow-sm,
+div.card {
+    background: rgba(255, 255, 255, 0.35) !important;
+    backdrop-filter: blur(30px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
+}
+
+/* 确保 card-body 和 card-header 不覆盖背景 */
+.card-body,
+.card-header,
+.card-footer {
+    background: transparent !important;
+    background-color: transparent !important;
+}
 

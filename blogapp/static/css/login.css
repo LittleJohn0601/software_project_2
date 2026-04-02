@@ -272,16 +272,44 @@ body {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     padding: 2rem;
     position: relative;
+    overflow: hidden;
 }
 
+/* 背景装饰 - 淡淡的网格 */
 .right-section::before {
     content: '';
     position: absolute;
     inset: 0;
     background-image: 
-        radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+        linear-gradient(rgba(99, 102, 241, 0.08) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.08) 2px, transparent 2px);
+    background-size: 60px 60px;
     pointer-events: none;
+    z-index: 1;
+}
+
+/* 背景装饰 - Logo 水印图案 */
+.right-section::after {
+    content: '⚡';
+    position: absolute;
+    font-size: 600px;
+    color: rgba(99, 102, 241, 0.15);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    pointer-events: none;
+    z-index: 1;
+    font-weight: 900;
+    line-height: 1;
+}
+
+@keyframes gridMove {
+    0% {
+        transform: translate(0, 0);
+    }
+    100% {
+        transform: translate(40px, 40px);
+    }
 }
 
 .login-container {
@@ -344,8 +372,9 @@ body {
 
 .form-control {
     height: 52px;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1.5px solid rgba(229, 231, 235, 0.8);
     border-radius: 10px;
     font-size: 1rem;
@@ -370,7 +399,9 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
 .form-control:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
-    background: white;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
 }
 
 .btn-toggle-password {
@@ -586,12 +617,17 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
 
 /* 表单容器增强 */
 .login-container {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
     padding: 2.5rem;
     border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.08),
+        inset 0 0 60px rgba(255, 255, 255, 0.3);
+    border: none;
+    position: relative;
+    z-index: 10;
 }
 
 /* 输入框图标增强 */
@@ -622,4 +658,129 @@ input[type="password"]::-webkit-contacts-auto-fill-button {
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ===== 创意背景装饰元素 ===== */
+
+/* ===== 右侧背景装饰 - 明显版本 ===== */
+
+/* 重新定义 right-section 背景 - 多层渐变光斑 */
+.right-section {
+    background: 
+        radial-gradient(circle 600px at 80% 20%, rgba(99, 102, 241, 0.4), transparent),
+        radial-gradient(circle 550px at 20% 80%, rgba(16, 185, 129, 0.38), transparent),
+        radial-gradient(circle 500px at 60% 60%, rgba(245, 158, 11, 0.35), transparent),
+        linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+}
+
+/* 斜线装饰 - 明显版本 */
+.right-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 50px,
+            rgba(99, 102, 241, 0.08) 50px,
+            rgba(99, 102, 241, 0.08) 52px
+        );
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* 三个闪电 logo - 明显版本 */
+.right-section::after {
+    content: '⚡ ⚡ ⚡';
+    position: absolute;
+    font-size: 280px;
+    color: rgba(99, 102, 241, 0.15);
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 5;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 120px;
+    animation: logoFloat 6s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+    0%, 100% {
+        transform: translateX(-50%) translateY(0) rotate(0deg);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translateX(-50%) translateY(-30px) rotate(5deg);
+        opacity: 1;
+    }
+}
+
+/* ===== 背景装饰元素 - HTML 方式 ===== */
+.auth-decorations {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.auth-decoration {
+    position: absolute;
+    font-size: 300px;
+    font-weight: 900;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.auth-decoration-1 {
+    color: rgba(99, 102, 241, 0.5);
+    top: 10%;
+    left: 15%;
+    transform: rotate(-20deg);
+    animation: float1 8s ease-in-out infinite;
+}
+
+.auth-decoration-2 {
+    color: rgba(16, 185, 129, 0.48);
+    top: 50%;
+    right: 10%;
+    transform: rotate(15deg);
+    animation: float2 10s ease-in-out infinite;
+}
+
+.auth-decoration-3 {
+    color: rgba(245, 158, 11, 0.46);
+    bottom: 15%;
+    left: 50%;
+    transform: translateX(-50%) rotate(-10deg);
+    animation: float3 12s ease-in-out infinite;
+}
+
+@keyframes float1 {
+    0%, 100% {
+        transform: rotate(-20deg) translateY(0);
+    }
+    50% {
+        transform: rotate(-15deg) translateY(-30px);
+    }
+}
+
+@keyframes float2 {
+    0%, 100% {
+        transform: rotate(15deg) translateY(0);
+    }
+    50% {
+        transform: rotate(20deg) translateY(30px);
+    }
+}
+
+@keyframes float3 {
+    0%, 100% {
+        transform: translateX(-50%) rotate(-10deg) translateY(0);
+    }
+    50% {
+        transform: translateX(-50%) rotate(-5deg) translateY(-20px);
+    }
 }
