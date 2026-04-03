@@ -640,6 +640,15 @@
     
     <!-- AJAX 表单提交（避免页面刷新） -->
     <script>
+        // 页面加载状态标志
+        let pageFullyLoaded = false;
+        
+        // 等待页面完全加载（包括所有资源）
+        window.addEventListener('load', function() {
+            pageFullyLoaded = true;
+            console.log('Page fully loaded, ready for login');
+        });
+        
         document.addEventListener('DOMContentLoaded', function() {
             // 登录表单 AJAX 提交
             const loginForm = document.getElementById('loginForm');
@@ -651,14 +660,29 @@
                     const loginBtn = document.getElementById('loginBtn');
                     const errorMessage = document.getElementById('errorMessage');
                     
+                    // 检查CSRF token是否存在
+                    const csrfToken = this.querySelector('input[name="csrf_token"]');
+                    if (!csrfToken || !csrfToken.value) {
+                        console.error('CSRF token not found or empty');
+                        errorMessage.textContent = '页面未完全加载，请稍后再试';
+                        errorMessage.classList.remove('d-none');
+                        return;
+                    }
+                    
                     // 禁用按钮
                     loginBtn.disabled = true;
                     loginBtn.textContent = 'Logging in...';
                     errorMessage.classList.add('d-none');
                     
+                    // 确保CSRF token被包含
+                    if (!formData.has('csrf_token')) {
+                        formData.append('csrf_token', csrfToken.value);
+                    }
+                    
                     fetch('{{ url_for("auth.login") }}', {
                         method: 'POST',
-                        body: formData
+                        body: formData,
+                        credentials: 'same-origin'  // 确保发送cookies
                     })
                     .then(response => response.text())
                     .then(html => {
@@ -717,14 +741,29 @@
                     const registerBtn = this.querySelector('button[type="submit"]');
                     const errorMessage = document.getElementById('registerErrorMessage');
                     
+                    // 检查CSRF token是否存在
+                    const csrfToken = this.querySelector('input[name="csrf_token"]');
+                    if (!csrfToken || !csrfToken.value) {
+                        console.error('CSRF token not found or empty');
+                        errorMessage.textContent = '页面未完全加载，请稍后再试';
+                        errorMessage.classList.remove('d-none');
+                        return;
+                    }
+                    
                     // 禁用按钮
                     registerBtn.disabled = true;
                     registerBtn.textContent = 'Creating Account...';
                     errorMessage.classList.add('d-none');
                     
+                    // 确保CSRF token被包含
+                    if (!formData.has('csrf_token')) {
+                        formData.append('csrf_token', csrfToken.value);
+                    }
+                    
                     fetch('{{ url_for("auth.register") }}', {
                         method: 'POST',
-                        body: formData
+                        body: formData,
+                        credentials: 'same-origin'  // 确保发送cookies
                     })
                     .then(response => response.text())
                     .then(html => {
