@@ -14,16 +14,16 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
     
-    <!-- 全局音乐播放器样式 -->
+    <!-- Global music player styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='music-player/css/music-player.css') }}">
 </head>
 <body data-playlist="playlist-auth">
     <div class="container-fluid">
-        <!-- 全局云朵 -->
+        <!-- Global clouds -->
         <div class="cloud cloud-1"></div>
         <div class="cloud cloud-2"></div>
         
-        <!-- 全局太阳 -->
+        <!-- Global sun -->
         <div class="sun"></div>
         
         <div class="row min-vh-100">
@@ -91,17 +91,17 @@
 
             <!-- Right Auth Section -->
             <div class="col-lg-6 d-flex align-items-center justify-content-center right-section">
-                <!-- 能源背景装饰 - 右侧底部 -->
+                <!-- Energy background decoration - bottom right -->
                 <div class="energy-background">
                     
-                    <!-- 火电厂烟囱 -->
+                    <!-- Thermal plant chimney -->
                     <div class="chimney">
                         <div class="smoke"></div>
                         <div class="smoke"></div>
                         <div class="smoke"></div>
                     </div>
                     
-                    <!-- 风力发电机 -->
+                    <!-- Wind turbine -->
                     <div class="windmill">
                         <div class="windmill-blades">
                             <div class="blade"></div>
@@ -111,7 +111,7 @@
                         <div class="windmill-tower"></div>
                     </div>
                     
-                    <!-- 光伏板 -->
+                    <!-- Solar panel -->
                     <div class="solar-panel"></div>
                 </div>
                 
@@ -155,17 +155,17 @@
                     {% endwith %}
                     
                     <script>
-                        // 自动关闭 Flash 消息（5秒后）
+                        // Auto-close flash messages (after 5 seconds)
                         document.addEventListener('DOMContentLoaded', function() {
                             const flashMessages = document.querySelectorAll('#flashMessages .flash-message');
                             flashMessages.forEach(function(message) {
-                                // 添加淡入动画
+                                // Add fade-in animation
                                 setTimeout(function() {
                                     message.style.opacity = '1';
                                     message.style.transform = 'translateY(0)';
                                 }, 10);
                                 
-                                // 5秒后淡出并移除
+                                // Fade out and remove after 5 seconds
                                 setTimeout(function() {
                                     message.style.opacity = '0';
                                     message.style.transform = 'translateY(-20px)';
@@ -262,7 +262,7 @@
                                     minlength="3"
                                     maxlength="32"
                                     autocomplete="username">
-                                <div class="form-text">3-32 个字符，只能包含字母、数字、下划线和连字符</div>
+                                <div class="form-text">3-32 characters, can only contain letters, numbers, underscores, and hyphens</div>
                             </div>
 
                             <div class="mb-3">
@@ -276,7 +276,7 @@
                                     required
                                     maxlength="120"
                                     autocomplete="email">
-                                <div class="form-text">最多 120 个字符</div>
+                                <div class="form-text">Maximum 120 characters</div>
                             </div>
 
                             <div class="mb-3">
@@ -307,7 +307,7 @@
                                         </svg>
                                     </button>
                                 </div>
-                                <!-- 密码强度指示器 -->
+                                <!-- Password strength indicator -->
                                 <div id="passwordStrength" class="password-strength mt-2" style="display: none;">
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="strength-bars d-flex gap-1 flex-grow-1">
@@ -318,10 +318,10 @@
                                         <span class="strength-text small"></span>
                                     </div>
                                 </div>
-                                <div class="form-text">6-128 个字符，建议包含大小写字母、数字和特殊字符</div>
+                                <div class="form-text">6-128 characters, recommended to include uppercase and lowercase letters, numbers, and special characters</div>
                             </div>
 
-                            <!-- 隐藏字段，设置默认值 -->
+                            <!-- Hidden fields, set default values -->
                             <input type="hidden" name="company_name" value="">
                             <input type="hidden" name="user_type" value="user">
 
@@ -351,7 +351,7 @@
     <!-- Auth Toggle Script -->
     <script>
         // ========================================
-        // 输入限制：只允许英文、数字和常用符号（阻止中文等）
+        // Input restrictions: allow only English, digits, and common symbols (block Chinese, etc.)
         // ========================================
         function restrictInput(inputElement, allowedPattern) {
             inputElement.addEventListener('input', function(e) {
@@ -361,12 +361,12 @@
                 
                 if (filteredValue !== originalValue) {
                     this.value = filteredValue;
-                    // 恢复光标位置
+                    // Restore cursor position
                     this.setSelectionRange(cursorPosition - 1, cursorPosition - 1);
                 }
             });
             
-            // 阻止粘贴非法字符
+            // Prevent pasting illegal characters
             inputElement.addEventListener('paste', function(e) {
                 e.preventDefault();
                 const pastedText = (e.clipboardData || window.clipboardData).getData('text');
@@ -382,32 +382,32 @@
                     cursorPosition + filteredText.length
                 );
                 
-                // 触发 input 事件
+                // Trigger input event
                 this.dispatchEvent(new Event('input', { bubbles: true }));
             });
         }
         
-        // 应用输入限制
+        // Apply input restrictions
         document.addEventListener('DOMContentLoaded', function() {
-            // 用户名/邮箱登录框：允许英文、数字、@._-+ 和空格（因为可能输入邮箱）
+            // Username/email login field: allow letters, digits, @._-+, and spaces (for email)
             const usernamePattern = /[^a-zA-Z0-9@._+\-\s]/g;
             const loginUsername = document.getElementById('username');
             
             if (loginUsername) restrictInput(loginUsername, usernamePattern);
             
-            // 注册用户名：只允许英文、数字、下划线、连字符（不允许空格）
+            // Register username: allow letters, digits, underscore, hyphen (no spaces)
             const registerUsernamePattern = /[^a-zA-Z0-9_-]/g;
             const registerUsername = document.getElementById('register_username');
             
             if (registerUsername) restrictInput(registerUsername, registerUsernamePattern);
             
-            // 邮箱：允许英文、数字、@._-+（不允许空格）
+            // Email: allow letters, digits, @._-+ (no spaces)
             const emailPattern = /[^a-zA-Z0-9@._+-]/g;
             const registerEmail = document.getElementById('register_email');
             
             if (registerEmail) restrictInput(registerEmail, emailPattern);
             
-            // 密码：允许英文、数字、常用符号和空格
+            // Password: allow letters, digits, common symbols, and spaces
             const passwordPattern = /[^a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?\s]/g;
             const loginPassword = document.getElementById('password');
             const registerPassword = document.getElementById('register_password');
@@ -417,19 +417,19 @@
         });
         
         // ========================================
-        // 切换到注册表单
+        // Switch to registration form
         // ========================================
         function showRegister() {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('registerSection').style.display = 'block';
             
-            // 清除 flash 消息
+            // Clear flash messages
             const flashMessages = document.getElementById('flashMessages');
             if (flashMessages) {
                 flashMessages.remove();
             }
             
-            // 重置状态
+            // Reset state
             if (window.state) {
                 window.state.showPassword = false;
                 window.state.password = '';
@@ -439,22 +439,22 @@
                 if (window.updateCharacters) window.updateCharacters();
             }
             
-            // 重新绑定注册表单的事件
+            // Rebind registration form events
             bindRegisterEvents();
         }
         
-        // 切换到登录表单
+        // Switch to login form
         function showLogin() {
             document.getElementById('registerSection').style.display = 'none';
             document.getElementById('loginSection').style.display = 'block';
             
-            // 清除 flash 消息
+            // Clear flash messages
             const flashMessages = document.getElementById('flashMessages');
             if (flashMessages) {
                 flashMessages.remove();
             }
             
-            // 重置状态
+            // Reset state
             if (window.state) {
                 window.state.showPassword = false;
                 window.state.password = '';
@@ -464,7 +464,7 @@
                 if (window.updateCharacters) window.updateCharacters();
             }
             
-            // 重置登录表单的密码输入框和图标
+            // Reset login form password input and icon
             const loginPassword = document.getElementById('password');
             const togglePassword = document.getElementById('togglePassword');
             if (loginPassword) {
@@ -479,11 +479,11 @@
             }
         }
         
-        // 绑定注册表单事件
-        let registerEventsbound = false; // 防止重复绑定
+        // Bind register form events
+        let registerEventsBound = false; // Prevent duplicate binding
         
         function bindRegisterEvents() {
-            // 如果已经绑定过，先解绑
+            // If already bound, skip
             if (registerEventsbound) {
                 return;
             }
@@ -493,7 +493,7 @@
             const registerPassword = document.getElementById('register_password');
             const toggleRegisterPassword = document.getElementById('toggleRegisterPassword');
             
-            // 重置注册表单的输入框和图标
+            // Reset registration form inputs and icons
             if (registerPassword) {
                 registerPassword.type = 'password';
                 registerPassword.value = '';
@@ -505,7 +505,7 @@
                 if (iconEye) iconEye.classList.add('d-none');
             }
             
-            // 用户名输入框 - 触发小人探头动画
+            // Username input field - trigger character peek animation
             if (registerUsername) {
                 const usernameFocusHandler = () => {
                     if (window.state) {
@@ -532,7 +532,7 @@
                 registerUsername.addEventListener('blur', usernameBlurHandler);
             }
             
-            // 邮箱输入框 - 触发小人探头动画
+            // Email input field - trigger character peek animation
             if (registerEmail) {
                 const emailFocusHandler = () => {
                     if (window.state) {
@@ -559,7 +559,7 @@
                 registerEmail.addEventListener('blur', emailBlurHandler);
             }
             
-            // 密码输入框 - 触发小人看的动画
+            // Password input field - trigger character watching animation
             if (registerPassword) {
                 const passwordInputHandler = (e) => {
                     if (window.state) {
@@ -576,14 +576,14 @@
                         if (window.updateCharacters) window.updateCharacters();
                     }
                     
-                    // 更新密码强度指示器
+                    // Update password strength indicator
                     updatePasswordStrength(e.target.value);
                 };
                 
                 registerPassword.addEventListener('input', passwordInputHandler);
             }
             
-            // 密码显示/隐藏按钮
+            // Password show/hide button
             if (toggleRegisterPassword) {
                 const toggleClickHandler = () => {
                     if (window.state) {
@@ -591,7 +591,7 @@
                         
                         registerPassword.type = window.state.showPassword ? 'text' : 'password';
                         
-                        // 切换图标
+                        // Toggle icon
                         const iconEye = toggleRegisterPassword.querySelector('.icon-eye');
                         const iconEyeOff = toggleRegisterPassword.querySelector('.icon-eye-off');
                         
@@ -623,7 +623,7 @@
             registerEventsbound = true;
         }
         
-        // 根据 URL 参数决定显示哪个表单
+        // Decide which form to show based on URL parameters
         window.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const mode = urlParams.get('mode');
@@ -631,26 +631,26 @@
             if (mode === 'register') {
                 showRegister();
             } else {
-                // 确保登录页面也正常显示
+                // Ensure login page displays normally
                 document.getElementById('loginSection').style.display = 'block';
                 document.getElementById('registerSection').style.display = 'none';
             }
         });
     </script>
     
-    <!-- AJAX 表单提交（避免页面刷新） -->
+    <!-- AJAX form submission (avoid page refresh) -->
     <script>
-        // 页面加载状态标志
+        // Page load status flag
         let pageFullyLoaded = false;
         
-        // 等待页面完全加载（包括所有资源）
+        // Wait for page to fully load (including all resources)
         window.addEventListener('load', function() {
             pageFullyLoaded = true;
             console.log('Page fully loaded, ready for login');
         });
         
         document.addEventListener('DOMContentLoaded', function() {
-            // 登录表单 AJAX 提交
+            // Login form AJAX submission
             const loginForm = document.getElementById('loginForm');
             if (loginForm) {
                 loginForm.addEventListener('submit', function(e) {
@@ -660,21 +660,21 @@
                     const loginBtn = document.getElementById('loginBtn');
                     const errorMessage = document.getElementById('errorMessage');
                     
-                    // 检查CSRF token是否存在
+                    // Check if CSRF token exists
                     const csrfToken = this.querySelector('input[name="csrf_token"]');
                     if (!csrfToken || !csrfToken.value) {
                         console.error('CSRF token not found or empty');
-                        errorMessage.textContent = '页面未完全加载，请稍后再试';
+                        errorMessage.textContent = 'Page not fully loaded, please try again later';
                         errorMessage.classList.remove('d-none');
                         return;
                     }
                     
-                    // 禁用按钮
+                    // Disable button
                     loginBtn.disabled = true;
                     loginBtn.textContent = 'Logging in...';
                     errorMessage.classList.add('d-none');
                     
-                    // 确保CSRF token被包含
+                    // Ensure CSRF token is included
                     if (!formData.has('csrf_token')) {
                         formData.append('csrf_token', csrfToken.value);
                     }
@@ -682,31 +682,31 @@
                     fetch('{{ url_for("auth.login") }}', {
                         method: 'POST',
                         body: formData,
-                        credentials: 'same-origin'  // 确保发送cookies
+                        credentials: 'same-origin'  // Ensure cookies are sent
                     })
                     .then(response => response.text())
                     .then(html => {
-                        // 检查是否登录成功（通过检查响应中是否有 dashboard 关键字）
-                        if (html.includes('dashboard') || html.includes('工厂管理')) {
-                            // 登录成功，跳转到 dashboard
+                        // Check if login successful (by checking for dashboard keyword in response)
+                        if (html.includes('dashboard') || html.includes('Factory management')) {
+                            // Login successful, redirect to dashboard
                             window.location.href = '{{ url_for("main.dashboard") }}';
                         } else {
-                            // 登录失败，解析错误信息
+                            // Login failed, parse error message
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(html, 'text/html');
                             const flashMessages = doc.querySelectorAll('.flash-message');
                             
-                            let errorMsg = '账号或密码错误';  // 默认错误信息
+                            let errorMsg = 'Invalid username or password';  // Default error message
                             
                             if (flashMessages.length > 0) {
                                 const message = flashMessages[0].querySelector('.flash-text');
                                 if (message) {
                                     const text = message.textContent.trim();
-                                    // 统一显示为"账号或密码错误"，不暴露具体信息
+                                    // Uniformly display as "Invalid username or password", do not expose specific information
                                     if (text.includes('Invalid') || text.includes('password') || text.includes('username')) {
-                                        errorMsg = '账号或密码错误';
+                                        errorMsg = 'Invalid username or password';
                                     } else if (text.includes('banned') || text.includes('BANNED')) {
-                                        errorMsg = text;  // 保留封禁信息
+                                        errorMsg = text;  // Keep ban information
                                     } else {
                                         errorMsg = text;
                                     }
@@ -716,14 +716,14 @@
                             errorMessage.textContent = errorMsg;
                             errorMessage.classList.remove('d-none');
                             
-                            // 恢复按钮
+                            // Restore button
                             loginBtn.disabled = false;
                             loginBtn.textContent = 'Log in';
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        errorMessage.textContent = '登录失败，请稍后重试';
+                        errorMessage.textContent = 'Login failed, please try again later';
                         errorMessage.classList.remove('d-none');
                         loginBtn.disabled = false;
                         loginBtn.textContent = 'Log in';
@@ -731,7 +731,7 @@
                 });
             }
             
-            // 注册表单 AJAX 提交
+            // Registration form AJAX submission
             const registerForm = document.getElementById('registerForm');
             if (registerForm) {
                 registerForm.addEventListener('submit', function(e) {
@@ -741,21 +741,21 @@
                     const registerBtn = this.querySelector('button[type="submit"]');
                     const errorMessage = document.getElementById('registerErrorMessage');
                     
-                    // 检查CSRF token是否存在
+                    // Check if CSRF token exists
                     const csrfToken = this.querySelector('input[name="csrf_token"]');
                     if (!csrfToken || !csrfToken.value) {
                         console.error('CSRF token not found or empty');
-                        errorMessage.textContent = '页面未完全加载，请稍后再试';
+                        errorMessage.textContent = 'Page not fully loaded, please try again later';
                         errorMessage.classList.remove('d-none');
                         return;
                     }
                     
-                    // 禁用按钮
+                    // Disable button
                     registerBtn.disabled = true;
                     registerBtn.textContent = 'Creating Account...';
                     errorMessage.classList.add('d-none');
                     
-                    // 确保CSRF token被包含
+                    // Ensure CSRF token is included
                     if (!formData.has('csrf_token')) {
                         formData.append('csrf_token', csrfToken.value);
                     }
@@ -763,11 +763,11 @@
                     fetch('{{ url_for("auth.register") }}', {
                         method: 'POST',
                         body: formData,
-                        credentials: 'same-origin'  // 确保发送cookies
+                        credentials: 'same-origin'  // Ensure cookies are sent
                     })
                     .then(response => response.text())
                     .then(html => {
-                        // 检查是否注册成功
+                        // Check if registration successful
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, 'text/html');
                         const flashMessages = doc.querySelectorAll('.flash-message');
@@ -778,24 +778,24 @@
                             const isSuccess = flashMessages[0].classList.contains('flash-success');
                             
                             if (isSuccess) {
-                                // 注册成功，显示成功消息并切换到登录表单
-                                showFlashMessage('注册成功！请登录', 'success');
+                                // Registration successful, show success message and switch to login form
+                                showFlashMessage('Registration successful! Please log in', 'success');
                                 setTimeout(() => {
                                     showLogin();
-                                    // 清空注册表单
+                                    // Clear registration form
                                     registerForm.reset();
                                 }, 1500);
                             } else {
-                                // 注册失败，显示具体错误信息
+                                // Registration failed, show specific error message
                                 let errorMsg = messageText;
                                 
-                                // 优化错误提示
-                                if (messageText.includes('already exists') || messageText.includes('已存在')) {
-                                    errorMsg = '该用户名已被注册';
-                                } else if (messageText.includes('already registered') || messageText.includes('已注册')) {
-                                    errorMsg = '该邮箱已被注册';
+                                // Optimize error prompts
+                                if (messageText.includes('already exists') || messageText.includes('already exists')) {
+                                    errorMsg = 'This username is already registered';
+                                } else if (messageText.includes('already registered') || messageText.includes('already registered')) {
+                                    errorMsg = 'This email is already registered';
                                 } else if (!errorMsg) {
-                                    errorMsg = '注册失败，请检查输入信息';
+                                    errorMsg = 'Registration failed, please check your input';
                                 }
                                 
                                 errorMessage.textContent = errorMsg;
@@ -804,8 +804,8 @@
                                 registerBtn.textContent = 'Create Account';
                             }
                         } else {
-                            // 没有 flash 消息，可能是其他错误
-                            errorMessage.textContent = '注册失败，请检查输入信息';
+                            // No flash message, may be other error
+                            errorMessage.textContent = 'Registration failed, please check your input';
                             errorMessage.classList.remove('d-none');
                             registerBtn.disabled = false;
                             registerBtn.textContent = 'Create Account';
@@ -813,7 +813,7 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        errorMessage.textContent = '注册失败，请稍后重试';
+                        errorMessage.textContent = 'Registration failed, please try again later';
                         errorMessage.classList.remove('d-none');
                         registerBtn.disabled = false;
                         registerBtn.textContent = 'Create Account';
@@ -821,15 +821,15 @@
                 });
             }
             
-            // 显示 Flash 消息的函数
+            // Function to show flash messages
             function showFlashMessage(message, category) {
-                // 移除旧的 flash 消息
+                // Remove old flash messages
                 const oldFlash = document.getElementById('flashMessages');
                 if (oldFlash) {
                     oldFlash.remove();
                 }
                 
-                // 创建新的 flash 消息
+                // Create new flash message
                 const flashDiv = document.createElement('div');
                 flashDiv.id = 'flashMessages';
                 flashDiv.className = 'mb-3';
@@ -844,12 +844,12 @@
                     </div>
                 `;
                 
-                // 插入到登录表单前面
+                // Insert before login form
                 const loginSection = document.getElementById('loginSection');
                 const firstChild = loginSection.firstElementChild;
                 loginSection.insertBefore(flashDiv, firstChild);
                 
-                // 5秒后自动消失
+                // Auto-disappear after 5 seconds
                 setTimeout(() => {
                     const flashMessage = flashDiv.querySelector('.flash-message');
                     flashMessage.style.opacity = '0';
@@ -862,10 +862,10 @@
         });
     </script>
     
-    <!-- 全局音乐播放器脚本 -->
+    <!-- Global music player script -->
     <script src="{{ url_for('static', filename='music-player/js/music-player.js') }}"></script>
     
-    <!-- 密码强度检测 -->
+    <!-- Password strength detection -->
     <style>
         .password-strength {
             transition: all 0.3s ease;
@@ -893,24 +893,24 @@
             text-align: right;
         }
         
-        /* 弱 - 红色 */
+        /* Weak - red */
         .password-strength.weak {
             color: #ef4444;
         }
         
-        /* 中 - 橙色 */
+        /* Medium - orange */
         .password-strength.medium {
             color: #f59e0b;
         }
         
-        /* 强 - 绿色 */
+        /* Strong - green */
         .password-strength.strong {
             color: #10b981;
         }
     </style>
     
     <script>
-        // 密码强度检测函数
+        // Password strength detection function
         function updatePasswordStrength(password) {
             const strengthIndicator = document.getElementById('passwordStrength');
             const strengthBars = strengthIndicator.querySelectorAll('.strength-bar');
@@ -923,49 +923,49 @@
             
             strengthIndicator.style.display = 'block';
             
-            // 计算密码强度（总分 0-7 分）
+            // Calculate password strength (total score 0-7)
             let strength = 0;
             
-            // 1. 长度检查
-            if (password.length >= 8) strength += 1;   // 8个字符以上 +1分
-            if (password.length >= 12) strength += 1;  // 12个字符以上 +1分
+            // 1. Length check
+            if (password.length >= 8) strength += 1;   // 8+ characters +1 point
+            if (password.length >= 12) strength += 1;  // 12+ characters +1 point
             
-            // 2. 包含数字 +1分
+            // 2. Contains numbers +1 point
             if (/\d/.test(password)) strength += 1;
             
-            // 3. 包含字母 +1分
+            // 3. Contains letters +1 point
             if (/[a-zA-Z]/.test(password)) strength += 1;
             
-            // 4. 包含特殊字符 +1分
+            // 4. Contains special characters +1 point
             if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) strength += 1;
             
-            // 5. 字母有大写和小写 +1分
+            // 5. Letters have both uppercase and lowercase +1 point
             if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 1;
             
-            // 根据分数设置强度等级
+            // Set strength level based on score
             let level = 'weak';
-            let levelText = '弱';
+            let levelText = 'Weak';
             let activeBars = 1;
             
             if (strength >= 1 && strength <= 2) {
                 level = 'weak';
-                levelText = '弱';
+                levelText = 'Weak';
                 activeBars = 1;
             } else if (strength >= 3 && strength <= 4) {
                 level = 'medium';
-                levelText = '中';
+                levelText = 'Medium';
                 activeBars = 2;
             } else if (strength >= 5) {
                 level = 'strong';
-                levelText = '强';
+                levelText = 'Strong';
                 activeBars = 3;
             }
             
-            // 更新样式
+            // Update styles
             strengthIndicator.className = `password-strength mt-2 ${level}`;
             strengthText.textContent = levelText;
             
-            // 更新进度条
+            // Update progress bar
             strengthBars.forEach((bar, index) => {
                 if (index < activeBars) {
                     bar.classList.add('active');

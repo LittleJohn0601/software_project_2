@@ -1,7 +1,7 @@
 # blogapp/routes/main.py
 """
 Main routes for PeakShift application
-工业用电成本与碳排放分析优化系统 - 主路由
+Industrial power cost and carbon optimization system - main routes
 """
 
 import json
@@ -10,18 +10,18 @@ from flask_login import login_required, current_user
 from blogapp import db, csrf
 from blogapp.models import User, Factory
 
-# 创建蓝图
+# Create blueprint
 bp = Blueprint('main', __name__)
 
 
 # ============================================================
-# 基础页面路由
+# Base page routes
 # ============================================================
 
 @bp.route('/')
 @bp.route('/index')
 def index():
-    """首页 - 重定向到统一认证页面"""
+    """Home page - redirect to authentication page"""
     if current_user.is_authenticated:
         return redirect(url_for('main.dashboard'))
     return redirect(url_for('auth.auth_page'))
@@ -30,20 +30,20 @@ def index():
 @bp.route('/dashboard')
 @login_required
 def dashboard():
-    """主应用页面 - 单页应用"""
+    """Main application page - single-page application"""
     import time
     return render_template('dashboard.html', cache_bust=int(time.time()))
 
 
 # ============================================================
-# 工厂管理路由 (待实现)
+# Factory management routes (TODO)
 # ============================================================
 
 @bp.route('/api/factories', methods=['GET'])
 @login_required
 @csrf.exempt
 def get_factories():
-    """API: 获取用户的工厂列表"""
+    """API: fetch user factory list"""
     factories = Factory.query.filter_by(user_id=current_user.id).all()
     return jsonify({
         'success': True,
@@ -68,55 +68,55 @@ def get_factories():
 @login_required
 @csrf.exempt
 def create_factory():
-    """API: 创建工厂"""
+    """API: Create factory"""
     data = request.get_json()
     
     try:
-        # 验证必填字段
+        # Validate required fields
         if not data.get('name'):
             return jsonify({
                 'success': False,
-                'message': '工厂名称不能为空'
+                'message': 'Factory name cannot be empty'
             }), 400
         
         if not data.get('voltage_level'):
             return jsonify({
                 'success': False,
-                'message': '电压等级不能为空'
+                'message': 'Voltage level cannot be empty'
             }), 400
         
         if not data.get('transformer_capacity'):
             return jsonify({
                 'success': False,
-                'message': '变压器容量不能为空'
+                'message': 'Transformer capacity cannot be empty'
             }), 400
         
         if not data.get('daily_usage'):
             return jsonify({
                 'success': False,
-                'message': '日用电量不能为空'
+                'message': 'Daily usage cannot be empty'
             }), 400
         
         if not data.get('work_periods'):
             return jsonify({
                 'success': False,
-                'message': '工作时间段不能为空'
+                'message': 'Work periods cannot be empty'
             }), 400
         
-        # 验证电压等级是否有效
+        # Validate if voltage level is valid
         voltage_level = int(data.get('voltage_level'))
         if voltage_level not in [10, 35, 110, 220]:
             return jsonify({
                 'success': False,
-                'message': '电压等级必须是 10、35、110 或 220 kV'
+                'message': 'Voltage level must be one of 10, 35, 110, or 220 kV'
             }), 400
         
-        # 处理数值字段
+        # Process numeric fields
         transformer_capacity = float(data.get('transformer_capacity'))
         daily_usage = float(data.get('daily_usage'))
         working_days_per_month = int(data.get('working_days_per_month', 26))
         
-        # 验证工作时间段格式
+        # Validate work periods format
         work_periods = data.get('work_periods')
         if isinstance(work_periods, str):
             import json
@@ -125,7 +125,7 @@ def create_factory():
         if not isinstance(work_periods, list) or len(work_periods) == 0:
             return jsonify({
                 'success': False,
-                'message': '请至少添加一个工作时间段'
+                'message': 'Please add at least one work period'
             }), 400
         
         factory = Factory(
@@ -145,7 +145,7 @@ def create_factory():
         
         return jsonify({
             'success': True,
-            'message': '工厂创建成功',
+            'message': 'Factory created successfully',
             'factory': {
                 'id': factory.id,
                 'name': factory.name,
@@ -165,7 +165,7 @@ def create_factory():
         db.session.rollback()
         return jsonify({
             'success': False,
-            'message': f'数据格式错误: {str(e)}'
+            'message': f'Data format error: {str(e)}'
         }), 400
     except Exception as e:
         db.session.rollback()
@@ -173,7 +173,7 @@ def create_factory():
         traceback.print_exc()
         return jsonify({
             'success': False,
-            'message': f'创建失败: {str(e)}'
+            'message': f'Creation failed: {str(e)}'
         }), 400
 
 
@@ -181,13 +181,13 @@ def create_factory():
 @login_required
 @csrf.exempt
 def delete_factory(factory_id):
-    """API: 删除工厂"""
+    """API: Delete factory"""
     factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id).first()
     
     if not factory:
         return jsonify({
             'success': False,
-            'message': '工厂不存在或无权限'
+            'message': 'Factory not found or unauthorized'
         }), 404
     
     try:
@@ -196,13 +196,13 @@ def delete_factory(factory_id):
         
         return jsonify({
             'success': True,
-            'message': '工厂删除成功'
+            'message': 'Factory deleted successfully'
         })
     except Exception as e:
         db.session.rollback()
         return jsonify({
             'success': False,
-            'message': f'删除失败: {str(e)}'
+            'message': f'Deletion failed: {str(e)}'
         }), 400
 
 
@@ -210,58 +210,58 @@ def delete_factory(factory_id):
 @login_required
 @csrf.exempt
 def update_factory(factory_id):
-    """API: 更新工厂"""
+    """API: Update factory"""
     factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id).first()
     
     if not factory:
         return jsonify({
             'success': False,
-            'message': '工厂不存在或无权限'
+            'message': 'Factory not found or unauthorized'
         }), 404
     
     data = request.get_json()
     
     try:
-        # 验证必填字段
+        # Validate required fields
         if not data.get('name'):
             return jsonify({
                 'success': False,
-                'message': '工厂名称不能为空'
+                'message': 'Factory name cannot be empty'
             }), 400
         
         if not data.get('voltage_level'):
             return jsonify({
                 'success': False,
-                'message': '电压等级不能为空'
+                'message': 'Voltage level cannot be empty'
             }), 400
         
         if not data.get('transformer_capacity'):
             return jsonify({
                 'success': False,
-                'message': '变压器容量不能为空'
+                'message': 'Transformer capacity cannot be empty'
             }), 400
         
         if not data.get('daily_usage'):
             return jsonify({
                 'success': False,
-                'message': '日用电量不能为空'
+                'message': 'Daily usage cannot be empty'
             }), 400
         
         if not data.get('work_periods'):
             return jsonify({
                 'success': False,
-                'message': '工作时间段不能为空'
+                'message': 'Work periods cannot be empty'
             }), 400
         
-        # 验证电压等级是否有效
+        # Validate if voltage level is valid
         voltage_level = int(data.get('voltage_level'))
         if voltage_level not in [10, 35, 110, 220]:
             return jsonify({
                 'success': False,
-                'message': '电压等级必须是 10、35、110 或 220 kV'
+                'message': 'Voltage level must be one of 10, 35, 110, or 220 kV'
             }), 400
         
-        # 验证工作时间段格式
+        # Validate work periods format
         work_periods = data.get('work_periods')
         if isinstance(work_periods, str):
             work_periods = json.loads(work_periods)
@@ -269,10 +269,10 @@ def update_factory(factory_id):
         if not isinstance(work_periods, list) or len(work_periods) == 0:
             return jsonify({
                 'success': False,
-                'message': '请至少添加一个工作时间段'
+                'message': 'Please add at least one work period'
             }), 400
         
-        # 更新工厂信息
+        # Update factory information
         factory.name = data.get('name').strip()
         factory.location = data.get('location', '').strip() if data.get('location') else None
         factory.industry_type = data.get('industry_type', '').strip() if data.get('industry_type') else None
@@ -286,7 +286,7 @@ def update_factory(factory_id):
         
         return jsonify({
             'success': True,
-            'message': '工厂更新成功',
+            'message': 'Factory updated successfully',
             'factory': {
                 'id': factory.id,
                 'name': factory.name,
@@ -306,7 +306,7 @@ def update_factory(factory_id):
         db.session.rollback()
         return jsonify({
             'success': False,
-            'message': f'数据格式错误: {str(e)}'
+            'message': f'Data format error: {str(e)}'
         }), 400
     except Exception as e:
         db.session.rollback()
@@ -314,19 +314,19 @@ def update_factory(factory_id):
         traceback.print_exc()
         return jsonify({
             'success': False,
-            'message': f'更新失败: {str(e)}'
+            'message': f'Update failed: {str(e)}'
         }), 400
 
 
 # ============================================================
-# 工厂详情和电费计算路由
+# Factory details and electricity cost routes
 # ============================================================
 
 @bp.route('/api/factory/<int:factory_id>/details', methods=['GET'])
 @login_required
 @csrf.exempt
 def get_factory_details(factory_id):
-    """API: 获取工厂详情和电费计算结果"""
+    """API: Fetch factory details and electricity cost results"""
     from blogapp.services.electricity_cost import ElectricityCostCalculator
     from blogapp.models import HourlyElectricityPrice, GridElectricityPrice, TimeOfUsePeriod
     
@@ -335,44 +335,44 @@ def get_factory_details(factory_id):
     if not factory:
         return jsonify({
             'success': False,
-            'message': '工厂不存在或无权限'
+            'message': 'Factory not found or unauthorized'
         }), 404
     
     try:
-        # 使用电费计算器
+        # Use electricity cost calculator
         calculator = ElectricityCostCalculator(factory_id)
         cost_result = calculator.calculate_monthly_cost()
         
-        # 获取代理公司24小时电价（加上0.01代理费）
+        # Fetch supplier hourly prices (including 0.01 agent fee)
         hourly_prices = HourlyElectricityPrice.query.order_by(HourlyElectricityPrice.hour).all()
         agent_prices = {p.hour: round(p.price + 0.01, 4) for p in hourly_prices}
         
-        # 获取电网价格（根据工厂电压等级）
+        # Fetch grid price based on factory voltage level
         grid_price = GridElectricityPrice.query.filter_by(voltage_level=factory.voltage_level).first()
         
-        # 获取分时时段
+        # Fetch time-of-use periods
         tou_periods = TimeOfUsePeriod.query.order_by(TimeOfUsePeriod.hour).all()
         tou_map = {p.hour: p.period_type for p in tou_periods}
         
-        # 构建24小时电网价格数据
+        # Build 24-hour grid price data
         grid_prices = {}
         if grid_price:
             for hour in range(24):
-                period_type = tou_map.get(hour, '平时')
-                if period_type == '高峰':
+                period_type = tou_map.get(hour, 'Normal')
+                if period_type == 'Peak':
                     grid_prices[hour] = grid_price.peak_price
-                elif period_type == '低谷':
+                elif period_type == 'Valley':
                     grid_prices[hour] = grid_price.valley_price
                 else:
                     grid_prices[hour] = grid_price.normal_price
         
-        # 添加价格对比数据到返回结果
+        # Add price comparison data to return result
         cost_result['price_comparison'] = {
             'agent_prices': agent_prices,
             'grid_prices': grid_prices
         }
         
-        # 添加碳排放数据（使用队友写的 carbon_emission 属性）
+        # Add carbon emission data (using teammate's carbon_emission property)
         cost_result['carbon_emission'] = factory.carbon_emission
         
         return jsonify({
@@ -396,19 +396,19 @@ def get_factory_details(factory_id):
         traceback.print_exc()
         return jsonify({
             'success': False,
-            'message': f'计算失败: {str(e)}'
+            'message': f'Calculation failed: {str(e)}'
         }), 400
 
 
 # ============================================================
-# 供应商优化和节省潜力 API
+# Supplier optimization and saving potential API
 # ============================================================
 
 @bp.route('/api/factory/<int:factory_id>/optimization', methods=['GET'])
 @login_required
 @csrf.exempt
 def get_optimization(factory_id):
-    """API: 获取节省潜力（省钱/减排模式）"""
+    """API: Fetch saving potential (cost/carbon mode)"""
     from blogapp.services.supplier_optimizer import SupplierOptimizer
     from blogapp.models import HourlyElectricityPrice, GridElectricityPrice, TimeOfUsePeriod
     
@@ -417,19 +417,19 @@ def get_optimization(factory_id):
     if not factory:
         return jsonify({
             'success': False,
-            'message': '工厂不存在或无权限'
+            'message': 'Factory not found or unauthorized'
         }), 404
     
-    # 获取优化模式参数
+    # Get optimization mode parameters
     mode = request.args.get('mode', 'cost')
     if mode not in ['cost', 'carbon']:
         return jsonify({
             'success': False,
-            'message': '无效的优化模式，必须是 cost 或 carbon'
+            'message': 'Invalid optimization mode; must be cost or carbon'
         }), 400
     
     try:
-        # 获取必要的数据
+        # Get necessary data
         grid_price = GridElectricityPrice.query.filter_by(voltage_level=factory.voltage_level).first()
         supplier_prices = HourlyElectricityPrice.query.order_by(HourlyElectricityPrice.hour).all()
         tou_periods = TimeOfUsePeriod.query.order_by(TimeOfUsePeriod.hour).all()
@@ -437,19 +437,19 @@ def get_optimization(factory_id):
         if not grid_price:
             return jsonify({
                 'success': False,
-                'message': f'未找到电压等级 {factory.voltage_level} kV 的电网价格数据'
+                'message': f'Grid price data not found for voltage level {factory.voltage_level} kV'
             }), 404
         
         if not supplier_prices:
             return jsonify({
                 'success': False,
-                'message': '未找到售电公司价格数据'
+                'message': 'Supplier price data not found'
             }), 404
         
-        # 创建优化器
+        # Create optimizer
         optimizer = SupplierOptimizer(factory, grid_price, supplier_prices, tou_periods)
         
-        # 获取节省潜力
+        # Get saving potential
         result = optimizer.get_saving_potential(mode=mode)
         
         return jsonify(result)
@@ -459,7 +459,7 @@ def get_optimization(factory_id):
         traceback.print_exc()
         return jsonify({
             'success': False,
-            'message': f'优化计算失败: {str(e)}'
+            'message': f'Optimization calculation failed: {str(e)}'
         }), 400
 
 
@@ -467,7 +467,7 @@ def get_optimization(factory_id):
 @login_required
 @csrf.exempt
 def get_suggestions(factory_id):
-    """API: 获取优化建议"""
+    """API: Fetch optimization suggestions"""
     from blogapp.services.supplier_optimizer import SupplierOptimizer
     from blogapp.models import HourlyElectricityPrice, GridElectricityPrice, TimeOfUsePeriod
     
@@ -476,11 +476,11 @@ def get_suggestions(factory_id):
     if not factory:
         return jsonify({
             'success': False,
-            'message': '工厂不存在或无权限'
+            'message': 'Factory not found or unauthorized'
         }), 404
     
     try:
-        # 获取必要的数据
+        # Get necessary data
         grid_price = GridElectricityPrice.query.filter_by(voltage_level=factory.voltage_level).first()
         supplier_prices = HourlyElectricityPrice.query.order_by(HourlyElectricityPrice.hour).all()
         tou_periods = TimeOfUsePeriod.query.order_by(TimeOfUsePeriod.hour).all()
@@ -488,19 +488,19 @@ def get_suggestions(factory_id):
         if not grid_price:
             return jsonify({
                 'success': False,
-                'message': f'未找到电压等级 {factory.voltage_level} kV 的电网价格数据'
+                'message': f'Grid price data not found for voltage level {factory.voltage_level} kV'
             }), 404
         
         if not supplier_prices:
             return jsonify({
                 'success': False,
-                'message': '未找到售电公司价格数据'
+                'message': 'Supplier price data not found'
             }), 404
         
-        # 创建优化器
+        # Create optimizer
         optimizer = SupplierOptimizer(factory, grid_price, supplier_prices, tou_periods)
         
-        # 获取优化建议
+        # Get optimization suggestions
         result = optimizer.get_suggestions()
         
         return jsonify(result)
@@ -510,102 +510,102 @@ def get_suggestions(factory_id):
         traceback.print_exc()
         return jsonify({
             'success': False,
-            'message': f'生成建议失败: {str(e)}'
+            'message': f'Suggestion generation failed: {str(e)}'
         }), 400
 
 
 # ============================================================
-# 用电数据管理路由 (待实现)
+# Electricity usage data management routes (TODO)
 # ============================================================
 
 @bp.route('/electricity/log', methods=['GET', 'POST'])
 @login_required
 def log_electricity():
-    """记录用电数据 - 待实现"""
-    # TODO: 实现用电数据记录功能
+    """Record electricity usage data - TODO"""
+    # TODO: Implement electricity usage data recording function
     return jsonify({'message': 'Log electricity usage - Under development'})
 
 
 @bp.route('/electricity/history')
 @login_required
 def electricity_history():
-    """用电历史记录 - 待实现"""
-    # TODO: 显示用电历史数据
+    """Electricity usage history - TODO"""
+    # TODO: Display electricity usage history data
     return jsonify({'message': 'Electricity history - Under development'})
 
 
 # ============================================================
-# 碳排放分析路由 (待实现)
+# Carbon emissions analysis routes (TODO)
 # ============================================================
 
 @bp.route('/carbon/analysis')
 @login_required
 def carbon_analysis():
-    """碳排放分析页面 - 待实现"""
-    # TODO: 实现碳排放分析功能
+    """Carbon emissions analysis page - TODO"""
+    # TODO: Implement carbon emissions analysis function
     return jsonify({'message': 'Carbon analysis - Under development'})
 
 
 @bp.route('/carbon/report')
 @login_required
 def carbon_report():
-    """碳排放报告 - 待实现"""
-    # TODO: 生成碳排放报告
+    """Carbon emissions report - TODO"""
+    # TODO: Generate carbon emissions report
     return jsonify({'message': 'Carbon report - Under development'})
 
 
 # ============================================================
-# 电费优化建议路由 (待实现)
+# Electricity cost optimization suggestions routes (TODO)
 # ============================================================
 
 @bp.route('/optimization/suggestions')
 @login_required
 def optimization_suggestions():
-    """电费优化建议 - 待实现"""
-    # TODO: 根据分时电价提供优化建议
+    """Electricity cost optimization suggestions - TODO"""
+    # TODO: Provide optimization suggestions based on time-of-use pricing
     return jsonify({'message': 'Optimization suggestions - Under development'})
 
 
 @bp.route('/optimization/schedule')
 @login_required
 def production_schedule():
-    """生产时间调整建议 - 待实现"""
-    # TODO: 提供生产时间调整建议
+    """Production time adjustment suggestions - TODO"""
+    # TODO: Provide production time adjustment suggestions
     return jsonify({'message': 'Production schedule - Under development'})
 
 
 # ============================================================
-# API 路由 (待实现)
+# API routes (TODO)
 # ============================================================
 
 @bp.route('/api/electricity/data')
 @login_required
 def api_electricity_data():
-    """API: 获取用电数据 - 待实现"""
-    # TODO: 返回用电数据 JSON
+    """API: Fetch electricity usage data - TODO"""
+    # TODO: Return electricity usage data JSON
     return jsonify({'data': [], 'message': 'Under development'})
 
 
 @bp.route('/api/carbon/data')
 @login_required
 def api_carbon_data():
-    """API: 获取碳排放数据 - 待实现"""
-    # TODO: 返回碳排放数据 JSON
+    """API: Fetch carbon emissions data - TODO"""
+    # TODO: Return carbon emissions data JSON
     return jsonify({'data': [], 'message': 'Under development'})
 
 
 # ============================================================
-# 错误处理
+# Error handling
 # ============================================================
 
 @bp.errorhandler(404)
 def not_found_error(error):
-    """404 错误处理"""
+    """404 error handler"""
     return jsonify({'error': 'Page not found'}), 404
 
 
 @bp.errorhandler(500)
 def internal_error(error):
-    """500 错误处理"""
+    """500 error handler"""
     db.session.rollback()
     return jsonify({'error': 'Internal server error'}), 500

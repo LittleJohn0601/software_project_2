@@ -17,7 +17,7 @@ def load_user(user_id):
 
 @bp.route('/', methods=['GET'])
 def auth_page():
-    """统一认证页面（登录+注册）"""
+    """Unified authentication page (login + register)"""
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     
@@ -35,7 +35,7 @@ def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
     
-    # GET 请求重定向到统一认证页面
+    # GET request redirect to unified authentication page
     if request.method == 'GET':
         return redirect(url_for('auth.auth_page') + '?mode=register')
     
@@ -67,7 +67,7 @@ def register():
         flash('Registration successful! Please log in.', 'success')
         return redirect(url_for('auth.auth_page'))
     
-    # 表单验证失败，返回注册页面
+    # Form validation failed, return to registration page
     return redirect(url_for('auth.auth_page') + '?mode=register')
 
 
@@ -78,7 +78,7 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
 
-    # GET 请求重定向到统一认证页面
+    # GET request redirect to unified authentication page
     if request.method == 'GET':
         return redirect(url_for('auth.auth_page'))
 
@@ -87,7 +87,7 @@ def login():
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
-        # 支持用户名或邮箱登录
+        # Support login by username or email
         user = User.query.filter(
             (User.username == username) | (User.email == username)
         ).first()
@@ -121,7 +121,7 @@ def login():
             # ⭐ Normal login
             login_user(user)
             current_app.logger.info("User '%s' logged in successfully.", user.username)
-            flash('登录成功！', 'success')
+            flash('Login successful!', 'success')
             return redirect(url_for('main.dashboard'))
 
         # Username/Email does not exist or password is incorrect
@@ -137,5 +137,5 @@ def logout():
     """Handle user logout"""
     current_app.logger.info("User '%s' logged out.", current_user.username)
     logout_user()
-    flash('成功退出登录', 'success')
+    flash('Successfully logged out', 'success')
     return redirect(url_for('main.index'))

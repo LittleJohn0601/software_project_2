@@ -1,63 +1,63 @@
 /* ===== Dashboard Global Styles - 2026 Modern Design ===== */
 :root {
-    /* 能源主题配色 - 现代化渐变色系 */
+    /* Energy theme palette - modern gradient tones */
     --primary-color: #0ea5e9;
     --primary-dark: #0284c7;
     --primary-light: #38bdf8;
     --secondary-color: #10b981;
     --secondary-dark: #059669;
     
-    /* 功能色 */
+    /* Functional colors */
     --success-color: #10b981;
     --warning-color: #f59e0b;
     --danger-color: #ef4444;
     --info-color: #8b5cf6;
     
-    /* 文字颜色 */
+    /* Text colors */
     --text-dark: #0f172a;
     --text-muted: #64748b;
     --text-light: #94a3b8;
     
-    /* 背景色 - 浅色渐变背景 */
+    /* Background colors - light gradient background */
     --bg-primary: #f8fafc;
     --bg-secondary: #f1f5f9;
     --bg-card: #ffffff;
     
-    /* 边框 */
+    /* Borders */
     --border-color: #e2e8f0;
     --border-light: #f1f5f9;
     
-    /* 阴影系统 - 增强深度感 */
+    /* Shadow system - enhanced depth */
     --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
     --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --shadow-lg: 0 10px 20px -5px rgba(0, 0, 0, 0.12), 0 4px 8px -2px rgba(0, 0, 0, 0.08);
     --shadow-xl: 0 20px 30px -10px rgba(0, 0, 0, 0.15), 0 10px 15px -5px rgba(0, 0, 0, 0.1);
     
-    /* 间距系统 - 8px 网格 */
+    /* Spacing system - 8px grid */
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
     --spacing-md: 1rem;
     --spacing-lg: 1.5rem;
     --spacing-xl: 2rem;
     
-    /* 圆角系统 */
+    /* Radius system */
     --radius-sm: 0.5rem;
     --radius-md: 0.75rem;
     --radius-lg: 1rem;
     --radius-xl: 1.5rem;
 }
 
-/* ===== Body - 现代化渐变背景（满血版）===== */
+/* ===== Body - modern gradient background===== */
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
     background: linear-gradient(135deg, 
-        #dbeafe 0%,    /* 更深的蓝色 */
-        #bfdbfe 20%,   /* 中蓝 */
-        #d1fae5 40%,   /* 浅绿 */
-        #fef3c7 60%,   /* 黄色 */
-        #fecaca 80%,   /* 浅红 */
-        #e0e7ff 100%   /* 淡紫 */
+        #dbeafe 0%,    /* Deeper blue */
+        #bfdbfe 20%,   /* Medium blue */
+        #d1fae5 40%,   /* Light green */
+        #fef3c7 60%,   /* Yellow */
+        #fecaca 80%,   /* Light red */
+        #e0e7ff 100%   /* Soft purple */
     );
     background-size: 400% 400%;
     animation: gradientFlow 15s ease infinite;
@@ -76,7 +76,7 @@ body {
     100% { background-position: 0% 50%; }
 }
 
-/* 动态网格背景 */
+/* Dynamic grid background */
 body::before {
     content: '';
     position: fixed;
@@ -94,7 +94,7 @@ body::before {
     50% { opacity: 1; }
 }
 
-/* 浮动光点效果 */
+/* Floating glow effect */
 body::after {
     content: '';
     position: fixed;
@@ -114,7 +114,7 @@ body::after {
     100% { transform: translate(50px, 50px) rotate(360deg); }
 }
 
-/* ===== Navbar - 玻璃态导航栏 ===== */
+/* ===== Navbar - glassmorphism navigation bar ===== */
 .navbar {
     background: rgba(255, 255, 255, 0.4) !important;
     backdrop-filter: blur(30px) saturate(200%);
@@ -204,7 +204,7 @@ body::after {
     }
 }
 
-/* ===== Page Header - 玻璃态标题卡片 ===== */
+/* ===== Page Header - glassmorphism title card ===== */
 .row.mb-3 {
     background: transparent;
     padding: var(--spacing-lg);
@@ -257,7 +257,7 @@ body::after {
     color: var(--text-muted);
 }
 
-/* ===== Factory Card - 现代化渐变玻璃卡片 ===== */
+/* ===== Factory Card - modern gradient glass card ===== */
 .factory-card {
     background: linear-gradient(135deg, 
         rgba(255, 255, 255, 0.25) 0%, 
@@ -275,7 +275,7 @@ body::after {
     overflow: hidden;
 }
 
-/* 扫光效果 */
+/* Light sweep effect */
 .factory-card::before {
     content: '';
     position: absolute;
@@ -294,7 +294,7 @@ body::after {
     left: 100%;
 }
 
-/* 顶部彩虹边框 */
+/* Top rainbow borders */
 .factory-card::after {
     content: '';
     position: absolute;
@@ -323,7 +323,7 @@ body::after {
     margin-bottom: 0.75rem;
 }
 
-/* 渐变发光图标 */
+/* Gradient glowing icon */
 .factory-icon {
     width: 56px;
     height: 56px;
@@ -382,7 +382,7 @@ body::after {
     font-size: 0.875rem;
 }
 
-/* 统计信息区域 - 玻璃态 */
+/* Statistics area - glassmorphism */
 .factory-stats {
     display: grid;
     grid-template-columns: 1fr;
@@ -414,6 +414,7 @@ body::after {
     display: flex;
     align-items: center;
     gap: 0.375rem;
+    flex-wrap: wrap;
 }
 
 .stat-label i {
@@ -441,7 +442,7 @@ body::after {
     font-weight: 800;
 }
 
-/* 工作时间段徽章 - 渐变徽章 */
+/* Work period badge - gradient badge */
 .badge {
     font-weight: 600;
     padding: 0.25rem 0.5rem;
@@ -482,7 +483,7 @@ body::after {
     padding: 0.5rem 0.75rem;
 }
 
-/* ===== Empty State - 增强空状态 ===== */
+/* ===== Empty State - enhanced empty state ===== */
 #emptyState {
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(20px);
@@ -521,7 +522,7 @@ body::after {
     color: var(--text-muted);
 }
 
-/* ===== Modal - 玻璃态模态框 ===== */
+/* ===== Modal - glassmorphism dialog ===== */
 .modal-content {
     border-radius: var(--radius-xl);
     border: none;
@@ -571,7 +572,7 @@ body::after {
     padding: 1rem 1.25rem;
 }
 
-/* ===== Form - 现代化表单 ===== */
+/* ===== Form - modern form ===== */
 .form-label {
     font-weight: 600;
     color: var(--text-dark);
@@ -630,7 +631,7 @@ body::after {
     --bs-gutter-x: 0.5rem;
 }
 
-/* ===== Button - 现代化按钮 ===== */
+/* ===== Button - modern button ===== */
 .btn {
     border-radius: var(--radius-md);
     padding: 0.625rem 1.25rem;
@@ -729,7 +730,7 @@ body::after {
     backdrop-filter: blur(12px);
 }
 
-/* ===== Flash Messages - 现代化通知 ===== */
+/* ===== Flash Messages - modern notifications ===== */
 .flash-message {
     display: flex;
     align-items: center;
@@ -787,7 +788,7 @@ body::after {
     color: white;
 }
 
-/* ===== 统计卡片 - 渐变玻璃卡片 ===== */
+/* ===== Stats card - gradient glass card ===== */
 .stat-card {
     background: linear-gradient(135deg, 
         rgba(255, 255, 255, 0.4) 0%, 
@@ -807,7 +808,7 @@ body::after {
     overflow: hidden;
 }
 
-/* 顶部彩色边框 */
+/* Top colored borders */
 .stat-card::before {
     content: '';
     position: absolute;
@@ -868,7 +869,7 @@ body::after {
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(14, 165, 233, 0.3);
 }
 
-/* 渐变发光图标 */
+/* Gradient glowing icon */
 .stat-icon {
     width: 64px;
     height: 64px;
@@ -974,7 +975,7 @@ body::after {
     letter-spacing: 0.02em;
 }
 
-/* ===== 图表卡片 - 玻璃态卡片 ===== */
+/* ===== Chart card - glassmorphism card ===== */
 .card.border-0.shadow-sm {
     background: rgba(255, 255, 255, 0.4) !important;
     backdrop-filter: blur(30px) saturate(200%);
@@ -1022,7 +1023,7 @@ body::after {
     background-clip: text;
 }
 
-/* ===== 标签页 - 现代化标签 ===== */
+/* ===== Tabs - modern tabs ===== */
 .nav-tabs {
     border-bottom: 2px solid rgba(226, 232, 240, 0.5);
 }
@@ -1066,7 +1067,7 @@ body::after {
     width: 100%;
 }
 
-/* ===== 表格 - 现代化表格 ===== */
+/* ===== Tables - modern tables ===== */
 .table {
     font-size: 0.875rem;
     border-collapse: separate;
@@ -1158,7 +1159,7 @@ body::after {
     font-weight: 700 !important;
 }
 
-/* ===== 优化建议卡片 - 现代化建议卡片 ===== */
+/* ===== Optimization suggestions cards - modern suggestion cards ===== */
 .suggestion-card {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 249, 255, 0.9));
     backdrop-filter: blur(12px);
@@ -1220,7 +1221,7 @@ body::after {
     color: var(--info-color);
 }
 
-/* ===== 工厂详情页面 - 玻璃态设计 ===== */
+/* ===== Factory details page - glassmorphism design ===== */
 .factory-icon-large {
     width: 72px;
     height: 72px;
@@ -1293,7 +1294,7 @@ body::after {
     letter-spacing: -0.02em;
 }
 
-/* ===== 详情页面卡片增强 ===== */
+/* ===== Details page card enhancements ===== */
 #factoryDetailsView .card {
     background: rgba(255, 255, 255, 0.4) !important;
     backdrop-filter: blur(20px) saturate(180%);
@@ -1303,15 +1304,17 @@ body::after {
     border-radius: var(--radius-xl) !important;
 }
 
-/* ===== 优化模式切换按钮 ===== */
+/* ===== Optimization mode toggle button ===== */
 .btn-xs {
-    padding: 0.25rem 0.625rem;
-    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
     border-radius: var(--radius-sm);
 }
 
 .btn-group-sm {
     display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.15rem;
 }
 
 .btn-check:checked + .btn-outline-primary {
@@ -1326,7 +1329,7 @@ body::after {
     color: white;
 }
 
-/* ===== 滚动条美化 ===== */
+/* ===== Scrollbar beautification ===== */
 ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -1348,7 +1351,7 @@ body::after {
     box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
 }
 
-/* ===== 容器间距 ===== */
+/* ===== Container spacing ===== */
 .container {
     padding-top: 1.5rem !important;
     padding-bottom: 1.5rem !important;
@@ -1366,9 +1369,9 @@ body::after {
     --bs-gutter-x: 1rem;
 }
 
-/* ===== 响应式布局 ===== */
+/* ===== Responsive layout ===== */
 
-/* 超小屏幕 (手机竖屏) */
+/* Extra small screens (mobile portrait) */
 @media (max-width: 576px) {
     body {
         font-size: 13px;
@@ -1447,7 +1450,7 @@ body::after {
     }
 }
 
-/* 小屏幕 (平板竖屏) */
+/* Small screens (tablet portrait) */
 @media (min-width: 577px) and (max-width: 768px) {
     .stat-value {
         font-size: 1.5rem;
@@ -1458,7 +1461,7 @@ body::after {
     }
 }
 
-/* 中等屏幕 (平板横屏) */
+/* Medium screens (tablet landscape) */
 @media (min-width: 769px) and (max-width: 992px) {
     .stat-value {
         font-size: 1.625rem;
@@ -1471,14 +1474,14 @@ body::after {
     }
 }
 
-/* 大屏幕优化 */
+/* Large screen optimizations */
 @media (min-width: 1400px) {
     .container {
         max-width: 1320px;
     }
 }
 
-/* 图表容器响应式 */
+/* Chart container responsive */
 @media (max-width: 992px) {
     #priceChart {
         height: 250px !important;
@@ -1499,7 +1502,7 @@ body::after {
     }
 }
 
-/* 表格响应式 */
+/* Table responsive */
 @media (max-width: 768px) {
     .table {
         font-size: 0.8125rem;
@@ -1515,7 +1518,7 @@ body::after {
     }
 }
 
-/* 优化按钮组在小屏幕上的显示 */
+/* Optimize button group display on small screens */
 @media (max-width: 576px) {
     .btn-xs {
         padding: 0.1875rem 0.375rem;
@@ -1529,9 +1532,9 @@ body::after {
     }
 }
 
-/* ===== 微交互动画 - 2026 现代化效果（性能优化版）===== */
+/* ===== Micro-interaction animations - 2026 modern effects (performance optimized) ===== */
 
-/* 卡片悬停时的光晕效果 - 禁用动画 */
+/* Card hover glow effect - animations disabled */
 @keyframes cardGlow {
     0%, 100% {
         box-shadow: 0 8px 32px rgba(14, 165, 233, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.5);
@@ -1541,7 +1544,7 @@ body::after {
     }
 }
 
-/* 图标浮动动画 */
+/* Icon floating animation */
 @keyframes iconFloat {
     0%, 100% {
         transform: translateY(0);
@@ -1561,7 +1564,7 @@ body::after {
     animation: none;
 }
 
-/* 渐变文字效果 */
+/* Gradient text effect */
 .gradient-text {
     background: linear-gradient(135deg, #0ea5e9, #10b981, #f59e0b);
     -webkit-background-clip: text;
@@ -1577,7 +1580,7 @@ body::after {
     100% { background-position: 0% 50%; }
 }
 
-/* 脉冲效果 */
+/* Pulse effect */
 @keyframes pulse {
     0%, 100% {
         opacity: 1;
@@ -1589,7 +1592,7 @@ body::after {
     }
 }
 
-/* 数据加载动画 */
+/* Data loading animation */
 @keyframes shimmer {
     0% {
         background-position: -1000px 0;
@@ -1608,9 +1611,9 @@ body::after {
     animation: shimmer 2s infinite;
 }
 
-/* ===== 增强的玻璃态效果 ===== */
+/* ===== Enhanced glassmorphism effect ===== */
 
-/* 玻璃态容器基础样式 */
+/* Glass container base styles */
 .glass-container {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(20px) saturate(180%);
@@ -1619,21 +1622,21 @@ body::after {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
-/* 强化玻璃态效果 */
+/* Enhanced glass effect */
 .glass-strong {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(30px) saturate(200%);
     -webkit-backdrop-filter: blur(30px) saturate(200%);
 }
 
-/* 微妙玻璃态效果 */
+/* Subtle glassmorphism effect */
 .glass-subtle {
     background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(15px) saturate(150%);
     -webkit-backdrop-filter: blur(15px) saturate(150%);
 }
 
-/* ===== 渐变边框效果 ===== */
+/* ===== Gradient borders effect ===== */
 .gradient-border {
     position: relative;
     background: white;
@@ -1652,7 +1655,7 @@ body::after {
     mask-composite: exclude;
 }
 
-/* ===== 悬停发光效果 ===== */
+/* ===== Hover glow effect ===== */
 .hover-glow {
     transition: all 0.3s ease;
 }
@@ -1661,7 +1664,7 @@ body::after {
     filter: drop-shadow(0 0 20px rgba(14, 165, 233, 0.4));
 }
 
-/* ===== 3D 卡片效果 ===== */
+/* ===== 3D card effect ===== */
 .card-3d {
     transform-style: preserve-3d;
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1671,7 +1674,7 @@ body::after {
     transform: perspective(1000px) rotateX(2deg) rotateY(-2deg);
 }
 
-/* ===== 彩虹分隔线 ===== */
+/* ===== Rainbow divider ===== */
 .rainbow-divider {
     height: 2px;
     background: linear-gradient(90deg, 
@@ -1684,12 +1687,12 @@ body::after {
     margin: var(--spacing-lg) 0;
 }
 
-/* ===== 数据可视化增强 ===== */
+/* ===== Data visualization enhancements ===== */
 canvas {
     border-radius: var(--radius-md);
 }
 
-/* ===== 加载状态 ===== */
+/* ===== Loading state ===== */
 .loading-spinner {
     width: 40px;
     height: 40px;
@@ -1703,9 +1706,9 @@ canvas {
     to { transform: rotate(360deg); }
 }
 
-/* ===== 增强的按钮效果 ===== */
+/* ===== Enhanced button effects ===== */
 
-/* 主按钮渐变动画 */
+/* Primary button gradient animation */
 .btn-primary {
     background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
     background-size: 200% 200%;
@@ -1723,7 +1726,7 @@ canvas {
     background: linear-gradient(135deg, #0284c7, #059669);
 }
 
-/* 按钮点击波纹效果 */
+/* Button click ripple effect */
 .btn {
     position: relative;
     overflow: hidden;
@@ -1747,7 +1750,7 @@ canvas {
     height: 300px;
 }
 
-/* ===== 增强的卡片阴影系统 ===== */
+/* ===== Enhanced card shadow system ===== */
 .elevated-1 {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
@@ -1764,7 +1767,7 @@ canvas {
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
 }
 
-/* ===== 数据高亮效果 ===== */
+/* ===== Data highlight effect ===== */
 .data-highlight {
     position: relative;
     display: inline-block;
@@ -1782,9 +1785,9 @@ canvas {
     border-radius: 4px;
 }
 
-/* ===== 增强的图标效果 ===== */
+/* ===== Enhanced icon effects ===== */
 
-/* 图标旋转悬停 */
+/* Icon rotation hover */
 .icon-rotate-hover {
     transition: transform 0.3s ease;
 }
@@ -1793,7 +1796,7 @@ canvas {
     transform: rotate(15deg);
 }
 
-/* 图标缩放悬停 */
+/* Icon scale hover */
 .icon-scale-hover {
     transition: transform 0.3s ease;
 }
@@ -1802,9 +1805,9 @@ canvas {
     transform: scale(1.2);
 }
 
-/* ===== 文字效果 ===== */
+/* ===== Text effects ===== */
 
-/* 标题下划线动画 */
+/* Title underline animation */
 .title-underline {
     position: relative;
     display: inline-block;
@@ -1825,7 +1828,7 @@ canvas {
     width: 100%;
 }
 
-/* ===== 进度条样式 ===== */
+/* ===== Progress bar styles ===== */
 .progress {
     height: 8px;
     border-radius: var(--radius-sm);
@@ -1839,7 +1842,7 @@ canvas {
     transition: width 0.6s ease;
 }
 
-/* ===== 徽章增强 ===== */
+/* ===== Badge enhancements ===== */
 .badge {
     position: relative;
     overflow: hidden;
@@ -1860,7 +1863,7 @@ canvas {
     left: 100%;
 }
 
-/* ===== 输入框增强 ===== */
+/* ===== Input enhancements ===== */
 .form-control,
 .form-select {
     position: relative;
@@ -1871,9 +1874,9 @@ canvas {
     transform: translateY(-1px);
 }
 
-/* ===== 数据卡片特殊效果 ===== */
+/* ===== Data card special effects ===== */
 
-/* 统计数字动画 */
+/* Statistic number animation */
 .stat-value {
     animation: numberPop 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -1889,7 +1892,7 @@ canvas {
     }
 }
 
-/* 卡片进入动画 */
+/* Card entrance animation */
 .factory-card,
 .stat-card {
     animation: cardSlideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1906,9 +1909,9 @@ canvas {
     }
 }
 
-/* ===== 交互反馈 ===== */
+/* ===== Interaction feedback ===== */
 
-/* 点击反馈 */
+/* Click feedback */
 .clickable {
     cursor: pointer;
     user-select: none;
@@ -1919,7 +1922,7 @@ canvas {
     transform: scale(0.98);
 }
 
-/* 悬停提升 */
+/* Hover lift */
 .hover-lift {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -1929,9 +1932,9 @@ canvas {
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
 }
 
-/* ===== 特殊视觉效果 ===== */
+/* ===== Special visual effects ===== */
 
-/* 光晕边框 */
+/* Glow borders */
 .glow-border {
     position: relative;
 }
@@ -1952,7 +1955,7 @@ canvas {
     opacity: 0.6;
 }
 
-/* 渐变背景动画 */
+/* Gradient background animation */
 .animated-gradient {
     background: linear-gradient(135deg, #0ea5e9, #10b981, #f59e0b);
     background-size: 200% 200%;
@@ -1965,10 +1968,10 @@ canvas {
     100% { background-position: 0% 50%; }
 }
 
-/* ===== 特殊卡片样式 - 数据仪表板专用 ===== */
+/* ===== Special card styles - dashboard specific ===== */
 
-/* ===== 图表容器增强 ===== */
-/* card-body 已在前面定义，此处删除重复 */
+/* ===== Chart container enhancements ===== */
+/* card-body already defined earlier, duplicate removed here */
 
 .card-body::before {
     content: '';
@@ -1990,7 +1993,7 @@ canvas {
     opacity: 1;
 }
 
-/* ===== 文字颜色修正已合并到主 body 定义 ===== */
+/* ===== Text color corrections have been merged into the main body definition ===== */
 
 .navbar {
     color: var(--text-dark);
@@ -2012,9 +2015,9 @@ canvas {
     color: var(--text-dark);
 }
 
-/* ===== 特殊动画效果 ===== */
+/* ===== Special animation effects ===== */
 
-/* 数据更新闪烁 */
+/* Data update flicker */
 @keyframes dataUpdate {
     0%, 100% {
         background: transparent;
@@ -2028,7 +2031,7 @@ canvas {
     animation: dataUpdate 0.6s ease;
 }
 
-/* 成功状态脉冲 */
+/* Success state pulse */
 @keyframes successPulse {
     0%, 100% {
         box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
@@ -2042,7 +2045,7 @@ canvas {
     animation: successPulse 2s ease infinite;
 }
 
-/* 警告状态脉冲 */
+/* Warning state pulse */
 @keyframes warningPulse {
     0%, 100% {
         box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
@@ -2056,7 +2059,7 @@ canvas {
     animation: warningPulse 2s ease infinite;
 }
 
-/* ===== 工具提示增强 ===== */
+/* ===== Tooltip enhancements ===== */
 .tooltip-inner {
     background: rgba(15, 23, 42, 0.95);
     backdrop-filter: blur(12px);
@@ -2066,9 +2069,9 @@ canvas {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-/* ===== 特殊交互效果 ===== */
+/* ===== Special interaction effects ===== */
 
-/* 鼠标跟随光效 */
+/* Cursor-following glow effect */
 .stat-card,
 .factory-card {
     --mouse-x: 50%;
@@ -2095,7 +2098,7 @@ canvas {
     opacity: 1;
 }
 
-/* ===== 数据表格增强 ===== */
+/* ===== Data table enhancements ===== */
 .table thead {
     position: relative;
 }
@@ -2110,7 +2113,7 @@ canvas {
     background: linear-gradient(90deg, #0ea5e9, #10b981, #f59e0b);
 }
 
-/* 表格行悬停效果 */
+/* Table row hover effect */
 .table tbody tr {
     position: relative;
 }
@@ -2131,7 +2134,7 @@ canvas {
     opacity: 1;
 }
 
-/* ===== 空状态增强 ===== */
+/* ===== Empty state enhancements ===== */
 #emptyState {
     position: relative;
 }
@@ -2152,7 +2155,7 @@ canvas {
     opacity: 0.3;
 }
 
-/* ===== 模态框增强效果 ===== */
+/* ===== Modal enhancements ===== */
 .modal-content {
     position: relative;
 }
@@ -2174,7 +2177,7 @@ canvas {
     100% { background-position: 200% 0%; }
 }
 
-/* 模态框打开动画 */
+/* Modal open animation */
 .modal.fade .modal-dialog {
     transform: scale(0.9) translateY(-50px);
     opacity: 0;
@@ -2186,7 +2189,7 @@ canvas {
     opacity: 1;
 }
 
-/* ===== 按钮组增强 ===== */
+/* ===== Button group enhancements ===== */
 .btn-group {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     border-radius: var(--radius-md);
@@ -2205,7 +2208,7 @@ canvas {
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
-/* ===== 标签页增强 ===== */
+/* ===== Tab enhancements ===== */
 .nav-tabs {
     position: relative;
 }
@@ -2223,7 +2226,7 @@ canvas {
         transparent 100%);
 }
 
-/* ===== 表单增强 ===== */
+/* ===== Form enhancements ===== */
 .form-control,
 .form-select {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
@@ -2234,9 +2237,9 @@ canvas {
     border-color: rgba(14, 165, 233, 0.3);
 }
 
-/* ===== 特殊装饰元素 ===== */
+/* ===== Special decorative elements ===== */
 
-/* 浮动粒子效果 */
+/* Floating particle effect */
 @keyframes float {
     0%, 100% {
         transform: translateY(0) translateX(0);
@@ -2252,7 +2255,7 @@ canvas {
     }
 }
 
-/* 光点闪烁 */
+/* Sparkle effect */
 @keyframes sparkle {
     0%, 100% {
         opacity: 0;
@@ -2264,9 +2267,9 @@ canvas {
     }
 }
 
-/* ===== 数据可视化增强 ===== */
+/* ===== Data visualization enhancements ===== */
 
-/* 图表容器 */
+/* Chart container */
 canvas {
     transition: all 0.3s ease;
 }
@@ -2275,7 +2278,7 @@ canvas:hover {
     transform: scale(1.01);
 }
 
-/* ===== 响应式微调 ===== */
+/* ===== Responsive adjustments ===== */
 @media (max-width: 768px) {
     .stat-card {
         padding: 1rem;
@@ -2304,20 +2307,20 @@ canvas:hover {
     }
 }
 
-/* ===== 性能优化 ===== */
+/* ===== Performance optimizations ===== */
 .factory-card,
 .stat-card,
 .card {
     will-change: transform, box-shadow;
 }
 
-/* 减少不必要的重绘 */
+/* Reduce unnecessary repainting */
 .factory-icon,
 .stat-icon {
     will-change: transform;
 }
 
-/* ===== 可访问性增强 ===== */
+/* ===== Accessibility enhancements ===== */
 .btn:focus-visible,
 .form-control:focus-visible,
 .form-select:focus-visible {
@@ -2325,7 +2328,7 @@ canvas:hover {
     outline-offset: 2px;
 }
 
-/* 高对比度模式支持 */
+/* High contrast mode support */
 @media (prefers-contrast: high) {
     .factory-card,
     .stat-card,
@@ -2334,7 +2337,7 @@ canvas:hover {
     }
 }
 
-/* 减少动画模式支持 */
+/* Reduced motion mode support */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -2345,7 +2348,7 @@ canvas:hover {
     }
 }
 
-/* ===== 图表容器固定高度 + 硬件加速 ===== */
+/* ===== Chart container fixed height + hardware acceleration ===== */
 #priceChart,
 #energyPieChart {
     width: 100% !important;
@@ -2355,13 +2358,13 @@ canvas:hover {
     backface-visibility: hidden;
 }
 
-/* 图表父容器 */
+/* Chart parent container */
 canvas {
     display: block;
     transform: translateZ(0);
 }
 
-/* ===== 表格时段类型样式 ===== */
+/* ===== Table period type styles ===== */
 .period-peak,
 .period-normal,
 .period-valley {
@@ -2386,18 +2389,18 @@ canvas {
     color: rgb(4, 120, 87);
 }
 
-/* 注意：成本报告表格使用内联样式，不依赖这些 class */
+/* Note: Cost report table uses inline styles and does not rely on these classes */
 
 
 
-/* ===== 强制所有卡片使用玻璃态效果 - 超高优先级 ===== */
+/* ===== Force all cards to use glassmorphism - very high priority ===== */
 #factoryDetailsView .card,
 #factoryDetailsView .card.border-0,
 #factoryDetailsView .card.shadow-sm,
 #factoryDetailsView .card.border-0.shadow-sm,
-/* card 样式已在前面统一定义（609 行），此处删除重复 */
+/* card styles were defined earlier (line 609), duplicate removed here */
 
-/* 确保 card-body 和 card-header 不覆盖背景 */
+/* Ensure card-body and card-header do not override the background */
 .card-body,
 .card-header,
 .card-footer {
@@ -2408,21 +2411,21 @@ canvas {
 
 
 /* ========================================
-   精简版 UI - 低性能设备优化
+   Lite mode UI - low performance device optimization
    ======================================== */
 
-/* 关闭所有动画 */
+/* Close all animations */
 .ui-lite * {
     animation: none !important;
-    transition: opacity 0.2s ease !important; /* 只保留淡入淡出 */
+    transition: opacity 0.2s ease !important; /* Keep only fade in/fade out */
 }
 
 body.ui-lite::before,
 body.ui-lite::after {
-    display: none !important; /* 完全隐藏背景网格 */
+    display: none !important; /* Completely hide background grid */
 }
 
-/* 完全去掉模糊效果 */
+/* Remove blur effects entirely */
 .ui-lite .stat-card,
 .ui-lite .factory-card,
 .ui-lite .card,
@@ -2432,7 +2435,7 @@ body.ui-lite::after {
     -webkit-backdrop-filter: none !important;
 }
 
-/* 纯色卡片 - 不透明 */
+/* Solid color cards - opaque */
 .ui-lite .stat-card {
     background: #ffffff !important;
     border: 1px solid #e5e7eb !important;
@@ -2452,7 +2455,7 @@ body.ui-lite::after {
     background: #6366f1 !important;
 }
 
-/* 关闭悬停效果 */
+/* Close hover effect */
 .ui-lite .stat-card:hover,
 .ui-lite .factory-card:hover,
 .ui-lite .card:hover {
@@ -2460,14 +2463,14 @@ body.ui-lite::after {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* 纯色静态背景 */
+/* Solid static background */
 body.ui-lite {
     background: linear-gradient(135deg, #f0f9ff 0%, #f0fdf4 100%) !important;
     background-size: 100% 100% !important;
     animation: none !important;
 }
 
-/* 隐藏所有装饰性伪元素 */
+/* Hide all decorative pseudo-elements */
 .ui-lite .stat-card::before,
 .ui-lite .stat-card::after,
 .ui-lite .factory-card::before,
@@ -2475,13 +2478,13 @@ body.ui-lite {
     display: none !important;
 }
 
-/* 简化图标动画 */
+/* Simplify icon animations */
 .ui-lite .stat-icon,
 .ui-lite .factory-icon {
     animation: none !important;
 }
 
-/* 简化按钮效果 */
+/* Simplify button effects */
 .ui-lite .btn::before {
     display: none !important;
 }

@@ -1,26 +1,26 @@
 # blogapp/routes/visualization.py
 """
 Visualization and data API routes for PeakShift
-数据可视化 API 路由
+Data visualization API routes
 """
 
 from flask import Blueprint, jsonify
 from flask_login import login_required, current_user
 from blogapp import db
 
-# 创建蓝图
+# Create blueprint
 bp = Blueprint('visualization', __name__)
 
 
 # ============================================================
-# 数据可视化 API
+# Data visualization API
 # ============================================================
 
 @bp.route('/electricity/chart')
 @login_required
 def electricity_chart():
-    """用电量图表数据 - 待实现"""
-    # TODO: 返回用电量图表数据
+    """Electricity usage chart data - TODO"""
+    # TODO: return electricity usage chart data
     return jsonify({
         'labels': [],
         'data': [],
@@ -31,8 +31,8 @@ def electricity_chart():
 @bp.route('/carbon/chart')
 @login_required
 def carbon_chart():
-    """碳排放图表数据 - 待实现"""
-    # TODO: 返回碳排放图表数据
+    """Carbon emission chart data - TODO"""
+    # TODO: return carbon emission chart data
     return jsonify({
         'labels': [],
         'data': [],
@@ -43,8 +43,8 @@ def carbon_chart():
 @bp.route('/cost/chart')
 @login_required
 def cost_chart():
-    """电费成本图表数据 - 待实现"""
-    # TODO: 返回电费成本图表数据
+    """Electricity cost chart data - TODO"""
+    # TODO: return electricity cost chart data
     return jsonify({
         'labels': [],
         'data': [],
@@ -55,8 +55,8 @@ def cost_chart():
 @bp.route('/optimization/chart')
 @login_required
 def optimization_chart():
-    """优化效果图表数据 - 待实现"""
-    # TODO: 返回优化效果对比数据
+    """Optimization effect chart data - TODO"""
+    # TODO: return optimization effect comparison data
     return jsonify({
         'before': [],
         'after': [],
@@ -65,14 +65,14 @@ def optimization_chart():
 
 
 # ============================================================
-# 实时数据 API
+# Real-time data API
 # ============================================================
 
 @bp.route('/realtime/electricity')
 @login_required
 def realtime_electricity():
-    """实时用电数据 - 待实现"""
-    # TODO: 返回实时用电数据
+    """Real-time electricity usage data - TODO"""
+    # TODO: return real-time electricity usage data
     return jsonify({
         'current_usage': 0,
         'timestamp': None,
@@ -83,8 +83,8 @@ def realtime_electricity():
 @bp.route('/realtime/price')
 @login_required
 def realtime_price():
-    """实时电价数据 - 待实现"""
-    # TODO: 返回当前时段电价
+    """Real-time electricity price data - TODO"""
+    # TODO: return current period electricity price
     return jsonify({
         'current_price': 0,
         'time_period': None,

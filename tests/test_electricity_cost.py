@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-# 将项目根目录添加到 Python 路径
+# Add project root to Python path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -14,7 +14,7 @@ from blogapp.services.electricity_cost import ElectricityCostCalculator
 
 @pytest.fixture(scope='function')
 def app():
-    """创建测试用的应用实例"""
+    """Create test application instance"""
     app = create_app()
     app.config['TESTING'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
@@ -24,7 +24,7 @@ def app():
 
 @pytest.fixture(scope='function')
 def db_session(app):
-    """每个测试函数独立的数据库会话"""
+    """Database session isolated for each test function"""
     with app.app_context():
         db.create_all()
         yield db.session
@@ -34,7 +34,7 @@ def db_session(app):
 
 @pytest.fixture(scope='function')
 def test_user(db_session):
-    """创建测试用户"""
+    """Create test user"""
     user = User(username='testuser', email='test@example.com')
     user.set_password('password123')
     db_session.add(user)
@@ -44,8 +44,8 @@ def test_user(db_session):
 
 @pytest.fixture(scope='function')
 def test_grid_price(db_session):
-    """创建测试电价配置 - 必须包含所有字段"""
-    # 检查是否已存在，避免重复插入
+    """Create test electricity price configuration - must include all fields"""
+    # Check existence to avoid duplicate inserts
     existing = GridElectricityPrice.query.filter_by(voltage_level=10).first()
     if existing:
         return existing
@@ -55,7 +55,7 @@ def test_grid_price(db_session):
         peak_price=1.2,
         normal_price=0.8,
         valley_price=0.4,
-        capacity_price=22.5  # 必须提供这个字段
+        capacity_price=22.5  # Must provide this field
     )
     db_session.add(grid_price)
     db_session.commit()
@@ -64,18 +64,18 @@ def test_grid_price(db_session):
 
 @pytest.fixture(scope='function')
 def test_tou_periods(db_session):
-    """创建测试分时电价时段"""
-    # 检查是否已存在数据
+    """Create test time-of-use pricing periods"""
+    # Check if data already exists
     if TimeOfUsePeriod.query.count() > 0:
         return TimeOfUsePeriod.query.all()
     
     periods_data = [
-        (0, '0-1', '低谷'), (1, '1-2', '低谷'), (2, '2-3', '低谷'), (3, '3-4', '低谷'),
-        (4, '4-5', '低谷'), (5, '5-6', '低谷'), (6, '6-7', '平时'), (7, '7-8', '平时'),
-        (8, '8-9', '高峰'), (9, '9-10', '高峰'), (10, '10-11', '高峰'), (11, '11-12', '高峰'),
-        (12, '12-13', '平时'), (13, '13-14', '平时'), (14, '14-15', '高峰'), (15, '15-16', '高峰'),
-        (16, '16-17', '高峰'), (17, '17-18', '高峰'), (18, '18-19', '平时'), (19, '19-20', '平时'),
-        (20, '20-21', '平时'), (21, '21-22', '平时'), (22, '22-23', '低谷'), (23, '23-0', '低谷')
+        (0, '0-1', 'Valley'), (1, '1-2', 'Valley'), (2, '2-3', 'Valley'), (3, '3-4', 'Valley'),
+        (4, '4-5', 'Valley'), (5, '5-6', 'Valley'), (6, '6-7', 'Normal'), (7, '7-8', 'Normal'),
+        (8, '8-9', 'Peak'), (9, '9-10', 'Peak'), (10, '10-11', 'Peak'), (11, '11-12', 'Peak'),
+        (12, '12-13', 'Normal'), (13, '13-14', 'Normal'), (14, '14-15', 'Peak'), (15, '15-16', 'Peak'),
+        (16, '16-17', 'Peak'), (17, '17-18', 'Peak'), (18, '18-19', 'Normal'), (19, '19-20', 'Normal'),
+        (20, '20-21', 'Normal'), (21, '21-22', 'Normal'), (22, '22-23', 'Valley'), (23, '23-0', 'Valley')
     ]
     
     for hour, time_range, period_type in periods_data:
@@ -91,7 +91,7 @@ def test_tou_periods(db_session):
 
 @pytest.fixture(scope='function')
 def test_factory(db_session, test_user, test_grid_price, test_tou_periods):
-    """创建测试工厂"""
+    """CreateTest factory"""
     work_periods = [
         {'start': 8, 'end': 12},
         {'start': 13, 'end': 17}
@@ -114,31 +114,31 @@ def test_factory(db_session, test_user, test_grid_price, test_tou_periods):
 
 
 class TestElectricityCostCalculator:
-    """电费计算器测试类"""
+    """Electricity cost calculator test class"""
     
     def test_calculator_initialization(self, db_session, test_factory, test_grid_price, test_tou_periods):
-        """测试计算器初始化"""
+        """Test calculator initialization"""
         calculator = ElectricityCostCalculator(test_factory.id)
         
         assert calculator.factory.id == test_factory.id
         assert calculator.factory.name == 'Test Factory'
         assert calculator.grid_price.voltage_level == 10
-        # 使用实际的 grid_price 数据进行断言
+        # Use actual grid_price data for assertions
         assert calculator.grid_price.peak_price == test_grid_price.peak_price
         assert len(calculator.tou_periods) == 24
         
     def test_calculator_factory_not_found(self, db_session):
-        """测试工厂不存在的情况"""
+        """Test factory not found case"""
         with pytest.raises(ValueError, match="Factory with id 999 not found"):
             ElectricityCostCalculator(999)
     
     def test_calculator_grid_price_not_found(self, db_session, test_user):
-        """测试电价配置不存在的情况"""
+        """Test grid price configuration missing case"""
         factory = Factory(
             name='Test Factory No Price',
             location='Test',
             industry_type='Test',
-            voltage_level=35,  # 没有配置的电压等级
+            voltage_level=35,  # Unconfigured voltage level
             transformer_capacity=500,
             daily_usage=200.0,
             work_periods='[]',
@@ -152,30 +152,30 @@ class TestElectricityCostCalculator:
             ElectricityCostCalculator(factory.id)
     
     def test_get_price_for_hour(self, db_session, test_factory, test_grid_price, test_tou_periods):
-        """测试获取每小时电价"""
+        """Test get price for hour"""
         calculator = ElectricityCostCalculator(test_factory.id)
         
-        # 测试高峰时段电价
+        # Test peak period electricity price
         assert calculator.get_price_for_hour(8) == 1.2
         assert calculator.get_price_for_hour(10) == 1.2
         assert calculator.get_price_for_hour(14) == 1.2
         
-        # 测试平时电价
+        # Test normal electricity price
         assert calculator.get_price_for_hour(12) == 0.8
         assert calculator.get_price_for_hour(18) == 0.8
         assert calculator.get_price_for_hour(6) == 0.8
         
-        # 测试低谷电价
+        # Test valley electricity price
         assert calculator.get_price_for_hour(22) == 0.4
         assert calculator.get_price_for_hour(0) == 0.4
         assert calculator.get_price_for_hour(4) == 0.4
     
     def test_calculate_monthly_cost_basic(self, db_session, test_factory, test_grid_price, test_tou_periods):
-        """测试基本月电费计算"""
+        """Test basic monthly cost calculation"""
         calculator = ElectricityCostCalculator(test_factory.id)
         result = calculator.calculate_monthly_cost()
         
-        # 验证结果结构
+        # Verify result structure
         assert 'factory_id' in result
         assert 'factory_name' in result
         assert 'total_usage' in result
@@ -185,31 +185,31 @@ class TestElectricityCostCalculator:
         assert 'total_monthly_cost' in result
         assert 'hourly_breakdown' in result
         
-        # 验证工厂信息
+        # Verify factory information
         assert result['factory_id'] == test_factory.id
         assert result['factory_name'] == 'Test Factory'
         assert result['voltage_level'] == 10
         assert result['month_days'] == 22
         
-        # 验证用电量计算
+        # Verify usage calculation
         expected_usage = test_factory.daily_usage * test_factory.working_days_per_month
         assert result['total_usage'] == expected_usage
         assert result['daily_usage'] == test_factory.daily_usage
         
-        # 验证容量电费
+        # Verify capacity fee
         expected_capacity_fee = test_factory.transformer_capacity * 22.5
         assert result['capacity_fee'] == expected_capacity_fee
         
-        # 验证电费合理性
+        # Verify cost reasonableness
         assert result['daily_energy_cost'] > 0
         assert result['monthly_energy_cost'] > 0
         assert result['total_monthly_cost'] > 0
         
-        # 验证平均电价在合理范围内（0.4-1.2之间）
+        # Verify average price is within a reasonable range (0.4-1.2)
         assert 0.4 <= result['average_price'] <= 1.2
     
     def test_capacity_fee_calculation(self, db_session, test_user, test_grid_price, test_tou_periods):
-        """测试容量电费计算"""
+        """Test capacity fee calculation"""
         capacities = [315, 500, 800, 1000, 1250]
         
         for capacity in capacities:
@@ -237,8 +237,8 @@ class TestElectricityCostCalculator:
             db_session.commit()
     
     def test_edge_cases(self, db_session, test_user, test_grid_price, test_tou_periods):
-        """测试边界情况"""
-        # 测试零用电量
+        """Test edge cases"""
+        # Test zero electricity usage
         factory_zero = Factory(
             name='Zero Usage Factory',
             location='Test',
@@ -260,9 +260,9 @@ class TestElectricityCostCalculator:
         assert result['daily_energy_cost'] == 0
         assert result['monthly_energy_cost'] == 0
         assert result['average_price'] == 0
-        assert result['capacity_fee'] > 0  # 容量电费仍然存在
+        assert result['capacity_fee'] > 0  # Capacity fee still exists
         
-        # 测试空工作时间表
+        # Test empty work schedule
         factory_empty = Factory(
             name='Empty Schedule Factory',
             location='Test',
@@ -280,22 +280,22 @@ class TestElectricityCostCalculator:
         calculator = ElectricityCostCalculator(factory_empty.id)
         result = calculator.calculate_monthly_cost()
         
-        # 没有工作时间，用电量应该为0
+        # No work time, electricity usage should be 0
         assert result['total_usage'] == 0
         for hour in result['hourly_breakdown']:
             assert hour['usage'] == 0
 
 
 def test_integration_with_real_data(app, db_session):
-    """集成测试：使用真实数据场景"""
+    """Integration test: using real data scenario"""
     with app.app_context():
-        # 创建用户
+        # Create user
         user = User(username='integration_user', email='integration@test.com')
         user.set_password('test123')
         db_session.add(user)
         db_session.flush()
         
-        # 创建电价配置 - 必须包含 capacity_price
+        # Create electricity price configuration - must include capacity_price
         grid_price = GridElectricityPrice(
             voltage_level=10,
             peak_price=1.2594,
@@ -305,14 +305,14 @@ def test_integration_with_real_data(app, db_session):
         )
         db_session.add(grid_price)
         
-        # 创建分时时段
+        # Create time-of-use periods
         periods_data = [
-            (0, '0-1', '低谷'), (1, '1-2', '低谷'), (2, '2-3', '低谷'), (3, '3-4', '低谷'),
-            (4, '4-5', '低谷'), (5, '5-6', '低谷'), (6, '6-7', '平时'), (7, '7-8', '平时'),
-            (8, '8-9', '高峰'), (9, '9-10', '高峰'), (10, '10-11', '高峰'), (11, '11-12', '高峰'),
-            (12, '12-13', '平时'), (13, '13-14', '平时'), (14, '14-15', '高峰'), (15, '15-16', '高峰'),
-            (16, '16-17', '高峰'), (17, '17-18', '高峰'), (18, '18-19', '平时'), (19, '19-20', '平时'),
-            (20, '20-21', '平时'), (21, '21-22', '平时'), (22, '22-23', '低谷'), (23, '23-0', '低谷')
+            (0, '0-1', 'Valley'), (1, '1-2', 'Valley'), (2, '2-3', 'Valley'), (3, '3-4', 'Valley'),
+            (4, '4-5', 'Valley'), (5, '5-6', 'Valley'), (6, '6-7', 'Normal'), (7, '7-8', 'Normal'),
+            (8, '8-9', 'Peak'), (9, '9-10', 'Peak'), (10, '10-11', 'Peak'), (11, '11-12', 'Peak'),
+            (12, '12-13', 'Normal'), (13, '13-14', 'Normal'), (14, '14-15', 'Peak'), (15, '15-16', 'Peak'),
+            (16, '16-17', 'Peak'), (17, '17-18', 'Peak'), (18, '18-19', 'Normal'), (19, '19-20', 'Normal'),
+            (20, '20-21', 'Normal'), (21, '21-22', 'Normal'), (22, '22-23', 'Valley'), (23, '23-0', 'Valley')
         ]
         
         for hour, time_range, period_type in periods_data:
@@ -323,11 +323,11 @@ def test_integration_with_real_data(app, db_session):
             )
             db_session.add(period)
         
-        # 创建工厂
+        # Create factory
         factory = Factory(
-            name='真实工厂',
-            location='深圳市南山区',
-            industry_type='电子制造',
+            name='Real Factory',
+            location='Nanshan District, Shenzhen',
+            industry_type='Electronics Manufacturing',
             voltage_level=10,
             transformer_capacity=800,
             daily_usage=1250.5,
@@ -342,23 +342,23 @@ def test_integration_with_real_data(app, db_session):
         db_session.add(factory)
         db_session.commit()
         
-        # 计算电费
+        # Calculate electricity cost
         calculator = ElectricityCostCalculator(factory.id)
         result = calculator.calculate_monthly_cost()
         
-        # 验证结果
+        # Verify results
         assert result['total_usage'] > 0
         assert result['total_monthly_cost'] > 0
         assert result['capacity_fee'] == 800 * 22.5
         assert len(result['hourly_breakdown']) == 24
         
-        # 打印结果
-        print(f"\n工厂名称: {result['factory_name']}")
-        print(f"月用电量: {result['total_usage']} kWh")
-        print(f"电度电费: {result['monthly_energy_cost']} 元")
-        print(f"容量电费: {result['capacity_fee']} 元")
-        print(f"总电费: {result['total_monthly_cost']} 元")
-        print(f"平均电价: {result['average_price']} 元/kWh")
+        # Print results
+        print(f"\nFactory name: {result['factory_name']}")
+        print(f"Monthly electricity usage: {result['total_usage']} kWh")
+        print(f"Energy charge: {result['monthly_energy_cost']} CNY")
+        print(f"Capacity fee: {result['capacity_fee']} CNY")
+        print(f"Total electricity cost: {result['total_monthly_cost']} CNY")
+        print(f"Average electricity price: {result['average_price']} CNY/kWh")
 
 
 if __name__ == '__main__':

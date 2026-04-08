@@ -1,12 +1,12 @@
 /* ========================================
    Global Music Player Script
-   独立音乐播放器脚本 - 可安全删除
+   Standalone music player script - safe to remove
    ======================================== */
 
 (function() {
     'use strict';
     
-    // 防止重复初始化
+    // Prevent duplicate initialization
     if (window.MusicPlayerInitialized) {
         console.log('🎵 Music player already initialized');
         return;
@@ -16,30 +16,30 @@
     console.log('🎵 Initializing Global Music Player...');
     
     // ========================================
-    // 配置项 - 可自定义
+    // Configuration - customizable
     // ========================================
     const CONFIG = {
-        // 音频文件夹路径
+        // Audio folder path
         audioFolder: '/static/music-player/audio/',
         
-        // 播放列表文件名（可通过 data-playlist 属性自定义）
+        // Playlist file name (customizable via data-playlist attribute)
         playlistFile: 'playlist.json',
         
-        // 默认音量 (0.0 - 1.0)
+        // Default volume (0.0 - 1.0)
         defaultVolume: 0.3,
         
-        // 是否自动播放
+        // Auto-play enabled
         autoPlay: true,
         
-        // 是否循环播放整个播放列表
+        // Loop through the whole playlist
         loop: true,
         
-        // 本地存储键名前缀
+        // Local storage key prefix
         storageKeyPrefix: 'peakshift_music_'
     };
     
     // ========================================
-    // 音乐播放器类
+    // Music player class
     // ========================================
     class MusicPlayer {
         constructor(playlistName = 'playlist') {
@@ -50,19 +50,19 @@
             this.button = null;
             this.playlist = [];
             this.currentIndex = 0;
-            this.savedTime = 0;  // 保存的播放位置
-            this.userPaused = false;  // 用户是否手动暂停
-            this.playlistName = playlistName;  // 播放列表名称
-            this.storageKey = CONFIG.storageKeyPrefix + playlistName;  // 每个播放列表独立存储
+            this.savedTime = 0;  // Saved playback position
+            this.userPaused = false;  // Whether user manually paused
+            this.playlistName = playlistName;  // Playlist name
+            this.storageKey = CONFIG.storageKeyPrefix + playlistName;  // Separate storage per playlist
             
             this.init();
         }
         
         async init() {
-            // 不加载保存的状态，每次都默认自动播放
+            // Do not load saved state; default to auto-play each time
             this.isMuted = false;
             
-            // 获取播放列表
+            // Load playlist
             await this.loadPlaylist();
             
             if (this.playlist.length === 0) {
@@ -70,19 +70,19 @@
                 return;
             }
             
-            // 加载播放进度
+            // Load playback state
             this.loadPlaybackState();
             
-            // 创建音频元素
+            // Create audio element
             this.createAudio();
             
-            // 创建播放器按钮
+            // Create player button
             this.createButton();
             
-            // 绑定事件
+            // Bind events
             this.bindEvents();
             
-            // 自动播放（只有在用户没有手动暂停过的情况下）
+            // Auto-play (only if user has not manually paused)
             if (CONFIG.autoPlay && !this.userPaused) {
                 this.attemptAutoPlay();
             }
@@ -92,7 +92,7 @@
         
         async loadPlaylist() {
             try {
-                // 从指定的播放列表文件读取
+                // Read from the specified playlist file
                 const playlistFile = `${this.playlistName}.json`;
                 const response = await fetch(CONFIG.audioFolder + playlistFile);
                 const data = await response.json();
@@ -116,13 +116,13 @@
             this.audio.volume = this.volume;
             this.audio.preload = 'auto';
             
-            // 恢复播放进度
+            // Restore playback position
             if (this.savedTime > 0) {
                 this.audio.currentTime = this.savedTime;
                 console.log('⏩ Restored playback position:', this.savedTime.toFixed(1), 'seconds');
             }
             
-            // 音频事件监听
+            // Audio event listeners
             this.audio.addEventListener('play', () => {
                 this.isPlaying = true;
                 this.updateButton();
@@ -133,44 +133,44 @@
                 this.updateButton();
             });
             
-            // 定期保存播放进度
+            // Periodically save playback progress
             this.audio.addEventListener('timeupdate', () => {
                 this.savePlaybackState();
             });
             
             this.audio.addEventListener('ended', () => {
-                // 播放下一首
+                // Play the next track
                 this.playNext();
             });
             
             this.audio.addEventListener('error', (e) => {
                 console.error('❌ Audio loading error:', e);
                 console.log('Failed to load:', this.audio.src);
-                // 尝试播放下一首
+                // Try the next track
                 this.playNext();
             });
         }
         
         playNext() {
-            // 先保存当前状态，清除播放位置
+            // Save current state first and reset playback position
             this.savedTime = 0;
             this.savePlaybackState();
             
             this.currentIndex++;
             
-            // 如果到达列表末尾
+            // If we reached the end of the playlist
             if (this.currentIndex >= this.playlist.length) {
                 if (CONFIG.loop) {
-                    // 循环播放，回到第一首
+                    // Loop playback back to the first track
                     this.currentIndex = 0;
                 } else {
-                    // 不循环，停止播放
+                    // Stop playback when not looping
                     this.pause();
                     return;
                 }
             }
             
-            // 加载并播放下一首
+            // Load and play the next track
             this.audio.src = this.playlist[this.currentIndex];
             this.audio.currentTime = 0;
             this.play();
@@ -178,24 +178,24 @@
         }
         
         createButton() {
-            // 创建容器
+            // Create container
             const container = document.createElement('div');
             container.className = 'music-player-container';
             container.id = 'musicPlayerContainer';
             
-            // 创建按钮
+            // Create button
             const button = document.createElement('button');
             button.className = 'music-player-btn';
             button.id = 'musicPlayerBtn';
             button.setAttribute('aria-label', 'Toggle music');
             button.setAttribute('title', 'Toggle music');
             
-            // 创建图标
+            // Create icon
             const icon = document.createElement('span');
             icon.className = 'music-icon';
             icon.innerHTML = '🎵';
             
-            // 创建音波动画
+            // Create sound wave animation
             const soundWave = document.createElement('div');
             soundWave.className = 'sound-wave';
             soundWave.innerHTML = `
@@ -204,18 +204,18 @@
                 <div class="sound-bar"></div>
             `;
             
-            // 创建提示文字
+            // Create tooltip text
             const tooltip = document.createElement('span');
             tooltip.className = 'music-tooltip';
             tooltip.textContent = 'Click to toggle music';
             
-            // 组装
+            // Assemble
             button.appendChild(icon);
             button.appendChild(soundWave);
             button.appendChild(tooltip);
             container.appendChild(button);
             
-            // 添加到页面
+            // Add to page
             document.body.appendChild(container);
             
             this.button = button;
@@ -223,17 +223,17 @@
         }
         
         bindEvents() {
-            // 点击切换播放/暂停
+            // Toggle play/pause on click
             this.button.addEventListener('click', () => {
                 this.toggle();
             });
             
-            // 监听用户交互（用于自动播放）
+            // Listen for user interaction (for auto-play)
             const enableAutoPlay = () => {
                 if (CONFIG.autoPlay && !this.isMuted && !this.isPlaying) {
                     this.play();
                 }
-                // 只需要一次交互
+                // Only need one interaction
                 document.removeEventListener('click', enableAutoPlay);
                 document.removeEventListener('keydown', enableAutoPlay);
             };
@@ -243,7 +243,7 @@
         }
         
         attemptAutoPlay() {
-            // 尝试自动播放（可能会被浏览器阻止）
+            // Attempt auto-play (may be blocked by browser)
             const playPromise = this.audio.play();
             
             if (playPromise !== undefined) {
@@ -253,7 +253,7 @@
                     })
                     .catch((error) => {
                         console.log('⚠️ Auto-play blocked by browser. Waiting for user interaction...');
-                        // 浏览器阻止了自动播放，等待用户交互
+                        // Browser blocked auto-play; wait for user interaction
                     });
             }
         }
@@ -267,7 +267,7 @@
                 playPromise
                     .then(() => {
                         this.isMuted = false;
-                        this.userPaused = false; // 用户点击播放，清除暂停标记
+                        this.userPaused = false; // User clicked play, clear pause flag
                         this.savePlaybackState();
                         console.log('▶️ Music playing');
                     })
@@ -282,7 +282,7 @@
             
             this.audio.pause();
             this.isMuted = true;
-            this.userPaused = true; // 用户手动暂停，设置标记
+            this.userPaused = true; // User manually paused, set flag
             this.savePlaybackState();
             console.log('⏸️ Music paused by user');
         }
@@ -315,10 +315,10 @@
                 if (saved) {
                     const state = JSON.parse(saved);
                     this.currentIndex = state.currentIndex || 0;
-                    // 不恢复播放进度，每次都从头开始
+                    // Do not restore playback position; always start from beginning
                     this.savedTime = 0;
                     this.volume = state.volume || CONFIG.defaultVolume;
-                    this.userPaused = state.userPaused || false; // 记录用户是否手动暂停
+                    this.userPaused = state.userPaused || false; // Record whether user manually paused
                     console.log('📂 Loaded playback state (progress reset):', state);
                 } else {
                     this.currentIndex = 0;
@@ -341,16 +341,16 @@
                     currentIndex: this.currentIndex,
                     currentTime: this.audio.currentTime,
                     volume: this.volume,
-                    userPaused: this.userPaused, // 保存用户暂停状态
+                    userPaused: this.userPaused, // Save user pause state
                     timestamp: Date.now()
                 };
                 localStorage.setItem(this.storageKey, JSON.stringify(state));
             } catch (error) {
-                // 静默失败，不影响播放
+                // Fail silently without affecting playback
             }
         }
         
-        // 公共方法：销毁播放器
+        // Public method: destroy player
         destroy() {
             if (this.audio) {
                 this.audio.pause();
@@ -368,17 +368,17 @@
     }
     
     // ========================================
-    // 初始化
+    // Initialization
     // ========================================
     let player = null;
     
-    // 从 body 标签的 data-playlist 属性读取播放列表名称
+    // Read playlist name from the body tag's data-playlist attribute
     const getPlaylistName = () => {
         const bodyElement = document.body;
         return bodyElement.getAttribute('data-playlist') || 'playlist';
     };
     
-    // DOM 加载完成后初始化
+    // Initialize after DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             const playlistName = getPlaylistName();
@@ -391,7 +391,7 @@
         console.log(`🎵 Music player initialized with playlist: ${playlistName}`);
     }
     
-    // 暴露到全局（可选，用于调试）
+    // Expose globally (optional, for debugging)
     window.MusicPlayer = {
         getInstance: () => player,
         destroy: () => player && player.destroy()

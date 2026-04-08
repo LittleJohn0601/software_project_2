@@ -1,20 +1,20 @@
 # blogapp/services/supplier_optimizer.py
 """
-供应商优化器 - 选择最优电力供应商并优化用电时间
+Supplier optimizer - select optimal electricity supplier and optimize usage schedule
 
-输入：
-- 电网价格曲线
-- 售电公司价格曲线  
-- 用户用电需求
+Input:
+- Grid price curve
+- Retail supplier price curve  
+- User electricity demand
 
-约束：
-- 只能选一个供应商（短期内）
-- 售电价格 ≤ 电网 × 1.6
+Constraints:
+- Can only choose one supplier (short term)
+- Supplier price ≤ grid × 1.6
 
-输出：
-- 最优供应商选择
-- 最优用电时间安排
-- 成本 & 碳排放
+Output:
+- Best supplier selection
+- Optimal electricity usage schedule
+- Cost & carbon emissions
 """
 
 import json
@@ -22,45 +22,45 @@ from typing import Dict, List, Any, Tuple, Optional
 
 
 class SupplierType:
-    """供应商类型常量"""
+    """Supplier type constants"""
     GRID = "grid"
     SUPPLIER = "supplier"
 
 
 class SupplierOptimizer:
-    """供应商优化器"""
+    """Supplier optimizer"""
     
     def __init__(self, factory, grid_price, supplier_prices, tou_periods):
         """
-        初始化优化器
+        Initialize optimizer
         
         Args:
-            factory: 工厂对象
-            grid_price: 电网价格对象 (GridElectricityPrice)
-            supplier_prices: 售电公司价格列表 (HourlyElectricityPrice)
-            tou_periods: 分时时段列表 (TimeOfUsePeriod)
+            factory: Factory object
+            grid_price: Grid price object (GridElectricityPrice)
+            supplier_prices: Retail supplier price table (HourlyElectricityPrice)
+            tou_periods: Time-of-use period list (TimeOfUsePeriod)
         """
         self.factory = factory
         self.grid_price = grid_price
         self.supplier_prices_list = supplier_prices
         self.tou_periods_list = tou_periods
         
-        # 约束条件：售电价格 ≤ 电网价格 × 1.6
+        # Constraint: Supplier price ≤ Grid price × 1.6
         self.price_constraint_ratio = 1.6
         
-        # 解析工作时间段
+        # Parse work periods
         self.work_periods = self._parse_work_periods()
         self.total_work_hours = self._calculate_total_work_hours()
         self.hourly_usage = self._calculate_hourly_usage()
         
-        # 缓存映射
+        # Cache mapping
         self._grid_hourly_prices = None
         self._supplier_hourly_prices = None
         self._carbon_factors = None
         self._tou_map = None
     
     def _parse_work_periods(self) -> List[Dict]:
-        """解析工作时间段 JSON"""
+        """Parse work periods JSON"""
         try:
             if isinstance(self.factory.work_periods, str):
                 return json.loads(self.factory.work_periods)
@@ -69,20 +69,20 @@ class SupplierOptimizer:
             return [{"start": 8, "end": 18}]
     
     def _calculate_total_work_hours(self) -> int:
-        """计算总工作小时数"""
+        """Calculate total working hours"""
         total = 0
         for period in self.work_periods:
             total += period.get('end', 0) - period.get('start', 0)
         return max(total, 1)
     
     def _calculate_hourly_usage(self) -> float:
-        """计算每小时用电量 (kWh/小时)"""
+        """Calculate electricity usage per hour (kWh/hour)"""
         if self.total_work_hours > 0:
             return self.factory.daily_usage / self.total_work_hours
         return 0
     
     def _get_tou_map(self) -> Dict[int, str]:
-        """获取小时到时段的映射"""
+        """Get hour to period mapping"""
         if self._tou_map is None:
             self._tou_map = {}
             for tp in self.tou_periods_list:
@@ -90,25 +90,25 @@ class SupplierOptimizer:
         return self._tou_map
     
     def get_grid_hourly_prices(self) -> Dict[int, float]:
-        """获取电网公司的分时电价"""
+        """Get grid supplier time-of-use prices"""
         if self._grid_hourly_prices is None:
             self._grid_hourly_prices = {}
             tou_map = self._get_tou_map()
             
             for hour in range(24):
-                period_type = tou_map.get(hour, '平时')
-                # 支持中文和英文
-                if period_type in ['peak', '高峰']:
+                period_type = tou_map.get(hour, 'Normal')
+                # Support both Chinese and English
+                if period_type in ['peak', 'Peak']:
                     price = self.grid_price.peak_price if self.grid_price else 0
-                elif period_type in ['valley', '低谷']:
+                elif period_type in ['valley', 'Valley']:
                     price = self.grid_price.valley_price if self.grid_price else 0
-                else:  # normal, 平时
+                else:  # normal, Normal
                     price = self.grid_price.normal_price if self.grid_price else 0
                 self._grid_hourly_prices[hour] = price
         return self._grid_hourly_prices
     
     def get_supplier_hourly_prices(self) -> Dict[int, float]:
-        """获取售电公司的分时电价"""
+        """Get retail supplier time-of-use prices"""
         if self._supplier_hourly_prices is None:
             self._supplier_hourly_prices = {}
             for hp in self.supplier_prices_list:
@@ -116,24 +116,24 @@ class SupplierOptimizer:
         return self._supplier_hourly_prices
     
     def get_carbon_factors(self) -> Dict[int, float]:
-        """获取各小时的碳排放因子 (kg CO₂/kWh)"""
+        """Get carbon emission factors for each hour (kg CO₂/kWh)"""
         if self._carbon_factors is None:
             self._carbon_factors = {}
             tou_map = self._get_tou_map()
             
             for hour in range(24):
-                period_type = tou_map.get(hour, '平时')
-                # 支持中文和英文
-                if period_type in ['peak', '高峰']:
+                period_type = tou_map.get(hour, 'Normal')
+                # Support both Chinese and English
+                if period_type in ['peak', 'Peak']:
                     self._carbon_factors[hour] = 0.75
-                elif period_type in ['valley', '低谷']:
+                elif period_type in ['valley', 'Valley']:
                     self._carbon_factors[hour] = 0.55
-                else:  # normal, 平时
+                else:  # normal, Normal
                     self._carbon_factors[hour] = 0.65
         return self._carbon_factors
     
     def check_supplier_price_constraint(self) -> bool:
-        """检查售电公司价格是否满足约束：售电价格 ≤ 电网价格 × 1.6"""
+        """Check supplier price meets constraint: supplier price ≤ grid price × 1.6"""
         grid_prices = self.get_grid_hourly_prices()
         supplier_prices = self.get_supplier_hourly_prices()
         
@@ -147,7 +147,7 @@ class SupplierOptimizer:
         return True
     
     def _calculate_cost_with_schedule(self, supplier: str, schedule: List[int]) -> float:
-        """计算给定供应商和用电安排的总成本"""
+        """Calculate total cost for a given supplier and usage schedule"""
         total_cost = 0
         monthly_work_days = self.factory.working_days_per_month
         
@@ -168,13 +168,13 @@ class SupplierOptimizer:
             daily_cost = hourly_energy * price
             total_cost += daily_cost * monthly_work_days
         
-        # 加上容量电费
+        # Add capacity fee
         total_cost += self.factory.capacity_fee
         
         return total_cost
     
     def _calculate_carbon_with_schedule(self, schedule: List[int]) -> float:
-        """计算给定用电安排的碳排放"""
+        """Calculate carbon emissions for a given usage schedule"""
         total_carbon = 0
         monthly_work_days = self.factory.working_days_per_month
         carbon_factors = self.get_carbon_factors()
@@ -192,7 +192,7 @@ class SupplierOptimizer:
         return round(total_carbon, 2)
     
     def _generate_optimal_schedule(self, supplier: str, objective: str = 'cost') -> Tuple[List[int], float, float]:
-        """生成最优用电时间安排"""
+        """Generate optimal electricity usage schedule"""
         needed_hours = self.total_work_hours
         
         if objective == 'cost':
@@ -203,7 +203,7 @@ class SupplierOptimizer:
         else:
             values = self.get_carbon_factors()
         
-        # 贪心算法：按值从小到大排序
+        # Greedy algorithm: sort by value ascending
         hours = list(range(24))
         hours.sort(key=lambda h: values.get(h, float('inf')))
         
@@ -222,7 +222,7 @@ class SupplierOptimizer:
         return schedule, cost, carbon
     
     def _get_current_schedule(self) -> List[int]:
-        """获取当前的用电安排"""
+        """Get current usage schedule"""
         schedule = [0] * 24
         for period in self.work_periods:
             for hour in range(period.get('start', 0), period.get('end', 0)):
@@ -231,44 +231,44 @@ class SupplierOptimizer:
         return schedule
     
     def _calculate_current_cost(self) -> float:
-        """计算当前成本（假设使用电网）"""
+        """Calculate current cost (assuming grid usage)"""
         schedule = self._get_current_schedule()
         return self._calculate_cost_with_schedule(SupplierType.GRID, schedule)
     
     def _calculate_current_carbon(self) -> float:
-        """计算当前碳排放"""
+        """Calculate current carbon emissions"""
         schedule = self._get_current_schedule()
         return self._calculate_carbon_with_schedule(schedule)
     
     def optimize(self, objective: str = 'cost') -> Dict[str, Any]:
-        """执行完整优化"""
-        # 检查售电公司是否有效
+        """Execute full optimization"""
+        # Check if retail supplier is valid
         supplier_valid = self.check_supplier_price_constraint()
         
-        # 评估两个供应商
+        # Evaluate both suppliers
         candidates = []
         
-        # 电网公司
+        # Grid supplier
         grid_schedule, grid_cost, grid_carbon = self._generate_optimal_schedule(
             SupplierType.GRID, objective
         )
         candidates.append({
             'supplier': SupplierType.GRID,
-            'supplier_name': '电网公司',
+            'supplier_name': 'Grid supplier',
             'cost': grid_cost,
             'carbon': grid_carbon,
             'schedule': grid_schedule,
             'valid': True
         })
         
-        # 售电公司
+        # Retail supplier
         if supplier_valid:
             sup_schedule, sup_cost, sup_carbon = self._generate_optimal_schedule(
                 SupplierType.SUPPLIER, objective
             )
             candidates.append({
                 'supplier': SupplierType.SUPPLIER,
-                'supplier_name': '售电公司',
+                'supplier_name': 'Retail supplier',
                 'cost': sup_cost,
                 'carbon': sup_carbon,
                 'schedule': sup_schedule,
@@ -277,29 +277,29 @@ class SupplierOptimizer:
         else:
             candidates.append({
                 'supplier': SupplierType.SUPPLIER,
-                'supplier_name': '售电公司',
+                'supplier_name': 'Retail supplier',
                 'cost': float('inf'),
                 'carbon': float('inf'),
                 'schedule': None,
                 'valid': False,
-                'invalid_reason': f'价格超出电网价格 {self.price_constraint_ratio} 倍'
+                'invalid_reason': f'Price exceeds grid price by {self.price_constraint_ratio}x'
             })
         
-        # 选择最优
+        # Select optimal
         if objective == 'cost':
             best = min(candidates, key=lambda x: x['cost'] if x['valid'] else float('inf'))
         else:
             best = min(candidates, key=lambda x: x['carbon'] if x['valid'] else float('inf'))
         
-        # 当前值
+        # Current values
         current_cost = self._calculate_current_cost()
         current_carbon = self._calculate_current_carbon()
         
-        # 节省
+        # Savings
         cost_saving = current_cost - best['cost'] if best['cost'] != float('inf') else 0
         carbon_reduction = current_carbon - best['carbon'] if best['carbon'] != float('inf') else 0
         
-        # 格式化用电时间
+        # Format electricity usage time
         schedule_hours = []
         if best['schedule']:
             for hour, working in enumerate(best['schedule']):
@@ -317,14 +317,14 @@ class SupplierOptimizer:
             'current': {
                 'cost': round(current_cost, 2),
                 'carbon': round(current_carbon, 2),
-                'unit_cost': '元/月',
-                'unit_carbon': 'kg CO₂/月'
+                'unit_cost': 'CNY/month',
+                'unit_carbon': 'kg CO₂/month'
             },
             'optimized': {
                 'cost': round(best['cost'], 2) if best['cost'] != float('inf') else None,
                 'carbon': round(best['carbon'], 2) if best['carbon'] != float('inf') else None,
-                'unit_cost': '元/月',
-                'unit_carbon': 'kg CO₂/月',
+                'unit_cost': 'CNY/month',
+                'unit_carbon': 'kg CO₂/month',
                 'schedule': schedule_hours[:10]
             },
             'saving': {
@@ -344,17 +344,17 @@ class SupplierOptimizer:
         }
     
     def get_saving_potential(self, mode: str = 'cost') -> Dict[str, Any]:
-        """获取节省潜力"""
+        """Get saving potential"""
         result = self.optimize(mode)
         
         if mode == 'cost':
             value = result['saving']['cost']
-            unit = "元/月"
-            description = f"通过选择最优供应商和优化用电时段，预计每月可节省 {value:,.2f} 元"
+            unit = "CNY/month"
+            description = f"By choosing the best supplier and optimizing usage schedule, you can save approximately {value:,.2f} CNY per month"
         else:
             value = result['saving']['carbon']
-            unit = "kg CO₂/月"
-            description = f"通过选择最优供应商和优化用电时段，预计每月可减少 {value:,.2f} kg CO₂ 排放"
+            unit = "kg CO₂/month"
+            description = f"By choosing the best supplier and optimizing usage schedule, you can reduce approximately {value:,.2f} kg CO₂ emissions per month"
         
         return {
             'success': True,
@@ -370,39 +370,39 @@ class SupplierOptimizer:
         }
     
     def get_suggestions(self) -> Dict[str, Any]:
-        """获取优化建议"""
+        """Get optimization suggestions"""
         result = self.optimize('cost')
         suggestions = []
         
-        # 供应商建议
+        # Supplier suggestions
         if result['best_supplier']['type'] == SupplierType.SUPPLIER:
             suggestions.append({
-                'title': '切换到售电公司',
-                'description': f'售电公司价格更具优势，预计每月可节省 {result["saving"]["cost"]:,.2f} 元',
+                'title': 'Switch to retail supplier',
+                'description': f'Retail supplier prices are more competitive, estimated monthly savings: {result["saving"]["cost"]:,.2f} CNY',
                 'impact': 'high',
                 'potential_saving': result['saving']['cost'],
                 'potential_carbon_reduction': result['saving']['carbon'],
                 'action_items': [
-                    '与售电公司签订长期购电协议',
-                    '关注售电公司的价格波动',
-                    '定期评估供应商性价比'
+                    'Sign a long-term power purchase agreement with the retail supplier',
+                    'Monitor retail supplier price fluctuations',
+                    'Regularly evaluate supplier cost-effectiveness'
                 ]
             })
         else:
             suggestions.append({
-                'title': '保持使用电网公司',
-                'description': '当前售电公司价格不符合约束条件（不得超过电网价格1.6倍），建议继续使用电网公司',
+                'title': 'Keep using the grid supplier',
+                'description': 'Current retail supplier price does not meet constraint (must not exceed grid price by 1.6x), continue using grid supplier',
                 'impact': 'medium',
                 'potential_saving': 0,
                 'potential_carbon_reduction': 0,
                 'action_items': [
-                    '关注售电公司价格变化',
-                    '等待更优惠的售电公司出现',
-                    '考虑参与电力市场交易'
+                    'Monitor retail supplier price changes',
+                    'Wait for better retail supplier offers',
+                    'Consider participating in power market trading'
                 ]
             })
         
-        # 用电时间建议
+        # Electricity usage timing suggestions
         optimized_schedule = result['optimized']['schedule']
         current_schedule = self._get_current_schedule()
         current_hours = [h for h, w in enumerate(current_schedule) if w]
@@ -415,15 +415,15 @@ class SupplierOptimizer:
         
         if new_hours:
             suggestions.append({
-                'title': '调整用电时间',
-                'description': f'建议将部分生产任务调整到电价更低的时段：{", ".join(new_hours[:3])}',
+                'title': 'Adjust electricity usage schedule',
+                'description': f'Suggest moving some production tasks to lower price periods: {", ".join(new_hours[:3])}',
                 'impact': 'high' if len(new_hours) > 3 else 'medium',
                 'potential_saving': result['saving']['cost'] * 0.6,
                 'potential_carbon_reduction': result['saving']['carbon'] * 0.5,
                 'action_items': [
-                    f'将生产安排在 {"、".join(new_hours[:3])} 等低价时段',
-                    '调整生产班次安排',
-                    '对可转移负荷进行优化调度'
+                    f'Schedule production in lower-price periods such as {"、".join(new_hours[:3])}',
+                    'Adjust production shift schedule',
+                    'Optimize dispatch of shiftable loads'
                 ]
             })
         
@@ -432,7 +432,7 @@ class SupplierOptimizer:
             'suggestions': suggestions
         }
     
-    # 属性别名（兼容性）
+    # Attribute aliases (compatibility)
     @property
     def grid_hourly_prices(self):
         return self.get_grid_hourly_prices()

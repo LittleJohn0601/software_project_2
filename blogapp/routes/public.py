@@ -1,16 +1,16 @@
 # blogapp/routes/public.py
 """
 Public routes (no login required)
-公共路由
+Public routes
 """
 
 from flask import Blueprint, redirect, url_for
 
-# 创建蓝图
+# Create blueprint
 bp = Blueprint("public", __name__)
 
 
 @bp.get("/")
 def index():
-    """首页 - 重定向到统一认证页面"""
+    """Home page - redirect to authentication page"""
     return redirect(url_for("auth.auth_page"))

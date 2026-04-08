@@ -1,2 +1,2 @@
-# 此文件用于保持 logs 目录在 Git 中
-# 日志文件会在运行时自动创建
+# This file keeps the logs directory tracked in Git
+# Log files will be created automatically at runtime

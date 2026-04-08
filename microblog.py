@@ -8,7 +8,7 @@ import pandas as pd
 
 app = create_app()
 
-# 自动初始化数据库（确保表结构存在）
+# Automatically initialize the database (ensure table structure exists)
 with app.app_context():
     db_path = os.path.join(app.instance_path, 'greenlife.db')
     db_exists = os.path.exists(db_path)
@@ -18,18 +18,18 @@ with app.app_context():
     else:
         print("📦 Database file exists, checking tables...")
     
-    # 无论数据库文件是否存在，都执行 create_all()
-    # create_all() 只会创建不存在的表，不会覆盖已有数据
+    # Even if the database file exists, execute create_all()
+    # create_all() only creates missing tables and does not overwrite existing data
     db.create_all()
     print("✅ Database tables initialized!")
     
     # ========================================
-    # 1. 导入代理公司电价数据
+    # 1. Import supplier electricity price data
     # ========================================
     try:
         price_count = HourlyElectricityPrice.query.count()
     except:
-        # 如果查询失败，说明表可能损坏，设置为 0 强制重新导入
+        # If the query fails, the table may be corrupted; set count to 0 to force re-import
         price_count = 0
     
     if price_count == 0:
@@ -43,14 +43,14 @@ with app.app_context():
                 price_col = df.columns[1]
                 
                 for index, row in df.iterrows():
-                    # 处理时间格式（如 "00:00" 提取小时部分）
+                    # Process time format (e.g. extract hour from "00:00")
                     time_str = str(row[hour_col])
                     if ':' in time_str:
                         hour = int(time_str.split(':')[0])
                     else:
                         hour = int(time_str)
                     
-                    # 生成时间段描述（如 "0-1", "1-2", "23-24"）
+                    # Generate time range description (e.g. "0-1", "1-2", "23-24")
                     next_hour = (hour + 1) % 24
                     if next_hour == 0:
                         time_range = f"{hour}-24"
@@ -78,7 +78,7 @@ with app.app_context():
         print(f"✅ Hourly price data already exists ({price_count} records)")
     
     # ========================================
-    # 2. 导入电网售卖价格数据
+    # 2. Import grid electricity price data
     # ========================================
     try:
         grid_price_count = GridElectricityPrice.query.count()
@@ -87,20 +87,20 @@ with app.app_context():
     
     if grid_price_count == 0:
         print("📊 Importing grid electricity price data...")
-        excel_path = os.path.join('blogapp', 'data', '电网售卖价格.xlsx')
+        excel_path = os.path.join('blogapp', 'data', 'grid electricity price.xlsx')
         
         if os.path.exists(excel_path):
             try:
                 df = pd.read_excel(excel_path)
-                # 跳过第一行（表头行）
+                # Skip the first row (header row)
                 df = df.iloc[1:]
                 
                 for index, row in df.iterrows():
-                    voltage_level = int(row['电压等级'])
-                    peak_price = float(row['分时电价'])
+                    voltage_level = int(row['Voltage level'])
+                    peak_price = float(row['time-of-use price'])
                     normal_price = float(row['Unnamed: 2'])
                     valley_price = float(row['Unnamed: 3'])
-                    capacity_price = float(row['容量电价'])
+                    capacity_price = float(row['capacity price'])
                     
                     record = GridElectricityPrice(
                         voltage_level=voltage_level,
@@ -122,7 +122,7 @@ with app.app_context():
         print(f"✅ Grid price data already exists ({grid_price_count} records)")
     
     # ========================================
-    # 3. 导入分时电价时段数据
+    # 3. Import time-of-use period data
     # ========================================
     try:
         tou_count = TimeOfUsePeriod.query.count()
@@ -131,25 +131,25 @@ with app.app_context():
     
     if tou_count == 0:
         print("📊 Importing time-of-use period data...")
-        excel_path = os.path.join('blogapp', 'data', '分时价格详情.xlsx')
+        excel_path = os.path.join('blogapp', 'data', 'time-of-use price details.xlsx')
         
         if os.path.exists(excel_path):
             try:
                 df = pd.read_excel(excel_path)
-                # 删除 NaN 行
+                # Drop NaN rows
                 df = df.dropna()
                 
-                # 解析时间段并展开到每个小时
+                # Parse time ranges and expand to every hour
                 for index, row in df.iterrows():
-                    time_range = str(row['时间段'])
-                    period_type = str(row['价格区间'])
+                    time_range = str(row['time period'])
+                    period_type = str(row['price range'])
                     
-                    # 解析时间段（如 "0-7" 表示 0,1,2,3,4,5,6 点）
+                    # Parse time ranges (e.g. "0-7" means hours 0-6)
                     start, end = map(int, time_range.split('-'))
                     
-                    # 为每个小时创建记录
+                    # Create records for each hour
                     for hour in range(start, end):
-                        # 生成时间段描述
+                        # Generate time period description
                         next_hour = (hour + 1) % 24
                         if next_hour == 0:
                             time_range = f"{hour}-24"
@@ -174,5 +174,5 @@ with app.app_context():
         print(f"✅ TOU period data already exists ({tou_count} records)")
 
 if __name__ == '__main__':
-    # 使用 0.0.0.0 允许外部访问（Docker 需要）
+    # Use 0.0.0.0 to allow external access (required for Docker)
     app.run(debug=True, host='0.0.0.0', port=5001)

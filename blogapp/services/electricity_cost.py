@@ -5,7 +5,7 @@ from blogapp import db
 
 
 class ElectricityCostCalculator:
-    """电费计算器"""
+    """Electricity cost calculator"""
     
     def __init__(self, factory_id: int):
         self.factory = Factory.query.get(factory_id)
@@ -22,30 +22,30 @@ class ElectricityCostCalculator:
         self.tou_periods = self._load_tou_periods()
     
     def _load_tou_periods(self) -> Dict[int, str]:
-        """加载分时电价时段配置"""
+        """Load time-of-use pricing period configuration"""
         periods = TimeOfUsePeriod.query.all()
         return {p.hour: p.period_type for p in periods}
     
     def get_price_for_hour(self, hour: int) -> float:
-        """获取指定小时的电价"""
-        period_type = self.tou_periods.get(hour, '平时')
+        """Get electricity price for a specific hour"""
+        period_type = self.tou_periods.get(hour, 'Normal')
         
-        if period_type == '高峰':
+        if period_type == 'Peak':
             return self.grid_price.peak_price
-        elif period_type == '低谷':
+        elif period_type == 'Valley':
             return self.grid_price.valley_price
         else:
             return self.grid_price.normal_price
     
     def calculate_monthly_cost(self, month_days: int = None) -> Dict:
-        """计算月电费"""
+        """Calculate monthly cost"""
         if month_days is None:
             month_days = self.factory.working_days_per_month
         
         total_usage = self.factory.monthly_usage
         daily_usage = self.factory.daily_usage
         
-        # 解析工作时间段
+        # Parse work periods
         work_periods = json.loads(self.factory.work_periods)
 
         if not work_periods:
@@ -67,28 +67,28 @@ class ElectricityCostCalculator:
                     'usage': 0,
                     'price': self.get_price_for_hour(hour),
                     'cost': 0,
-                    'period_type': self.tou_periods.get(hour, '平时')
+                    'period_type': self.tou_periods.get(hour, 'Normal')
                 } for hour in range(24)]
             }
         
         
         
-        # 计算总工作小时数
+        # Calculate total working hours
         total_work_hours = 0
         for period in work_periods:
             start = period.get('start', 0)
             end = period.get('end', 0)
             total_work_hours += (end - start)
         
-        # 每小时用电量
+        # Electricity usage per hour
         usage_per_hour = daily_usage / total_work_hours if total_work_hours > 0 else 0
         
-        # 计算每日电费
+        # Calculate daily cost
         daily_cost = 0
         hourly_breakdown = []
         
         for hour in range(24):
-            # 判断该小时是否在工作时间内
+            # Determine if the hour falls within working time
             in_work = False
             for period in work_periods:
                 if period.get('start', 0) <= hour < period.get('end', 0):
@@ -106,10 +106,10 @@ class ElectricityCostCalculator:
                 'usage': round(usage, 2),
                 'price': price,
                 'cost': round(cost, 2),
-                'period_type': self.tou_periods.get(hour, '平时')
+                'period_type': self.tou_periods.get(hour, 'Normal')
             })
         
-        # 计算月电费
+        # Calculate monthly cost
         monthly_energy_cost = daily_cost * month_days
         capacity_fee = self.factory.capacity_fee
         total_monthly_cost = monthly_energy_cost + capacity_fee

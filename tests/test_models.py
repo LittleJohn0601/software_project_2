@@ -2,7 +2,7 @@
 import sys
 from pathlib import Path
 
-# 将项目根目录添加到 Python 路径
+# Add project root to Python path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -22,7 +22,7 @@ def app():
 
 def test_factory_carbon_emission(app):
     with app.app_context():
-        # 先创建用户
+        # Create the user first
         user = User(username='testuser', email='test@example.com')
         user.set_password('password')
         db.session.add(user)
@@ -40,9 +40,9 @@ def test_factory_carbon_emission(app):
         db.session.add(factory)
         db.session.commit()
         
-        # 验证月用电量计算
+        # Verify monthly usage calculation
         assert factory.monthly_usage == 3000.0
         
-        # 验证碳排放计算
+        # Verify carbon emission calculation
         expected_emission = round(3000.0 * 0.6634, 2)  # 1989.0
         assert factory.carbon_emission == expected_emission

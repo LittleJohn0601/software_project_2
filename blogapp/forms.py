@@ -57,7 +57,7 @@ class RegistrationForm(FlaskForm):
 # Example forms for your industrial energy system:
 
 # class FactoryForm(FlaskForm):
-#     """工厂信息表单"""
+#     """Factory information form"""
 #     name = StringField('Factory Name', validators=[DataRequired()])
 #     location = StringField('Location')
 #     industry_type = SelectField('Industry Type', choices=[
@@ -69,7 +69,7 @@ class RegistrationForm(FlaskForm):
 #     submit = SubmitField('Save')
 
 # class PowerSourceForm(FlaskForm):
-#     """电力来源配置表单"""
+#     """Power source configuration form"""
 #     source_type = SelectField('Power Source', choices=[
 #         ('coal', 'Coal Power'),
 #         ('wind', 'Wind Power'),
@@ -82,7 +82,7 @@ class RegistrationForm(FlaskForm):
 #     submit = SubmitField('Add Source')
 
 # class ElectricityUsageForm(FlaskForm):
-#     """用电记录表单"""
+#     """Electricity usage record form"""
 #     date = DateField('Date', validators=[DataRequired()])
 #     usage_kwh = FloatField('Usage (kWh)', validators=[
 #         DataRequired(),

@@ -1,4 +1,4 @@
-## Python 虚拟环境与缓存
+## Python virtual environment and cache files
 .venv/
 venv/
 __pycache__/
@@ -6,16 +6,16 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Flask/数据库相关
+# Flask/database files
 instance/*.db
 instance/*.sqlite
 .env
 
-# 日志文件
+# logs
 logs/*.log
 logs/*.log.*
 
-# 编辑器与系统文件
+# editor and OS files
 .vscode/
 .idea/
 .DS_Store

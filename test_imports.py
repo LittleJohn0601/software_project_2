@@ -4,79 +4,79 @@ import os
 sys.path.insert(0, os.path.abspath('.'))
 
 print("="*60)
-print("测试各个模块导入")
+print("Test module imports")
 print("="*60)
 
-# 检查 Python 路径
-print(f"\n当前工作目录: {os.getcwd()}")
-print(f"Python路径前3个: {sys.path[:3]}")
+# Check Python path
+print(f"\nCurrent working directory: {os.getcwd()}")
+print(f"First 3 Python paths: {sys.path[:3]}")
 
-# 测试1: 导入 blogapp
-print("\n1. 测试导入 blogapp...")
+# Test 1: Import blogapp
+print("\n1. Test importing blogapp...")
 try:
     import blogapp
-    print(f"   ✅ blogapp 导入成功，位置: {blogapp.__file__}")
+    print(f"   ✅ blogapp Import successful, location: {blogapp.__file__}")
 except Exception as e:
-    print(f"   ❌ blogapp 导入失败: {e}")
+    print(f"   ❌ blogapp Import failed: {e}")
     import traceback
     traceback.print_exc()
 
-# 测试2: 导入 blogapp.models
-print("\n2. 测试导入 blogapp.models...")
+# Test 2: Import blogapp.models
+print("\n2. Test importing blogapp.models...")
 try:
     from blogapp import models
-    print(f"   ✅ blogapp.models 导入成功")
+    print(f"   ✅ blogapp.models imported successfully")
 except Exception as e:
-    print(f"   ❌ blogapp.models 导入失败: {e}")
+    print(f"   ❌ blogapp.models Import failed: {e}")
 
-# 测试3: 导入 blogapp.routes
-print("\n3. 测试导入 blogapp.routes...")
+# Test 3: Import blogapp.routes
+print("\n3. Test importing blogapp.routes...")
 try:
     from blogapp import routes
-    print(f"   ✅ blogapp.routes 导入成功")
+    print(f"   ✅ blogapp.routes imported successfully")
 except Exception as e:
-    print(f"   ❌ blogapp.routes 导入失败: {e}")
+    print(f"   ❌ blogapp.routes Import failed: {e}")
 
-# 测试4: 导入 auth 模块
-print("\n4. 测试导入 blogapp.routes.auth...")
+# Test 4: Import auth module
+print("\n4. Test importing blogapp.routes.auth...")
 try:
     from blogapp.routes import auth
-    print(f"   ✅ blogapp.routes.auth 导入成功")
+    print(f"   ✅ blogapp.routes.auth imported successfully")
 except Exception as e:
-    print(f"   ❌ blogapp.routes.auth 导入失败: {e}")
+    print(f"   ❌ blogapp.routes.auth Import failed: {e}")
 
-# 测试5: 导入 main 模块
-print("\n5. 测试导入 blogapp.routes.main...")
+# Test 5: Import main module
+print("\n5. Test importing blogapp.routes.main...")
 try:
     from blogapp.routes import main
-    print(f"   ✅ blogapp.routes.main 导入成功")
+    print(f"   ✅ blogapp.routes.main imported successfully")
 except Exception as e:
-    print(f"   ❌ blogapp.routes.main 导入失败: {e}")
+    print(f"   ❌ blogapp.routes.main Import failed: {e}")
 
-# 测试6: 导入 public 模块
-print("\n6. 测试导入 blogapp.routes.public...")
+# Test 6: Import public module
+print("\n6. Test importing blogapp.routes.public...")
 try:
     from blogapp.routes import public
-    print(f"   ✅ blogapp.routes.public 导入成功")
+    print(f"   ✅ blogapp.routes.public imported successfully")
 except Exception as e:
-    print(f"   ❌ blogapp.routes.public 导入失败: {e}")
+    print(f"   ❌ blogapp.routes.public Import failed: {e}")
 
-# 测试7: 导入 visualization 模块
-print("\n7. 测试导入 blogapp.routes.visualization...")
+# Test 7: Import visualization module
+print("\n7. Test importing blogapp.routes.visualization...")
 try:
     from blogapp.routes import visualization
-    print(f"   ✅ blogapp.routes.visualization 导入成功")
+    print(f"   ✅ blogapp.routes.visualization imported successfully")
 except Exception as e:
-    print(f"   ❌ blogapp.routes.visualization 导入失败: {e}")
+    print(f"   ❌ blogapp.routes.visualization Import failed: {e}")
 
-# 测试8: 创建应用
-print("\n8. 测试创建应用...")
+# Test 8: Create application
+print("\n8. Test creating application...")
 try:
     from blogapp import create_app
     app = create_app()
-    print(f"   ✅ 应用创建成功")
+    print(f"   ✅ Application created successfully")
 except Exception as e:
-    print(f"   ❌ 应用创建失败: {e}")
+    print(f"   ❌ Application creation failed: {e}")
     import traceback
     traceback.print_exc()
 

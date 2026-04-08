@@ -1,2 +1,2 @@
-# 此文件用于保持 instance 目录在 Git 中
-# 数据库文件会在首次运行时自动创建
+# This file keeps the instance directory tracked in Git
+# The database file will be created automatically on first run

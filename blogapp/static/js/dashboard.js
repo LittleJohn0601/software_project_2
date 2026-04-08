@@ -1,6 +1,6 @@
 /* ========================================
    PeakShift Dashboard - Single Page Application
-   Version: 2.0 - 图表动画已禁用
+   Version: 2.0 - Chart animations disabled
    ======================================== */
 
 console.log('Dashboard.js v2.0 loaded - Animation disabled');
@@ -9,7 +9,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     'use strict';
     
     // ========================================
-    // 全局状态管理
+    // Global state management
     // ========================================
     const AppState = {
         currentView: 'factoryManagement',
@@ -18,15 +18,15 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     };
     
     // ========================================
-    // 视图切换
+    // View switching
     // ========================================
     function showView(viewName) {
-        // 隐藏所有视图
+        // Hide all views
         document.querySelectorAll('.view-container').forEach(view => {
             view.classList.remove('active');
         });
         
-        // 显示目标视图
+        // Show target view
         const targetView = document.getElementById(viewName + 'View');
         if (targetView) {
             targetView.classList.add('active');
@@ -35,13 +35,13 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     }
     
     // ========================================
-    // 工厂管理功能
+    // Factory management features
     // ========================================
     
-    // 加载工厂列表
+    // Load factory list
     async function loadFactories() {
         try {
-            // 添加时间戳防止缓存
+            // Add timestamp to prevent caching
             const response = await fetch(`/api/factories?t=${Date.now()}`);
             const data = await response.json();
             
@@ -49,15 +49,15 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                 AppState.factories = data.factories;
                 renderFactories();
             } else {
-                showError('加载工厂列表失败');
+                showError('Failed to load factory list');
             }
         } catch (error) {
-            console.error('加载工厂列表失败:', error);
-            showError('加载工厂列表失败');
+            console.error('Failed to load factory list:', error);
+            showError('Failed to load factory list');
         }
     }
     
-    // 渲染工厂列表
+    // Render factory list
     function renderFactories() {
         const factoryList = document.getElementById('factoryList');
         const emptyState = document.getElementById('emptyState');
@@ -79,7 +79,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                                 <i class="bi bi-building"></i>
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-link text-primary p-0" onclick="editFactory(${factory.id})" title="编辑工厂">
+                        <button class="btn btn-sm btn-link text-primary p-0" onclick="editFactory(${factory.id})" title="Edit factory">
                             <i class="bi bi-pencil-square" style="font-size: 1.2rem;"></i>
                         </button>
                     </div>
@@ -102,43 +102,43 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                     
                     <div class="factory-location mt-1">
                         <i class="bi bi-lightning"></i>
-                        <span>电压等级: ${factory.voltage_level} kV</span>
+                        <span>Voltage level: ${factory.voltage_level} kV</span>
                     </div>
                     
                     <div class="factory-location mt-1">
                         <i class="bi bi-gear"></i>
-                        <span>变压器容量: ${formatNumber(factory.transformer_capacity)} kVA</span>
+                        <span>Transformer capacity: ${formatNumber(factory.transformer_capacity)} kVA</span>
                     </div>
                     
                     <div class="factory-stats">
                         <div class="stat-item">
                             <span class="stat-label">
                                 <i class="bi bi-cash me-1"></i>
-                                容量电费
+                                Capacity fee
                             </span>
-                            <span class="stat-value cost">¥${formatNumber(factory.capacity_fee)}/月</span>
+                            <span class="stat-value cost">¥${formatNumber(factory.capacity_fee)}/month</span>
                         </div>
                         
                         <div class="stat-item">
                             <span class="stat-label">
                                 <i class="bi bi-lightning-charge me-1"></i>
-                                日用电量
+                                Daily usage
                             </span>
-                            <span class="stat-value usage">${formatNumber(factory.daily_usage)} kWh/天</span>
+                            <span class="stat-value usage">${formatNumber(factory.daily_usage)} kWh/day</span>
                         </div>
                         
                         <div class="stat-item">
                             <span class="stat-label">
                                 <i class="bi bi-calendar-check me-1"></i>
-                                月工作天数
+                                Monthly working days
                             </span>
-                            <span class="stat-value">${factory.working_days_per_month} 天</span>
+                            <span class="stat-value">${factory.working_days_per_month} days</span>
                         </div>
                         
                         <div class="stat-item">
                             <span class="stat-label">
                                 <i class="bi bi-lightning-charge me-1"></i>
-                                月用电量
+                                Monthly usage
                             </span>
                             <span class="stat-value usage">${formatNumber(factory.monthly_usage)} kWh</span>
                         </div>
@@ -147,7 +147,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                     ${factory.work_periods ? `
                         <div class="mt-2">
                             <div class="small text-muted mb-1">
-                                <i class="bi bi-clock me-1"></i>工作时间段:
+                                <i class="bi bi-clock me-1"></i>Working periods:
                             </div>
                             <div class="d-flex flex-wrap gap-1">
                                 ${JSON.parse(factory.work_periods).map(p => `
@@ -162,11 +162,11 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                     <div class="factory-actions">
                         <button class="btn btn-sm btn-outline-primary" onclick="viewFactoryDetails(${factory.id})">
                             <i class="bi bi-eye me-1"></i>
-                            查看详情
+                            View details
                         </button>
                         <button class="btn btn-sm btn-outline-danger" onclick="deleteFactory(${factory.id}, '${escapeHtml(factory.name)}')">
                             <i class="bi bi-trash me-1"></i>
-                            删除
+                            Delete
                         </button>
                     </div>
                 </div>
@@ -175,16 +175,16 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     }
     
     // ========================================
-    // 工作时间段管理
+    // Work period management
     // ========================================
     
-    // 存储工作时间段
+    // Store work periods
     let workPeriods = [];
     
-    // 当前编辑的工厂 ID（null 表示创建新工厂）
+    // Current edited factory ID (null means creating a new factory)
     let editingFactoryId = null;
     
-    // 添加工作时间段
+    // Add work period
     window.addWorkPeriod = function() {
         const startSelect = document.getElementById('periodStart');
         const endSelect = document.getElementById('periodEnd');
@@ -192,50 +192,50 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         const start = parseInt(startSelect.value);
         const end = parseInt(endSelect.value);
         
-        // 验证
+        // Validation
         if (!startSelect.value || !endSelect.value) {
-            showError('请选择开始和结束时间');
+            showError('Please select a start and end time');
             return;
         }
         
         if (start >= end) {
-            showError('结束时间必须大于开始时间');
+            showError('End time must be later than start time');
             return;
         }
         
-        // 检查是否重叠
+        // Check for overlap
         for (const period of workPeriods) {
             if ((start >= period.start && start < period.end) || 
                 (end > period.start && end <= period.end) ||
                 (start <= period.start && end >= period.end)) {
-                showError('时间段不能重叠');
+                showError('Time periods cannot overlap');
                 return;
             }
         }
         
-        // 添加时间段
+        // Add time period
         workPeriods.push({ start, end });
         
-        // 重置选择器
+        // Reset selectors
         startSelect.value = '8';
         endSelect.value = '18';
         
-        // 渲染时间段列表
+        // Render period list
         renderWorkPeriods();
     };
     
-    // 删除工作时间段
+    // Remove work period
     window.removeWorkPeriod = function(index) {
         workPeriods.splice(index, 1);
         renderWorkPeriods();
     };
     
-    // 渲染工作时间段列表
+    // Render work period list
     function renderWorkPeriods() {
         const container = document.getElementById('workPeriodsList');
         
         if (workPeriods.length === 0) {
-            container.innerHTML = '<div class="text-muted small">暂无工作时间段</div>';
+            container.innerHTML = '<div class="text-muted small">No work periods added yet</div>';
             return;
         }
         
@@ -252,33 +252,33 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         `).join('');
     }
     
-    // 显示创建工厂模态框
+    // Show create factory modal
     window.showCreateFactoryModal = function() {
         editingFactoryId = null;
         
         const modal = new bootstrap.Modal(document.getElementById('createFactoryModal'));
         
-        // 更新标题和按钮
-        document.getElementById('factoryModalTitle').innerHTML = '<i class="bi bi-plus-circle me-2"></i>新建工厂';
+        // Update title and button
+        document.getElementById('factoryModalTitle').innerHTML = '<i class="bi bi-plus-circle me-2"></i>New Factory';
         const submitBtn = document.getElementById('factorySubmitBtn');
-        submitBtn.innerHTML = '<i class="bi bi-check-circle me-1"></i>创建';
+        submitBtn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Create';
         submitBtn.onclick = createFactory;
         
-        // 重置表单
+        // Reset form
         document.getElementById('createFactoryForm').reset();
         
-        // 重置工作时间段
+        // Reset work periods
         workPeriods = [];
         renderWorkPeriods();
         
         modal.show();
     };
     
-    // 编辑工厂
+    // Edit factory
     window.editFactory = function(factoryId) {
         const factory = AppState.factories.find(f => f.id === factoryId);
         if (!factory) {
-            showError('工厂不存在');
+            showError('Factory not found');
             return;
         }
         
@@ -286,13 +286,13 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         const modal = new bootstrap.Modal(document.getElementById('createFactoryModal'));
         
-        // 更新标题和按钮
-        document.getElementById('factoryModalTitle').innerHTML = '<i class="bi bi-pencil-square me-2"></i>编辑工厂';
+        // Update title and button
+        document.getElementById('factoryModalTitle').innerHTML = '<i class="bi bi-pencil-square me-2"></i>Edit Factory';
         const submitBtn = document.getElementById('factorySubmitBtn');
-        submitBtn.innerHTML = '<i class="bi bi-check-circle me-1"></i>保存';
+        submitBtn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Save';
         submitBtn.onclick = updateFactory;
         
-        // 填充表单数据
+        // Fill form data
         document.getElementById('factoryName').value = factory.name || '';
         document.getElementById('factoryLocation').value = factory.location || '';
         document.getElementById('industryType').value = factory.industry_type || '';
@@ -301,7 +301,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         document.getElementById('dailyUsage').value = factory.daily_usage || '';
         document.getElementById('workingDays').value = factory.working_days_per_month || 26;
         
-        // 加载工作时间段
+        // Load work periods
         try {
             workPeriods = JSON.parse(factory.work_periods || '[]');
         } catch (e) {
@@ -312,7 +312,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         modal.show();
     };
     
-    // 创建工厂
+    // Create factory
     window.createFactory = async function() {
         const form = document.getElementById('createFactoryForm');
         
@@ -321,9 +321,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             return;
         }
         
-        // 验证工作时间段
+        // Validate work periods
         if (workPeriods.length === 0) {
-            showError('请至少添加一个工作时间段');
+            showError('Please add at least one work period');
             return;
         }
         
@@ -350,25 +350,25 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             const data = await response.json();
             
             if (data.success) {
-                // 关闭模态框
+                // Close modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('createFactoryModal'));
                 modal.hide();
                 
-                // 显示成功消息
-                showSuccess('工厂创建成功');
+                // Show success message
+                showSuccess('Factory created successfully');
                 
-                // 重新加载工厂列表
+                // Reload factory list
                 await loadFactories();
             } else {
-                showError(data.message || '创建工厂失败');
+                showError(data.message || 'Failed to create factory');
             }
         } catch (error) {
-            console.error('创建工厂失败:', error);
-            showError('创建工厂失败');
+            console.error('Failed to create factory:', error);
+            showError('Failed to create factory');
         }
     };
     
-    // 更新工厂
+    // Update factory
     window.updateFactory = async function() {
         const form = document.getElementById('createFactoryForm');
         
@@ -377,9 +377,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             return;
         }
         
-        // 验证工作时间段
+        // Validate work periods
         if (workPeriods.length === 0) {
-            showError('请至少添加一个工作时间段');
+            showError('Please add at least one work period');
             return;
         }
         
@@ -406,37 +406,37 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             const data = await response.json();
             
             if (data.success) {
-                // 关闭模态框
+                // Close modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('createFactoryModal'));
                 modal.hide();
                 
-                // 显示成功消息
-                showSuccess('工厂更新成功');
+                // Show success message
+                showSuccess('Factory updated successfully');
                 
-                // 始终重新加载工厂列表
+                // Always reload factory list
                 await loadFactories();
                 
-                // 如果当前在详情页面，刷新详情页面（无论编辑的是不是当前工厂）
+                // If currently on the details page, refresh details (regardless of whether the edited factory is the current one)
                 if (AppState.currentView === 'factoryDetails') {
-                    // 如果编辑的就是当前查看的工厂，刷新详情
+                    // If the edited factory is currently being viewed, refresh its details
                     if (AppState.currentFactory && AppState.currentFactory.factory.id === editingFactoryId) {
                         await viewFactoryDetails(editingFactoryId);
                     }
-                    // 如果编辑的是其他工厂，也要更新列表数据（虽然看不到列表，但数据要同步）
+                    // If a different factory was edited, update the list data for consistency
                 }
             } else {
-                showError(data.message || '更新工厂失败');
+                showError(data.message || 'Failed to update factory');
             }
         } catch (error) {
-            console.error('更新工厂失败:', error);
-            showError('更新工厂失败');
+            console.error('Failed to update factory:', error);
+            showError('Failed to update factory');
         }
     };
     
-    // 查看工厂详情
+    // View factory details
     window.viewFactoryDetails = async function(factoryId) {
         try {
-            // 添加时间戳防止缓存
+            // Add timestamp to prevent caching
             const response = await fetch(`/api/factory/${factoryId}/details?t=${Date.now()}`);
             const data = await response.json();
             
@@ -445,21 +445,21 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                 renderFactoryDetails(data);
                 showView('factoryDetails');
             } else {
-                showError(data.message || '加载工厂详情失败');
+                showError(data.message || 'Failed to load factory details');
             }
         } catch (error) {
-            console.error('加载工厂详情失败:', error);
-            showError('加载工厂详情失败');
+            console.error('Failed to load factory details:', error);
+            showError('Failed to load factory details');
         }
     };
     
-    // 返回工厂管理页面
+    // Return to factory management page
     window.showFactoryManagement = function() {
         showView('factoryManagement');
         loadFactories();
     };
     
-    // 编辑当前工厂
+    // Edit current factory
     window.editCurrentFactory = function() {
         if (AppState.currentFactory && AppState.currentFactory.factory) {
             const factoryId = AppState.currentFactory.factory.id;
@@ -467,41 +467,41 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         }
     };
     
-    // 渲染工厂详情
+    // Render factory details
     function renderFactoryDetails(data) {
         const factory = data.factory;
         const costAnalysis = data.cost_analysis;
         
-        // 基本信息
+        // Basic information
         document.getElementById('detailFactoryName').textContent = factory.name;
         document.getElementById('detailFactoryLocation').textContent = factory.location || '-';
         document.getElementById('detailFactoryIndustry').textContent = factory.industry_type || '-';
         document.getElementById('detailVoltageLevel').textContent = `${factory.voltage_level} kV`;
         document.getElementById('detailTransformerCapacity').textContent = `${formatNumber(factory.transformer_capacity)} kVA`;
         document.getElementById('detailDailyUsage').textContent = `${formatNumber(factory.daily_usage)} kWh`;
-        document.getElementById('detailWorkingDays').textContent = `${factory.working_days_per_month} 天`;
+        document.getElementById('detailWorkingDays').textContent = `${factory.working_days_per_month} days`;
         
-        // 核心数据统计
+        // Key metrics
         document.getElementById('statTodayUsage').textContent = formatNumber(costAnalysis.daily_usage);
         document.getElementById('statMonthCost').textContent = formatNumber(costAnalysis.total_monthly_cost);
-        // 使用队友写的 carbon_emission 属性
+        // Using teammate's carbon_emission property
         document.getElementById('statCarbonEmission').textContent = formatNumber(costAnalysis.carbon_emission);
         
-        // 节省潜力 - 调用后端API（默认省钱模式）
+        // Saving potential - call backend API (default cost-saving mode)
         switchOptimizationMode('cost');
         
-        // 加载优化建议
+        // Load optimization suggestions
         loadOptimizationSuggestions(factory.id);
         
-        // 渲染图表
+        // Render charts
         renderPriceChart(costAnalysis.hourly_breakdown);
         renderEnergyPieChart(costAnalysis.hourly_breakdown);
         
-        // 渲染成本报告
+        // Render cost report
         renderCostReport(costAnalysis);
     }
     
-    // 加载优化建议
+    // Load optimization suggestions
     async function loadOptimizationSuggestions(factoryId) {
         const container = document.getElementById('optimizationContent');
         
@@ -510,7 +510,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             const data = await response.json();
             
             if (data.success && data.suggestions && data.suggestions.length > 0) {
-                // 渲染建议列表
+                // Render suggestion list
                 container.innerHTML = data.suggestions.map((suggestion, index) => `
                     <div class="suggestion-item mb-3 p-3" style="background: rgba(255, 255, 255, 0.5); border-radius: 12px; border-left: 4px solid ${
                         suggestion.impact === 'high' ? '#ef4444' : 
@@ -528,8 +528,8 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                                 suggestion.impact === 'high' ? '#ef4444' : 
                                 suggestion.impact === 'medium' ? '#f59e0b' : '#10b981'
                             }; font-size: 0.75rem;">
-                                ${suggestion.impact === 'high' ? '高影响' : 
-                                  suggestion.impact === 'medium' ? '中影响' : '低影响'}
+                                ${suggestion.impact === 'high' ? 'High impact' : 
+                                  suggestion.impact === 'medium' ? 'Medium impact' : 'Low impact'}
                             </span>
                         </div>
                         <p class="text-muted mb-2" style="font-size: 0.875rem;">${suggestion.description}</p>
@@ -537,19 +537,19 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                             <div class="col-6">
                                 <div class="small">
                                     <i class="bi bi-cash-coin me-1"></i>
-                                    预计节省: <strong>${formatNumber(suggestion.potential_saving)}</strong> 元/月
+                                    Estimated saving: <strong>${formatNumber(suggestion.potential_saving)}</strong> CNY/month
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="small">
                                     <i class="bi bi-tree me-1"></i>
-                                    减排: <strong>${formatNumber(suggestion.potential_carbon_reduction)}</strong> kg CO₂/月
+                                    Carbon reduction: <strong>${formatNumber(suggestion.potential_carbon_reduction)}</strong> kg CO₂/month
                                 </div>
                             </div>
                         </div>
                         ${suggestion.action_items && suggestion.action_items.length > 0 ? `
                             <div class="mt-2">
-                                <div class="small text-muted mb-1">行动建议:</div>
+                                <div class="small text-muted mb-1">Action recommendations:</div>
                                 <ul class="small mb-0" style="padding-left: 1.25rem;">
                                     ${suggestion.action_items.map(item => `<li>${item}</li>`).join('')}
                                 </ul>
@@ -558,26 +558,26 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                     </div>
                 `).join('');
             } else {
-                // 无建议
+                // No suggestions
                 container.innerHTML = `
                     <div class="text-center py-4 text-muted">
                         <i class="bi bi-check-circle" style="font-size: 2.5rem; color: #10b981;"></i>
-                        <p class="mt-2 mb-0" style="font-size: 0.9375rem;">当前用电方案已经很优化了！</p>
+                        <p class="mt-2 mb-0" style="font-size: 0.9375rem;">The current power plan is already well optimized!</p>
                     </div>
                 `;
             }
         } catch (error) {
-            console.error('加载优化建议失败:', error);
+            console.error('Failed to load optimization suggestions:', error);
             container.innerHTML = `
                 <div class="alert alert-warning" role="alert" style="font-size: 0.875rem;">
                     <i class="bi bi-exclamation-triangle me-2"></i>
-                    加载优化建议失败，请稍后重试
+                    Failed to load optimization suggestions. Please try again later.
                 </div>
             `;
         }
     }
     
-    // 切换优化模式（省钱/减排）
+    // Switch optimization mode (cost/emissions)
     window.switchOptimizationMode = async function(mode) {
         if (!AppState.currentFactory || !AppState.currentFactory.factory) {
             return;
@@ -586,7 +586,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         const factoryId = AppState.currentFactory.factory.id;
         
         try {
-            // 调用后端 API 获取优化数据
+            // Call backend API to get optimization data
             const response = await fetch(`/api/factory/${factoryId}/optimization?mode=${mode}&t=${Date.now()}`);
             const data = await response.json();
             
@@ -594,40 +594,40 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             const unitElement = document.getElementById('statSavingUnit');
             
             if (data.success && data.saving_potential) {
-                // 显示节省潜力
+                // Show saving potential
                 valueElement.textContent = formatNumber(data.saving_potential.value);
                 unitElement.textContent = data.saving_potential.unit;
             } else {
-                // 显示错误或无数据
-                valueElement.innerHTML = '<span class="text-muted small">暂无数据</span>';
-                unitElement.textContent = mode === 'cost' ? '元/月' : 'kg CO₂/月';
+                // Show error or no data
+                valueElement.innerHTML = '<span class="text-muted small">No data available</span>';
+                unitElement.textContent = mode === 'cost' ? 'CNY/month' : 'kg CO₂/month';
             }
         } catch (error) {
-            console.error('获取优化数据失败:', error);
+            console.error('Failed to get optimization data:', error);
             const valueElement = document.getElementById('statSavingPotential');
             const unitElement = document.getElementById('statSavingUnit');
-            valueElement.innerHTML = '<span class="text-muted small">加载失败</span>';
-            unitElement.textContent = mode === 'cost' ? '元/月' : 'kg CO₂/月';
+            valueElement.innerHTML = '<span class="text-muted small">Loading failed</span>';
+            unitElement.textContent = mode === 'cost' ? 'CNY/month' : 'kg CO₂/month';
         }
     };
     
-    // 渲染电价曲线图
+    // Render price line chart
     let priceChartInstance = null;
     function renderPriceChart(hourlyData) {
-        console.log('渲染折线图 - 动画已启用');
+        console.log('Rendering line chart - animation enabled');
         const ctx = document.getElementById('priceChart');
         
-        // 销毁旧图表
+        // Destroy old chart
         if (priceChartInstance) {
             priceChartInstance.destroy();
         }
         
-        // 设置 Canvas 透明背景
+        // Set canvas transparent background
         ctx.style.backgroundColor = 'transparent';
         
         const labels = hourlyData.map(h => `${String(h.hour).padStart(2, '0')}:00`);
         
-        // 获取价格对比数据
+        // Get price comparison data
         const priceComparison = AppState.currentFactory.cost_analysis.price_comparison;
         const agentPrices = hourlyData.map(h => priceComparison.agent_prices[h.hour]);
         const gridPrices = hourlyData.map(h => priceComparison.grid_prices[h.hour]);
@@ -637,7 +637,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             data: {
                 labels: labels,
                 datasets: [{
-                    label: '代理公司价格 (含代理费)',
+                    label: 'Agent company price (incl. fees)',
                     data: agentPrices,
                     borderColor: 'rgb(14, 165, 233)',
                     backgroundColor: 'rgba(14, 165, 233, 0.1)',
@@ -647,7 +647,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                     pointRadius: 3,
                     pointHoverRadius: 6
                 }, {
-                    label: '电网价格',
+                    label: 'Grid price',
                     data: gridPrices,
                     borderColor: 'rgb(245, 158, 11)',
                     backgroundColor: 'rgba(245, 158, 11, 0.1)',
@@ -691,7 +691,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                             },
                             afterLabel: function(context) {
                                 const index = context.dataIndex;
-                                return `时段: ${hourlyData[index].period_type}`;
+                                return `Period: ${hourlyData[index].period_type}`;
                             }
                         }
                     }
@@ -703,7 +703,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                         position: 'left',
                         title: {
                             display: true,
-                            text: '电价 (元/kWh)',
+                            text: 'Price (CNY/kWh)',
                             font: {
                                 size: 13,
                                 weight: '600'
@@ -718,7 +718,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                     x: {
                         title: {
                             display: true,
-                            text: '时间',
+                            text: 'Time',
                             font: {
                                 size: 13,
                                 weight: '600'
@@ -730,29 +730,29 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         });
     }
     
-    // 渲染能源结构饼图
+    // Render energy mix doughnut chart
     let energyPieChartInstance = null;
     function renderEnergyPieChart(hourlyData) {
-        console.log('渲染饼图 - 动画已启用');
+        console.log('Rendering pie chart - animation enabled');
         const ctx = document.getElementById('energyPieChart');
         
-        // 销毁旧图表
+        // Destroy old chart
         if (energyPieChartInstance) {
             energyPieChartInstance.destroy();
         }
         
-        // 设置 Canvas 透明背景
+        // Set canvas transparent background
         ctx.style.backgroundColor = 'transparent';
         
-        // 计算各时段用电量
-        const peakUsage = hourlyData.filter(h => h.period_type === '高峰').reduce((sum, h) => sum + h.usage, 0);
-        const normalUsage = hourlyData.filter(h => h.period_type === '平时').reduce((sum, h) => sum + h.usage, 0);
-        const valleyUsage = hourlyData.filter(h => h.period_type === '低谷').reduce((sum, h) => sum + h.usage, 0);
+        // Calculate usage by period
+        const peakUsage = hourlyData.filter(h => h.period_type === 'Peak').reduce((sum, h) => sum + h.usage, 0);
+        const normalUsage = hourlyData.filter(h => h.period_type === 'Normal').reduce((sum, h) => sum + h.usage, 0);
+        const valleyUsage = hourlyData.filter(h => h.period_type === 'Valley').reduce((sum, h) => sum + h.usage, 0);
         
         energyPieChartInstance = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['高峰', '平时', '低谷'],
+                labels: ['Peak', 'Normal', 'Valley'],
                 datasets: [{
                     data: [peakUsage, normalUsage, valleyUsage],
                     backgroundColor: [
@@ -795,17 +795,17 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         });
     }
     
-    // 渲染成本报告
+    // Render cost report
     function renderCostReport(costAnalysis) {
         const container = document.getElementById('costReportContent');
         
         const hourlyData = costAnalysis.hourly_breakdown;
         const monthDays = costAnalysis.month_days;
         
-        // 计算各时段汇总（hourly_breakdown 是每日数据，需要乘以工作天数）
-        const peakData = hourlyData.filter(h => h.period_type === '高峰');
-        const normalData = hourlyData.filter(h => h.period_type === '平时');
-        const valleyData = hourlyData.filter(h => h.period_type === '低谷');
+        // Calculate period totals (hourly_breakdown is daily data, multiply by working days)
+        const peakData = hourlyData.filter(h => h.period_type === 'Peak');
+        const normalData = hourlyData.filter(h => h.period_type === 'Normal');
+        const valleyData = hourlyData.filter(h => h.period_type === 'Valley');
         
         const peakUsage = peakData.reduce((sum, h) => sum + h.usage, 0) * monthDays;
         const normalUsage = normalData.reduce((sum, h) => sum + h.usage, 0) * monthDays;
@@ -815,52 +815,52 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         const normalCost = normalData.reduce((sum, h) => sum + h.cost, 0) * monthDays;
         const valleyCost = valleyData.reduce((sum, h) => sum + h.cost, 0) * monthDays;
         
-        // 电能费总和（不含容量费）
+        // Total energy cost (excluding capacity fee)
         const totalEnergyCost = costAnalysis.monthly_energy_cost;
         
-        // 计算总用电量
+        // Calculate total usage
         const totalUsage = peakUsage + normalUsage + valleyUsage;
         
         const html = `
             <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
                 <thead>
                     <tr style="background: transparent;">
-                        <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">时段类型</th>
-                        <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">用电量 (kWh)</th>
-                        <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">电价 (元/kWh)</th>
-                        <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">电费 (元)</th>
-                        <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">占比</th>
+                        <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Period type</th>
+                        <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Usage (kWh)</th>
+                        <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Price (CNY/kWh)</th>
+                        <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Cost (CNY)</th>
+                        <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Share</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="padding: 0.75rem; text-align: center; color: #dc2626; font-weight: 700; font-size: 0.9375rem;">高峰</td>
+                        <td style="padding: 0.75rem; text-align: center; color: #dc2626; font-weight: 700; font-size: 0.9375rem;">Peak</td>
                         <td style="padding: 0.75rem; text-align: center;">${formatNumber(peakUsage)}</td>
                         <td style="padding: 0.75rem; text-align: center;">¥${peakUsage > 0 ? (peakCost / peakUsage).toFixed(4) : '0.0000'}</td>
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(peakCost)}</td>
                         <td style="padding: 0.75rem; text-align: center;">${totalEnergyCost > 0 ? ((peakCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
                     </tr>
                     <tr>
-                        <td style="padding: 0.75rem; text-align: center; color: #f59e0b; font-weight: 700; font-size: 0.9375rem;">平时</td>
+                        <td style="padding: 0.75rem; text-align: center; color: #f59e0b; font-weight: 700; font-size: 0.9375rem;">Normal</td>
                         <td style="padding: 0.75rem; text-align: center;">${formatNumber(normalUsage)}</td>
                         <td style="padding: 0.75rem; text-align: center;">¥${normalUsage > 0 ? (normalCost / normalUsage).toFixed(4) : '0.0000'}</td>
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(normalCost)}</td>
                         <td style="padding: 0.75rem; text-align: center;">${totalEnergyCost > 0 ? ((normalCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
                     </tr>
                     <tr>
-                        <td style="padding: 0.75rem; text-align: center; color: #10b981; font-weight: 700; font-size: 0.9375rem;">低谷</td>
+                        <td style="padding: 0.75rem; text-align: center; color: #10b981; font-weight: 700; font-size: 0.9375rem;">Valley</td>
                         <td style="padding: 0.75rem; text-align: center;">${formatNumber(valleyUsage)}</td>
                         <td style="padding: 0.75rem; text-align: center;">¥${valleyUsage > 0 ? (valleyCost / valleyUsage).toFixed(4) : '0.0000'}</td>
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(valleyCost)}</td>
                         <td style="padding: 0.75rem; text-align: center;">${totalEnergyCost > 0 ? ((valleyCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
                     </tr>
                     <tr style="background: transparent;">
-                        <td colspan="3" style="padding: 0.75rem; text-align: left; font-weight: bold;">容量电费</td>
+                        <td colspan="3" style="padding: 0.75rem; text-align: left; font-weight: bold;">Capacity fee</td>
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(costAnalysis.capacity_fee)}</td>
                         <td style="padding: 0.75rem; text-align: center;">-</td>
                     </tr>
                     <tr style="background: transparent;">
-                        <td style="padding: 0.75rem; text-align: center; font-weight: bold;">合计</td>
+                        <td style="padding: 0.75rem; text-align: center; font-weight: bold;">Total</td>
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">${formatNumber(totalUsage)}</td>
                         <td style="padding: 0.75rem; text-align: center;">-</td>
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(costAnalysis.total_monthly_cost)}</td>
@@ -870,14 +870,14 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             </table>
         `;
         
-        console.log('表格 HTML:', html);
+        console.log('Table HTML:', html);
         container.innerHTML = html;
     }
     
     
-    // 删除工厂
+    // Delete factory
     window.deleteFactory = async function(factoryId, factoryName) {
-        if (!confirm(`确定要删除工厂"${factoryName}"吗？此操作不可恢复。`)) {
+        if (!confirm(`Are you sure you want to delete factory "${factoryName}"? This action cannot be undone.`)) {
             return;
         }
         
@@ -889,29 +889,29 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             const data = await response.json();
             
             if (data.success) {
-                showSuccess('工厂删除成功');
+                showSuccess('Factory deleted successfully');
                 await loadFactories();
             } else {
-                showError(data.message || '删除工厂失败');
+                showError(data.message || 'Failed to delete factory');
             }
         } catch (error) {
-            console.error('删除工厂失败:', error);
-            showError('删除工厂失败');
+            console.error('Failed to delete factory:', error);
+            showError('Failed to delete factory');
         }
     };
     
     // ========================================
-    // 工具函数
+    // Utility functions
     // ========================================
     
-    // HTML 转义
+    // HTML escaping
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
     
-    // 格式化数字
+    // Format numbers
     function formatNumber(num) {
         if (num === null || num === undefined) return '0';
         return parseFloat(num).toLocaleString('zh-CN', {
@@ -920,24 +920,24 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         });
     }
     
-    // 显示成功消息
+    // Show success message
     function showSuccess(message) {
         showToast(message, 'success');
     }
     
-    // 显示错误消息
+    // Show error message
     function showError(message) {
         showToast(message, 'danger');
     }
     
-    // 显示信息消息
+    // Show info message
     function showInfo(message) {
         showToast(message, 'info');
     }
     
-    // 显示 Toast 消息
+    // Show toast message
     function showToast(message, type = 'info') {
-        // 创建 toast 容器（如果不存在）
+        // Create toast container (if missing)
         let toastContainer = document.getElementById('toastContainer');
         if (!toastContainer) {
             toastContainer = document.createElement('div');
@@ -947,7 +947,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             document.body.appendChild(toastContainer);
         }
         
-        // 创建 toast 元素
+        // Create toast element
         const toastId = 'toast-' + Date.now();
         const toastHtml = `
             <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0" role="alert">
@@ -970,17 +970,17 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         toast.show();
         
-        // 移除 toast 元素
+        // Remove toast element
         toastElement.addEventListener('hidden.bs.toast', () => {
             toastElement.remove();
         });
     }
     
     // ========================================
-    // 性能监测和设置
+    // Performance monitoring and settings
     // ========================================
     
-    // FPS 监测
+    // FPS monitor
     const FPSMonitor = {
         frames: [],
         lastTime: performance.now(),
@@ -1010,12 +1010,12 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             const delta = now - this.lastTime;
             this.lastTime = now;
             
-            // 记录 FPS（1000ms / delta）
+            // Record FPS (1000ms / delta)
             if (delta > 0) {
                 const fps = 1000 / delta;
                 this.frames.push(fps);
                 
-                // 基准测试时不限制帧数，实时显示时只保留最近 60 帧
+                // During benchmark, do not cap frame count; for live display keep only the latest 60 frames
                 if (!this.isBenchmarking && this.frames.length > 60) {
                     this.frames.shift();
                 }
@@ -1037,7 +1037,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         getCurrentFPS() {
             if (this.frames.length === 0) return 0;
-            // 取最近 10 帧的平均值
+            // Take average of last 10 frames
             const recent = this.frames.slice(-10);
             const sum = recent.reduce((a, b) => a + b, 0);
             return Math.round(sum / recent.length);
@@ -1049,11 +1049,11 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         }
     };
     
-    // 打开设置面板
+    // Open settings panel
     window.openSettings = function() {
         const modal = new bootstrap.Modal(document.getElementById('settingsModal'));
         
-        // 加载当前设置
+        // Load current settings
         const currentMode = localStorage.getItem('uiMode') || 'full';
         document.getElementById('uiMode' + currentMode.charAt(0).toUpperCase() + currentMode.slice(1)).checked = true;
         
@@ -1063,47 +1063,47 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         modal.show();
     };
     
-    // 运行基准测试
+    // Run benchmark
     window.runBenchmark = async function() {
         const btn = document.getElementById('benchmarkBtn');
         const resultDiv = document.getElementById('benchmarkResult');
         const alertDiv = document.getElementById('benchmarkAlert');
         
-        // 禁用按钮
+        // Disable button
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>测试中...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Testing...';
         
-        // 隐藏之前的结果
+        // Hide previous results
         resultDiv.style.display = 'none';
         
-        // 保存当前 UI 模式
+        // Save current UI mode
         const wasLiteMode = document.body.classList.contains('ui-lite');
         
-        // 强制切换到满血版进行测试
+        // Force switch to full UI for the test
         if (wasLiteMode) {
             document.body.classList.remove('ui-lite');
             document.body.classList.add('ui-full');
         }
         
-        // 等待 100ms 让样式生效
+        // Wait 100ms for styles to take effect
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        // 标记为基准测试模式
+        // Mark as benchmark mode
         FPSMonitor.isBenchmarking = true;
         FPSMonitor.reset();
         FPSMonitor.start();
         
-        // 强制触发所有页面元素的悬停效果
+        // Force hover effect on all page elements
         const allCards = document.querySelectorAll('.stat-card, .factory-card, .card');
         let hoverIndex = 0;
         const hoverInterval = setInterval(() => {
-            // 移除所有 hover
+            // Remove all hover effects
             allCards.forEach(card => {
                 card.style.transform = '';
                 card.style.boxShadow = '';
             });
             
-            // 强制触发当前卡片的 hover 效果
+            // Force current card hover effect
             if (allCards[hoverIndex]) {
                 const card = allCards[hoverIndex];
                 if (card.classList.contains('stat-card')) {
@@ -1118,48 +1118,48 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                 }
             }
             hoverIndex = (hoverIndex + 1) % allCards.length;
-        }, 300); // 每 0.3 秒切换一个卡片
+        }, 300); // Rotate to the next card every 0.3 seconds
         
-        // 测试 10 秒
+        // Test for 10 seconds
         await new Promise(resolve => setTimeout(resolve, 10000));
         
-        // 停止监测和悬停效果
+        // Stop monitoring and hover effects
         FPSMonitor.stop();
         FPSMonitor.isBenchmarking = false;
         clearInterval(hoverInterval);
         
-        // 恢复所有卡片样式
+        // Restore all card styles
         allCards.forEach(card => {
             card.style.transform = '';
             card.style.boxShadow = '';
         });
         
-        // 恢复原来的 UI 模式
+        // Restore original UI mode
         if (wasLiteMode) {
             document.body.classList.remove('ui-full');
             document.body.classList.add('ui-lite');
         }
         
-        // 计算平均 FPS 和最低 FPS
+        // Calculate average FPS and minimum FPS
         const avgFps = FPSMonitor.getAverageFPS();
         const minFps = FPSMonitor.getMinFPS();
         
-        // 显示结果
+        // Show results
         document.getElementById('avgFps').textContent = avgFps;
         document.getElementById('minFps').textContent = minFps;
         
         let recommendation = '';
         let alertClass = '';
         
-        // 根据最低 FPS 来判断（最坏情况）
+        // Determine performance based on minimum FPS (worst-case)
         if (minFps >= 50) {
-            recommendation = '✅ 设备性能优秀，推荐使用满血版 UI';
+            recommendation = '✅ Excellent device performance; full UI is recommended';
             alertClass = 'alert-success';
         } else if (minFps >= 30) {
-            recommendation = '⚠️ 设备性能中等，可使用满血版但可能有轻微卡顿';
+            recommendation = '⚠️ Device performance is moderate; full UI is usable but may feel slightly laggy';
             alertClass = 'alert-warning';
         } else {
-            recommendation = '❌ 设备性能较低，强烈推荐使用精简版 UI';
+            recommendation = '❌ Device performance is low; lightweight UI is strongly recommended';
             alertClass = 'alert-danger';
         }
         
@@ -1168,12 +1168,12 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         resultDiv.style.display = 'block';
         
-        // 恢复按钮
+        // Restore button
         btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-play-circle me-1"></i>重新测试';
+        btn.innerHTML = '<i class="bi bi-play-circle me-1"></i>Retest';
     };
     
-    // 切换 FPS 显示
+    // Toggle FPS display
     window.toggleFpsDisplay = function() {
         const showFps = document.getElementById('showFpsToggle').checked;
         const fpsDisplay = document.getElementById('fpsDisplay');
@@ -1188,36 +1188,36 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         }
     };
     
-    // 更新 FPS 显示
+    // Update FPS display
     function updateFpsDisplay() {
         if (!FPSMonitor.isRunning) return;
         
         const fps = FPSMonitor.getCurrentFPS();
         document.getElementById('fpsValue').textContent = fps;
         
-        setTimeout(updateFpsDisplay, 500); // 每 0.5 秒更新一次
+        setTimeout(updateFpsDisplay, 500); // Update every 0.5 seconds
     }
     
-    // 保存设置
+    // Save settings
     window.saveSettings = function() {
         const uiMode = document.querySelector('input[name="uiMode"]:checked').value;
         const showFps = document.getElementById('showFpsToggle').checked;
         
-        // 保存到 localStorage
+        // Save to localStorage
         localStorage.setItem('uiMode', uiMode);
         localStorage.setItem('showFps', showFps);
         
-        // 应用 UI 模式
+        // Apply UI mode
         applyUIMode(uiMode);
         
-        // 关闭模态框
+        // Close modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
         modal.hide();
         
-        showSuccess('设置已保存');
+        showSuccess('Settings saved');
     };
     
-    // 应用 UI 模式
+    // Apply UI mode
     function applyUIMode(mode) {
         if (mode === 'lite') {
             document.body.classList.add('ui-lite');
@@ -1229,18 +1229,18 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     }
     
     // ========================================
-    // 初始化
+    // Initialization
     // ========================================
     function init() {
-        console.log('🚀 PeakShift Dashboard 初始化...');
+        console.log('🚀 PeakShift Dashboard initializing...');
         
-        // 显示工厂管理视图
+        // Show factory management view
         showView('factoryManagement');
         
-        // 加载工厂列表
+        // Load factory list
         loadFactories();
         
-        // 加载保存的设置
+        // Load saved settings
         const savedMode = localStorage.getItem('uiMode') || 'full';
         applyUIMode(savedMode);
         
@@ -1251,10 +1251,10 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             updateFpsDisplay();
         }
         
-        console.log('✅ Dashboard 初始化完成');
+        console.log('✅ Dashboard initialization complete');
     }
     
-    // DOM 加载完成后初始化
+    // Initialize after DOM loaded
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {

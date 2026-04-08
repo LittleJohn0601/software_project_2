@@ -7,16 +7,16 @@ services:
     ports:
       - "5001:5001"
     volumes:
-      # 挂载整个 blogapp 目录（包含所有 Python 代码）
+      # Mount the entire blogapp directory (includes all Python code)
       - ./blogapp:/app/blogapp
-      # 挂载启动文件
+      # Mount startup files
       - ./microblog.py:/app/microblog.py
       - ./init_db.py:/app/init_db.py
-      # 挂载数据库（数据持久化）
+      # Mount the database directory (data persistence)
       - ./instance:/app/instance
-      # 挂载日志
+      # Mount logs
       - ./logs:/app/logs
-      # 挂载测试目录
+      # Mount test directory
       - ./tests:/app/tests
     environment:
       - FLASK_ENV=development

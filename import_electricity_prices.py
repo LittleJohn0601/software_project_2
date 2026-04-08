@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-导入电价数据脚本
-从 Excel 文件读取分时电价数据并写入数据库
+Electricity price import script
+Read time-of-use electricity price data from an Excel file and write it to the database
 """
 
 import pandas as pd
@@ -12,86 +12,86 @@ from blogapp.models import HourlyElectricityPrice
 
 
 def import_electricity_prices():
-    """导入电价数据"""
+    """Import electricity price data"""
     
-    # Excel 文件路径
+    # Excel file path
     excel_path = os.path.join('blogapp', 'data', 'hourly_avg_30days(1).xlsx')
     
     if not os.path.exists(excel_path):
-        print(f"❌ 文件不存在: {excel_path}")
+        print(f"❌ File not found: {excel_path}")
         return
     
-    print(f"📂 读取文件: {excel_path}")
+    print(f"📂 Reading file: {excel_path}")
     
-    # 读取 Excel 文件
+    # Read Excel file
     df = pd.read_excel(excel_path)
     
-    print(f"📊 数据形状: {df.shape}")
-    print(f"📋 列名: {df.columns.tolist()}")
-    print(f"\n前5行数据:")
+    print(f"📊 Data shape: {df.shape}")
+    print(f"📋 Column names: {df.columns.tolist()}")
+    print(f"\nFirst 5 rows of data:")
     print(df.head())
     
-    # 获取列名（假设第一列是小时，第二列是价格）
+    # Get column names (assuming first column is hour, second is price)
     hour_col = df.columns[0]
     price_col = df.columns[1]
     
-    print(f"\n🔄 开始导入数据...")
-    print(f"   小时列: {hour_col}")
-    print(f"   价格列: {price_col}")
+    print(f"\n🔄 Starting data import...")
+    print(f"   Hour column: {hour_col}")
+    print(f"   Price column: {price_col}")
     
     with app.app_context():
-        # 清空现有数据
+        # Clearing existing data
         HourlyElectricityPrice.query.delete()
-        print("🗑️  已清空旧数据")
+        print("🗑️  Old data cleared")
         
-        # 导入新数据
+        # Importing new data
         imported_count = 0
         for index, row in df.iterrows():
-            # 处理时间格式（如 "00:00" 提取小时部分）
+            # Process time format (e.g. extract hour from "00:00")
             time_str = str(row[hour_col])
             if ':' in time_str:
                 hour = int(time_str.split(':')[0])
             else:
                 hour = int(time_str)
             
-            # 生成时间段字符串
+            # Generate time range string
             time_range = f"{hour:02d}:00-{(hour+1):02d}:00"
             
             original_price = float(row[price_col])
             
-            # 价格除以 1000，保留两位小数
+            # Divide price by 1000 and round to two decimals
             price = round(original_price / 1000, 2)
             
-            # 创建记录 - 现在包含了 time_range
+            # Create record - now includes time_range
             record = HourlyElectricityPrice(
                 hour=hour,
-                time_range=time_range,  # ← 添加这个字段
+                time_range=time_range,  # ← Add this field
                 price=price
             )
             db.session.add(record)
             imported_count += 1
             
-            print(f"   Hour {hour:2d}: {time_range} - {original_price:8.2f} → {price:.2f} 元/kWh")
+            print(f"   Hour {hour:2d}: {time_range} - {original_price:8.2f} → {price:.2f} CNY/kWh")
         
-        # 提交到数据库
+        # Commit to the database
         db.session.commit()
-        print(f"\n✅ 成功导入 {imported_count} 条记录！")
+        print(f"\n✅ Successfully imported {imported_count} records！")
         
-        # 验证数据
-        print("\n🔍 验证数据:")
+        # Verify data
+        print("\n🔍 Verify data:")
         all_records = HourlyElectricityPrice.query.order_by(HourlyElectricityPrice.hour).all()
-        print(f"   数据库中共有 {len(all_records)} 条记录")
+        print(f"   Total records in database: {len(all_records)} records")
         if all_records:
-            print(f"   小时范围: {all_records[0].hour} - {all_records[-1].hour}")
-            print(f"   价格范围: {min(r.price for r in all_records):.2f} - {max(r.price for r in all_records):.2f} 元/kWh")
-            print(f"\n   前5条记录:")
+            print(f"   Hour range: {all_records[0].hour} - {all_records[-1].hour}")
+            print(f"   Price range: {min(r.price for r in all_records):.2f} - {max(r.price for r in all_records):.2f} CNY/kWh")
+            print(f"\n   First 5 records:")
             for r in all_records[:5]:
-                print(f"     {r.time_range}: {r.price:.2f} 元/kWh")
+                print(f"     {r.time_range}: {r.price:.2f} CNY/kWh")
 
 
 if __name__ == '__main__':
     print("=" * 60)
-    print("电价数据导入工具")
+    print("Electricity Price Import Tool")
     print("=" * 60)
     import_electricity_prices()
     print("=" * 60)

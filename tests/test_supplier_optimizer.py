@@ -1,6 +1,6 @@
 # tests/test_supplier_optimizer.py
 """
-供应商优化器后端测试代码
+Supplier optimizer backend test code
 """
 
 import os
@@ -8,11 +8,11 @@ import sys
 import json
 from pathlib import Path
 
-# 添加项目根目录到路径
+# Add project root to path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-# 设置数据库路径
+# SettingsDatabase path
 instance_path = project_root / 'instance'
 db_path = instance_path / 'greenlife.db'
 instance_path.mkdir(exist_ok=True)
@@ -28,13 +28,13 @@ from blogapp.services.supplier_optimizer import SupplierOptimizer, SupplierType
 
 
 def setup_test_data(app):
-    """设置测试数据"""
+    """Set up test data"""
     print("\n" + "="*80)
-    print("设置测试数据")
+    print("Setting up test data")
     print("="*80)
     
     with app.app_context():
-        # 创建测试用户
+        # Create test user
         user = User.query.filter_by(username='test_user').first()
         if not user:
             user = User(
@@ -45,16 +45,16 @@ def setup_test_data(app):
             user.set_password('test123')
             db.session.add(user)
             db.session.commit()
-            print("✅ 创建测试用户")
+            print("✅ Created test user")
         else:
-            print("✅ 测试用户已存在")
+            print("✅ Test user already exists")
         
-        # 创建测试工厂
-        factory = Factory.query.filter_by(name='测试工厂').first()
+        # CreateTest factory
+        factory = Factory.query.filter_by(name='Test factory').first()
         if not factory:
             factory = Factory(
-                name='测试工厂',
-                location='测试地点',
+                name='Test factory',
+                location='Test location',
                 industry_type='manufacturing',
                 voltage_level=10,
                 transformer_capacity=1000,
@@ -65,11 +65,11 @@ def setup_test_data(app):
             )
             db.session.add(factory)
             db.session.commit()
-            print("✅ 创建测试工厂")
+            print("✅ CreateTest factory")
         else:
-            print("✅ 测试工厂已存在")
+            print("✅ Test factory already exists")
         
-        # 创建电网价格数据
+        # Create grid price data
         grid_price = GridElectricityPrice.query.filter_by(voltage_level=10).first()
         if not grid_price:
             grid_price = GridElectricityPrice(
@@ -81,11 +81,11 @@ def setup_test_data(app):
             )
             db.session.add(grid_price)
             db.session.commit()
-            print("✅ 创建电网价格数据")
+            print("✅ Created grid price data")
         else:
-            print("✅ 电网价格数据已存在")
+            print("✅ Grid price data already exists")
         
-        # 创建售电公司价格数据
+        # Create retail supplier price data
         supplier_prices = [
             (0, "0-1", 0.28), (1, "1-2", 0.28), (2, "2-3", 0.28), (3, "3-4", 0.28),
             (4, "4-5", 0.28), (5, "5-6", 0.28), (6, "6-7", 0.35), (7, "7-8", 0.35),
@@ -106,9 +106,9 @@ def setup_test_data(app):
                 db.session.add(hp)
         
         db.session.commit()
-        print("✅ 创建售电公司价格数据")
+        print("✅ Created retail supplier price data")
         
-        # 创建分时时段数据
+        # Create time-of-use periods data
         tou_data = [
             (0, "0-1", "valley"), (1, "1-2", "valley"), (2, "2-3", "valley"),
             (3, "3-4", "valley"), (4, "4-5", "valley"), (5, "5-6", "valley"),
@@ -132,23 +132,23 @@ def setup_test_data(app):
                 db.session.add(tou)
         
         db.session.commit()
-        print("✅ 创建分时时段数据")
+        print("✅ Created time-of-use period data")
         
-        print("✅ 测试数据设置完成")
+        print("✅ Test data setup completed")
         return True
 
 
 def test_supplier_valid_check(app):
-    """测试1: 供应商价格约束检查"""
+    """Test 1: supplier price constraint check"""
     print("\n" + "="*80)
-    print("测试1: 供应商价格约束检查")
+    print("Test 1: supplier price constraint check")
     print("="*80)
     
     with app.app_context():
-        # 重新查询工厂对象
-        factory = Factory.query.filter_by(name='测试工厂').first()
+        # Re-query factory object
+        factory = Factory.query.filter_by(name='Test factory').first()
         if not factory:
-            print("❌ 未找到测试工厂")
+            print("❌ Test factory not found")
             return False
         
         grid_price = GridElectricityPrice.query.filter_by(voltage_level=10).first()
@@ -158,10 +158,10 @@ def test_supplier_valid_check(app):
         optimizer = SupplierOptimizer(factory, grid_price, supplier_prices, tou_periods)
         
         is_valid = optimizer.check_supplier_price_constraint()
-        print(f"供应商价格是否满足约束 (≤ 电网×1.6): {is_valid}")
+        print(f"Supplier price meets constraint (≤ grid×1.6): {is_valid}")
         
-        print("\n价格对比（部分小时）:")
-        print(f"{'小时':<6} {'电网价格':<12} {'售电价格':<12} {'最大允许':<12} {'是否满足':<10}")
+        print("\nPrice comparison (selected hours):")
+        print(f"{'Hour':<6} {'Grid price':<12} {'Supplier price':<12} {'Max allowed':<12} {'Meets constraint':<10}")
         print("-" * 60)
         
         for hour in [0, 7, 8, 12, 18, 22]:
@@ -176,15 +176,15 @@ def test_supplier_valid_check(app):
 
 
 def test_optimize_cost_mode(app):
-    """测试2: 省钱模式优化"""
+    """Test 2: Cost mode optimization"""
     print("\n" + "="*80)
-    print("测试2: 省钱模式优化")
+    print("Test 2: Cost mode optimization")
     print("="*80)
     
     with app.app_context():
-        factory = Factory.query.filter_by(name='测试工厂').first()
+        factory = Factory.query.filter_by(name='Test factory').first()
         if not factory:
-            print("❌ 未找到测试工厂")
+            print("❌ Test factory not found")
             return None
         
         grid_price = GridElectricityPrice.query.filter_by(voltage_level=10).first()
@@ -195,31 +195,31 @@ def test_optimize_cost_mode(app):
         
         result = optimizer.optimize(objective='cost')
         
-        print(f"\n优化目标: 省钱模式")
-        print(f"最优供应商: {result['best_supplier']['name']}")
-        print(f"\n当前情况:")
-        print(f"  月电费: {result['current']['cost']:,.2f} 元")
-        print(f"  月碳排放: {result['current']['carbon']:,.2f} kg CO₂")
-        print(f"\n优化后:")
-        print(f"  月电费: {result['optimized']['cost']:,.2f} 元")
-        print(f"  月碳排放: {result['optimized']['carbon']:,.2f} kg CO₂")
-        print(f"\n节省:")
-        print(f"  电费节省: {result['saving']['cost']:,.2f} 元/月")
-        print(f"  碳减排: {result['saving']['carbon']:,.2f} kg CO₂/月")
+        print(f"\nOptimization objective: Cost mode")
+        print(f"Best supplier: {result['best_supplier']['name']}")
+        print(f"\nCurrent status:")
+        print(f"  Monthly cost: {result['current']['cost']:,.2f} CNY")
+        print(f"  Monthly carbon emissions: {result['current']['carbon']:,.2f} kg CO₂")
+        print(f"\nAfter optimization:")
+        print(f"  Monthly cost: {result['optimized']['cost']:,.2f} CNY")
+        print(f"  Monthly carbon emissions: {result['optimized']['carbon']:,.2f} kg CO₂")
+        print(f"\nSavings:")
+        print(f"  Electricity cost savings: {result['saving']['cost']:,.2f} CNY/month")
+        print(f"  Carbon reduction: {result['saving']['carbon']:,.2f} kg CO₂/month")
         
         return result
 
 
 def test_optimize_carbon_mode(app):
-    """测试3: 减排模式优化"""
+    """Test 3: Carbon mode optimization"""
     print("\n" + "="*80)
-    print("测试3: 减排模式优化")
+    print("Test 3: Carbon mode optimization")
     print("="*80)
     
     with app.app_context():
-        factory = Factory.query.filter_by(name='测试工厂').first()
+        factory = Factory.query.filter_by(name='Test factory').first()
         if not factory:
-            print("❌ 未找到测试工厂")
+            print("❌ Test factory not found")
             return None
         
         grid_price = GridElectricityPrice.query.filter_by(voltage_level=10).first()
@@ -230,28 +230,28 @@ def test_optimize_carbon_mode(app):
         
         result = optimizer.optimize(objective='carbon')
         
-        print(f"\n优化目标: 减排模式")
-        print(f"最优供应商: {result['best_supplier']['name']}")
-        print(f"\n当前情况:")
-        print(f"  月电费: {result['current']['cost']:,.2f} 元")
-        print(f"  月碳排放: {result['current']['carbon']:,.2f} kg CO₂")
-        print(f"\n优化后:")
-        print(f"  月电费: {result['optimized']['cost']:,.2f} 元")
-        print(f"  月碳排放: {result['optimized']['carbon']:,.2f} kg CO₂")
+        print(f"\nOptimization objective: Carbon mode")
+        print(f"Best supplier: {result['best_supplier']['name']}")
+        print(f"\nCurrent status:")
+        print(f"  Monthly cost: {result['current']['cost']:,.2f} CNY")
+        print(f"  Monthly carbon emissions: {result['current']['carbon']:,.2f} kg CO₂")
+        print(f"\nAfter optimization:")
+        print(f"  Monthly cost: {result['optimized']['cost']:,.2f} CNY")
+        print(f"  Monthly carbon emissions: {result['optimized']['carbon']:,.2f} kg CO₂")
         
         return result
 
 
 def test_saving_potential(app):
-    """测试4: 节省潜力计算"""
+    """Test 4: Saving potential calculation"""
     print("\n" + "="*80)
-    print("测试4: 节省潜力计算 API")
+    print("Test 4: Saving potential calculation API")
     print("="*80)
     
     with app.app_context():
-        factory = Factory.query.filter_by(name='测试工厂').first()
+        factory = Factory.query.filter_by(name='Test factory').first()
         if not factory:
-            print("❌ 未找到测试工厂")
+            print("❌ Test factory not found")
             return None
         
         grid_price = GridElectricityPrice.query.filter_by(voltage_level=10).first()
@@ -261,28 +261,28 @@ def test_saving_potential(app):
         optimizer = SupplierOptimizer(factory, grid_price, supplier_prices, tou_periods)
         
         cost_result = optimizer.get_saving_potential(mode='cost')
-        print(f"\n省钱模式:")
-        print(f"  节省潜力: {cost_result['saving_potential']['value']:,.2f} {cost_result['saving_potential']['unit']}")
-        print(f"  描述: {cost_result['saving_potential']['description']}")
+        print(f"\nCost mode:")
+        print(f"  Saving potential: {cost_result['saving_potential']['value']:,.2f} {cost_result['saving_potential']['unit']}")
+        print(f"  Description: {cost_result['saving_potential']['description']}")
         
         carbon_result = optimizer.get_saving_potential(mode='carbon')
-        print(f"\n减排模式:")
-        print(f"  减排潜力: {carbon_result['saving_potential']['value']:,.2f} {carbon_result['saving_potential']['unit']}")
-        print(f"  描述: {carbon_result['saving_potential']['description']}")
+        print(f"\nCarbon mode:")
+        print(f"  Carbon potential: {carbon_result['saving_potential']['value']:,.2f} {carbon_result['saving_potential']['unit']}")
+        print(f"  Description: {carbon_result['saving_potential']['description']}")
         
         return cost_result, carbon_result
 
 
 def test_suggestions(app):
-    """测试5: 优化建议生成"""
+    """Test 5: Optimization suggestions generation"""
     print("\n" + "="*80)
-    print("测试5: 优化建议生成")
+    print("Test 5: Optimization suggestions generation")
     print("="*80)
     
     with app.app_context():
-        factory = Factory.query.filter_by(name='测试工厂').first()
+        factory = Factory.query.filter_by(name='Test factory').first()
         if not factory:
-            print("❌ 未找到测试工厂")
+            print("❌ Test factory not found")
             return None
         
         grid_price = GridElectricityPrice.query.filter_by(voltage_level=10).first()
@@ -293,22 +293,22 @@ def test_suggestions(app):
         
         result = optimizer.get_suggestions()
         
-        print(f"\n共生成 {len(result['suggestions'])} 条建议:")
+        print(f"\nTotal generated {len(result['suggestions'])} suggestions:")
         for i, suggestion in enumerate(result['suggestions'], 1):
-            print(f"\n建议 {i}: {suggestion['title']}")
-            print(f"  描述: {suggestion['description']}")
-            print(f"  影响程度: {suggestion['impact']}")
-            print(f"  预计节省: {suggestion['potential_saving']:,.2f} 元/月")
+            print(f"\nSuggestion {i}: {suggestion['title']}")
+            print(f"  Description: {suggestion['description']}")
+            print(f"  Impact level: {suggestion['impact']}")
+            print(f"  Estimated savings: {suggestion['potential_saving']:,.2f} CNY/month")
         
         return result
 
 
 def run_all_tests():
-    """运行所有测试"""
+    """Run all tests"""
     print("\n")
     print("█"*80)
     print("█" + " "*78 + "█")
-    print("█" + " "*20 + "供应商优化器后端测试" + " "*34 + "█")
+    print("█" + " "*20 + "Supplier Optimizer Backend Test" + " "*34 + "█")
     print("█" + " "*78 + "█")
     print("█"*80)
     
@@ -316,28 +316,28 @@ def run_all_tests():
     
     try:
         with app.app_context():
-            # 确保数据库表存在
+            # Ensure database tables exist
             db.create_all()
             
-            # 设置测试数据
+            # Set up test data
             setup_test_data(app)
             
-            # 运行测试
+            # Run tests
             test_supplier_valid_check(app)
             test_optimize_cost_mode(app)
             test_optimize_carbon_mode(app)
             test_saving_potential(app)
             test_suggestions(app)
             
-            # 测试总结
+            # Test summary
             print("\n")
             print("="*80)
-            print("测试总结")
+            print("Test summary")
             print("="*80)
-            print("✅ 所有测试通过！")
+            print("✅ All tests passed!")
             
     except Exception as e:
-        print(f"\n❌ 测试失败: {str(e)}")
+        print(f"\n❌ Test failed: {str(e)}")
         import traceback
         traceback.print_exc()
 

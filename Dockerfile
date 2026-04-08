@@ -1,33 +1,33 @@
-# 使用 Python 3.11 官方镜像
+# Use official Python 3.11 image
 FROM python:3.11-slim
 
-# 设置工作目录
+# Set working directory
 WORKDIR /app
 
-# 设置环境变量
+# Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     FLASK_APP=microblog.py
 
-# 安装系统依赖
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# 复制依赖文件
+# Copy dependency file
 COPY requirements.txt .
 
-# 安装 Python 依赖
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 复制项目文件
+# Copy project files
 COPY . .
 
-# 创建必要的目录
+# Create required directories
 RUN mkdir -p instance logs
 
-# 暴露端口
+# Expose port
 EXPOSE 5001
 
-# 启动命令（数据库会在 microblog.py 中自动初始化）
+# Startup command (database will auto-initialize in microblog.py)
 CMD ["python", "microblog.py"]

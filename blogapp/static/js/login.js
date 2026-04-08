@@ -13,7 +13,7 @@ const state = {
     lookTimeout: null
 };
 
-// 暴露到全局，供注册表单使用
+// Expose globally for registration form use
 window.state = state;
 
 // ===== DOM Elements =====
@@ -159,7 +159,7 @@ function updateCharacters() {
     updatePupils(passwordVisible);
 }
 
-// 暴露到全局
+// Expose globally
 window.updateCharacters = updateCharacters;
 
 // ===== Update Eyes Positions =====
@@ -309,7 +309,7 @@ function schedulePeek() {
     }
 }
 
-// 暴露到全局
+// Expose globally
 window.schedulePeek = schedulePeek;
 
 // ===== Form Event Handlers =====
@@ -358,7 +358,7 @@ elements.togglePassword.addEventListener('click', () => {
     // Toggle password visibility
     elements.passwordInput.type = state.showPassword ? 'text' : 'password';
     
-    // Toggle icons - 显示密码时显示眼睛图标，隐藏密码时显示斜线眼睛图标
+    // Toggle icons - show eye icon when password visible, slashed eye when hidden
     if (state.showPassword) {
         elements.iconEye.classList.remove('d-none');
         elements.iconEyeOff.classList.add('d-none');

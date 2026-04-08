@@ -1,9 +1,9 @@
 /* ========================================
    Global Music Player Styles
-   独立音乐播放器样式 - 可安全删除
+   Standalone music player styles - safe to remove
    ======================================== */
 
-/* 音乐播放器按钮容器 */
+/* Music player button container */
 .music-player-container {
     position: fixed;
     bottom: 30px;
@@ -11,7 +11,7 @@
     z-index: 9999;
 }
 
-/* 音乐播放器按钮 */
+/* Music player button */
 .music-player-btn {
     width: 60px;
     height: 60px;
@@ -37,7 +37,7 @@
     transform: translateY(-1px);
 }
 
-/* 播放状态 - 脉冲动画 */
+/* Playing state - pulse animation */
 .music-player-btn.playing {
     animation: pulse 2s infinite;
 }
@@ -51,19 +51,19 @@
     }
 }
 
-/* 音乐图标 */
+/* Music icon */
 .music-icon {
     font-size: 24px;
     color: white;
     transition: all 0.3s ease;
 }
 
-/* 静音状态图标 */
+/* Muted state icon */
 .music-player-btn.muted .music-icon {
     opacity: 0.6;
 }
 
-/* 音波动画容器 */
+/* Sound wave animation container */
 .sound-wave {
     position: absolute;
     width: 100%;
@@ -80,7 +80,7 @@
     opacity: 1;
 }
 
-/* 音波条 */
+/* Sound bar */
 .sound-bar {
     width: 3px;
     height: 12px;
@@ -110,7 +110,7 @@
     }
 }
 
-/* 提示文字 */
+/* Tooltip text */
 .music-tooltip {
     position: absolute;
     bottom: 70px;
@@ -130,7 +130,7 @@
     opacity: 1;
 }
 
-/* 响应式设计 */
+/* Responsive design */
 @media (max-width: 768px) {
     .music-player-container {
         bottom: 20px;
@@ -147,7 +147,7 @@
     }
 }
 
-/* 深色模式支持 */
+/* Dark mode support */
 @media (prefers-color-scheme: dark) {
     .music-player-btn {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

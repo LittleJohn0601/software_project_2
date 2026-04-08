@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PeakShift - 工业用电成本与碳排放分析优化系统</title>
+    <title>PeakShift - Industrial power cost and carbon optimization system</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,14 +17,14 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v={{ cache_bust }}">
     
-    <!-- 全局音乐播放器样式 -->
+    <!-- Global music player styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='music-player/css/music-player.css') }}">
 </head>
 <body data-playlist="playlist-dashboard">
-    <!-- 主容器 -->
+    <!-- Main container -->
     <div id="app" class="d-flex flex-column min-vh-100">
         
-        <!-- Flash Messages - 顶部居中显示 -->
+        <!-- Flash messages - centered at top -->
         <div id="flashMessagesContainer" class="position-fixed start-50 translate-middle-x" style="z-index: 9999; min-width: 300px; top: 80px;">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -50,7 +50,7 @@
             {% endwith %}
         </div>
         
-        <!-- 顶部导航栏 -->
+        <!-- Top navigation bar -->
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center" href="#">
@@ -59,14 +59,14 @@
                 </a>
                 
                 <div class="d-flex align-items-center gap-3">
-                    <!-- FPS 显示 -->
+                    <!-- FPS display -->
                     <div id="fpsDisplay" class="text-white small" style="display: none;">
                         <i class="bi bi-speedometer2 me-1"></i>
                         <span id="fpsValue">--</span> FPS
                     </div>
                     
-                    <!-- 设置按钮 -->
-                    <button class="btn btn-outline-light btn-sm" onclick="openSettings()" title="设置">
+                    <!-- Settings button -->
+                    <button class="btn btn-outline-light btn-sm" onclick="openSettings()" title="Settings">
                         <i class="bi bi-gear-fill"></i>
                     </button>
                     
@@ -76,67 +76,67 @@
                     </span>
                     <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">
                         <i class="bi bi-box-arrow-right me-1"></i>
-                        退出
+                        Log out
                     </a>
                 </div>
             </div>
         </nav>
 
-        <!-- 主内容区域 -->
+        <!-- Main content area -->
         <div class="flex-grow-1">
             
-            <!-- 工厂管理视图 -->
+            <!-- Factory management view -->
             <div id="factoryManagementView" class="view-container active">
                 <div class="container py-3">
                     <div class="row mb-3 align-items-center">
                         <div class="col">
                             <h2 class="mb-1">
                                 <i class="bi bi-building me-2"></i>
-                                工厂管理
+                                Factory management
                             </h2>
                             <p class="text-muted mb-0">
                                 <i class="bi bi-info-circle me-1"></i>
-                                管理您的工厂信息，查看用电数据和成本分析
+                                Manage your factory information, view power data and cost analysis
                             </p>
                         </div>
                         <div class="col-auto">
                             <button class="btn btn-primary" onclick="showCreateFactoryModal()">
                                 <i class="bi bi-plus-circle me-2"></i>
-                                新建工厂
+                                Create Factory
                             </button>
                         </div>
                     </div>
 
-                    <!-- 工厂列表 -->
+                    <!-- Factory list -->
                     <div id="factoryList" class="row g-3">
-                        <!-- 工厂卡片将通过 JavaScript 动态加载 -->
+                        <!-- Factory cards are loaded dynamically by JavaScript -->
                     </div>
 
-                    <!-- 空状态 -->
+                    <!-- Empty state -->
                     <div id="emptyState" class="text-center py-5" style="display: none;">
                         <i class="bi bi-building text-muted" style="font-size: 5rem;"></i>
-                        <h4 class="mt-4 mb-2 text-muted">还没有工厂</h4>
-                        <p class="text-muted mb-4">点击"新建工厂"按钮创建您的第一个工厂</p>
+                        <h4 class="mt-4 mb-2 text-muted">No factories yet</h4>
+                        <p class="text-muted mb-4">Click the "Create Factory" button to create your first factory</p>
                         <button class="btn btn-primary" onclick="showCreateFactoryModal()">
                             <i class="bi bi-plus-circle me-2"></i>
-                            立即创建
+                            Create now
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- 工厂详情视图 -->
+            <!-- Factory details view -->
             <div id="factoryDetailsView" class="view-container">
                 <div class="container py-3">
-                    <!-- 返回按钮 -->
+                    <!-- Back button -->
                     <div class="mb-3">
                         <button class="btn btn-outline-secondary btn-sm" onclick="showFactoryManagement()">
                             <i class="bi bi-arrow-left me-2"></i>
-                            返回工厂列表
+                            Return to factory list
                         </button>
                     </div>
 
-                    <!-- 工厂信息卡片 -->
+                    <!-- Factory info card -->
                     <div class="row mb-3">
                         <div class="col-12">
                             <div class="card border-0 shadow-sm">
@@ -159,32 +159,32 @@
                                         </div>
                                         <button class="btn btn-outline-primary btn-sm" onclick="editCurrentFactory()">
                                             <i class="bi bi-pencil me-1"></i>
-                                            编辑
+                                            Edit
                                         </button>
                                     </div>
                                     
                                     <div class="row g-2">
                                         <div class="col-md-3">
                                             <div class="detail-info-item">
-                                                <div class="detail-label">电压等级</div>
+                                                <div class="detail-label">Voltage level</div>
                                                 <div class="detail-value" id="detailVoltageLevel">-</div>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="detail-info-item">
-                                                <div class="detail-label">变压器容量</div>
+                                                <div class="detail-label">Transformer capacity</div>
                                                 <div class="detail-value" id="detailTransformerCapacity">-</div>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="detail-info-item">
-                                                <div class="detail-label">日用电量</div>
+                                                <div class="detail-label">Daily usage</div>
                                                 <div class="detail-value" id="detailDailyUsage">-</div>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="detail-info-item">
-                                                <div class="detail-label">月工作天数</div>
+                                                <div class="detail-label">Working days per month</div>
                                                 <div class="detail-value" id="detailWorkingDays">-</div>
                                             </div>
                                         </div>
@@ -194,51 +194,51 @@
                         </div>
                     </div>
 
-                    <!-- 核心数据总览 -->
+                    <!-- Core data overview -->
                     <div class="row g-3 mb-3">
-                        <!-- 今日用电量 -->
+                        <!-- Today’s usage -->
                         <div class="col-md-3">
                             <div class="stat-card stat-card-primary">
                                 <div class="stat-icon">
                                     <i class="bi bi-lightning-charge-fill"></i>
                                 </div>
                                 <div class="stat-content">
-                                    <div class="stat-label">今日用电量</div>
+                                    <div class="stat-label">Today's usage</div>
                                     <div class="stat-value" id="statTodayUsage">-</div>
                                     <div class="stat-unit">kWh</div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 本月电费 -->
+                        <!-- Monthly cost -->
                         <div class="col-md-3">
                             <div class="stat-card stat-card-warning">
                                 <div class="stat-icon">
                                     <i class="bi bi-currency-yen"></i>
                                 </div>
                                 <div class="stat-content">
-                                    <div class="stat-label">本月电费</div>
+                                    <div class="stat-label">Monthly cost</div>
                                     <div class="stat-value" id="statMonthCost">-</div>
-                                    <div class="stat-unit">元</div>
+                                    <div class="stat-unit">CNY</div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 碳足迹 -->
+                        <!-- Carbon footprint -->
                         <div class="col-md-3">
                             <div class="stat-card stat-card-success">
                                 <div class="stat-icon">
                                     <i class="bi bi-tree-fill"></i>
                                 </div>
                                 <div class="stat-content">
-                                    <div class="stat-label">碳足迹</div>
+                                    <div class="stat-label">Carbon footprint</div>
                                     <div class="stat-value" id="statCarbonEmission">-</div>
                                     <div class="stat-unit">kg CO₂</div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 节省潜力 -->
+                        <!-- Saving potential -->
                         <div class="col-md-3">
                             <div class="stat-card stat-card-info">
                                 <div class="stat-icon">
@@ -246,17 +246,17 @@
                                 </div>
                                 <div class="stat-content">
                                     <div class="stat-label">
-                                        节省潜力
+                                        Saving potential
                                         <div class="btn-group btn-group-sm ms-2" role="group" id="optimizationModeGroup">
                                             <input type="radio" class="btn-check" name="optimizationMode" id="modeCost" value="cost" checked>
-                                            <label class="btn btn-outline-primary btn-xs" for="modeCost" onclick="switchOptimizationMode('cost')">省钱</label>
+                                            <label class="btn btn-outline-primary btn-xs" for="modeCost" onclick="switchOptimizationMode('cost')">Cost</label>
                                             
                                             <input type="radio" class="btn-check" name="optimizationMode" id="modeCarbon" value="carbon">
-                                            <label class="btn btn-outline-success btn-xs" for="modeCarbon" onclick="switchOptimizationMode('carbon')">减排</label>
+                                            <label class="btn btn-outline-success btn-xs" for="modeCarbon" onclick="switchOptimizationMode('carbon')">Carbon</label>
                                         </div>
                                     </div>
                                     <div class="stat-value" id="statSavingPotential">
-                                        <span class="text-muted small">待后端实现</span>
+                                        <span class="text-muted small">Pending backend implementation</span>
                                     </div>
                                     <div class="stat-unit" id="statSavingUnit">-</div>
                                 </div>
@@ -264,15 +264,15 @@
                         </div>
                     </div>
 
-                    <!-- 图表区域 -->
+                    <!-- Chart area -->
                     <div class="row g-3 mb-3">
-                        <!-- 实时电价曲线图 - 独占一行 -->
+                        <!-- Real-time price chart - single-row layout -->
                         <div class="col-12">
                             <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.25) !important; backdrop-filter: blur(40px) saturate(220%); -webkit-backdrop-filter: blur(40px) saturate(220%);">
                                 <div class="card-body p-3" style="background: transparent !important;">
                                     <h5 class="card-title mb-3" style="font-size: 1rem;">
                                         <i class="bi bi-graph-up me-2"></i>
-                                        实时电价曲线图
+                                        Real-time price chart
                                     </h5>
                                     <div style="height: 280px;">
                                         <canvas id="priceChart"></canvas>
@@ -282,15 +282,15 @@
                         </div>
                     </div>
 
-                    <!-- 饼图和成本报告 -->
+                    <!-- Pie chart and cost report -->
                     <div class="row g-3 mb-3">
-                        <!-- 能源结构饼图 -->
+                        <!-- Energy mix pie chart -->
                         <div class="col-lg-4">
                             <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.25) !important; backdrop-filter: blur(40px) saturate(220%); -webkit-backdrop-filter: blur(40px) saturate(220%);">
                                 <div class="card-body p-3" style="background: transparent !important;">
                                     <h5 class="card-title mb-3" style="font-size: 1rem;">
                                         <i class="bi bi-pie-chart-fill me-2"></i>
-                                        能源结构饼图
+                                        Energy mix pie chart
                                     </h5>
                                     <div style="height: 280px;">
                                         <canvas id="energyPieChart"></canvas>
@@ -299,37 +299,37 @@
                             </div>
                         </div>
 
-                        <!-- 成本报告表格 -->
+                        <!-- Cost report table -->
                         <div class="col-lg-8">
                             <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.25) !important; backdrop-filter: blur(40px) saturate(220%); -webkit-backdrop-filter: blur(40px) saturate(220%);">
                                 <div class="card-body p-3" style="background: transparent !important;">
                                     <h5 class="card-title mb-3" style="font-size: 1rem;">
                                         <i class="bi bi-calculator me-2"></i>
-                                        成本报告
+                                        Cost report
                                     </h5>
                                     <div id="costReportContent">
-                                        <!-- 成本报告内容将通过 JavaScript 动态加载 -->
+                                        <!-- Cost report content will be loaded dynamically by JavaScript -->
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 优化建议 -->
+                    <!-- Optimization suggestions -->
                     <div class="row">
                         <div class="col-12">
                             <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.25) !important; backdrop-filter: blur(40px) saturate(220%); -webkit-backdrop-filter: blur(40px) saturate(220%);">
                                 <div class="card-body p-3" style="background: transparent !important;">
                                     <h5 class="card-title mb-3" style="font-size: 1rem;">
                                         <i class="bi bi-lightbulb me-2"></i>
-                                        优化建议
+                                        Optimization suggestions
                                     </h5>
                                     <div id="optimizationContent">
                                         <div class="text-center py-4 text-muted">
                                             <div class="spinner-border spinner-border-sm me-2" role="status">
-                                                <span class="visually-hidden">加载中...</span>
+                                                <span class="visually-hidden">Loading...</span>
                                             </div>
-                                            <span>加载优化建议中...</span>
+                                            <span>Loading optimization suggestions...</span>
                                         </div>
                                     </div>
                                 </div>
@@ -342,52 +342,52 @@
         </div>
     </div>
 
-    <!-- 创建/编辑工厂模态框 -->
+    <!-- Create/Edit factory modal -->
     <div class="modal fade" id="createFactoryModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="factoryModalTitle">
                         <i class="bi bi-plus-circle me-2"></i>
-                        新建工厂
+                        Create Factory
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="createFactoryForm">
-                        <!-- 基础信息 -->
+                        <!-- Basic information -->
                         <div class="mb-3">
-                            <label for="factoryName" class="form-label">工厂名称 <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="factoryName" required placeholder="例如：北京电解铝厂">
+                            <label for="factoryName" class="form-label">Factory name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="factoryName" required placeholder="e.g. Beijing Aluminum Electrolyzer">
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="factoryLocation" class="form-label">工厂位置</label>
-                                <input type="text" class="form-control" id="factoryLocation" placeholder="例如：北京市朝阳区">
+                                <label for="factoryLocation" class="form-label">Factory location</label>
+                                <input type="text" class="form-control" id="factoryLocation" placeholder="e.g. Chaoyang District, Beijing">
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label for="industryType" class="form-label">行业类型</label>
+                                <label for="industryType" class="form-label">Industry type</label>
                                 <select class="form-select" id="industryType">
-                                    <option value="">请选择</option>
-                                    <option value="电解铝">电解铝</option>
-                                    <option value="钢铁">钢铁</option>
-                                    <option value="水泥">水泥</option>
-                                    <option value="化工">化工</option>
-                                    <option value="炼煤">炼煤</option>
-                                    <option value="纺织">纺织</option>
-                                    <option value="其他">其他</option>
+                                    <option value="">Please select</option>
+                                    <option value="Aluminum Smelting">Aluminum Smelting</option>
+                                    <option value="Steel">Steel</option>
+                                    <option value="Cement">Cement</option>
+                                    <option value="Chemical">Chemical</option>
+                                    <option value="Coal Refining">Coal Refining</option>
+                                    <option value="Textile">Textile</option>
+                                    <option value="Other">Other</option>
                                 </select>
                             </div>
                         </div>
                         
-                        <!-- 电力参数 -->
+                        <!-- Power parameters -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="voltageLevel" class="form-label">电压等级 <span class="text-danger">*</span></label>
+                                <label for="voltageLevel" class="form-label">Voltage level <span class="text-danger">*</span></label>
                                 <select class="form-select" id="voltageLevel" required>
-                                    <option value="">请选择</option>
+                                    <option value="">Please select</option>
                                     <option value="10">10 kV</option>
                                     <option value="35">35 kV</option>
                                     <option value="110">110 kV</option>
@@ -396,33 +396,33 @@
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label for="transformerCapacity" class="form-label">变压器容量 (kVA) <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" id="transformerCapacity" required step="100" min="0" placeholder="例如：5000">
+                                <label for="transformerCapacity" class="form-label">Transformer capacity (kVA) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="transformerCapacity" required step="100" min="0" placeholder="e.g. 5000">
                             </div>
                         </div>
                         
-                        <!-- 用电信息 -->
+                        <!-- Electricity usage information -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="dailyUsage" class="form-label">日用电量 (kWh/天) <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" id="dailyUsage" required step="1000" min="0" placeholder="例如：50000">
+                                <label for="dailyUsage" class="form-label">Daily usage (kWh/day) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="dailyUsage" required step="1000" min="0" placeholder="e.g. 50000">
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label for="workingDays" class="form-label">每月工作天数 <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" id="workingDays" required min="1" max="31" value="26" placeholder="例如：26">
+                                <label for="workingDays" class="form-label">Working days per month <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="workingDays" required min="1" max="31" value="26" placeholder="e.g. 26">
                             </div>
                         </div>
                         
-                        <!-- 工作时间段 -->
+                        <!-- Work periods -->
                         <div class="mb-3">
-                            <label class="form-label">工作时间段 <span class="text-danger">*</span></label>
+                            <label class="form-label">Work periods <span class="text-danger">*</span></label>
                             <div class="card">
                                 <div class="card-body">
                                     <div class="row g-2 mb-2">
                                         <div class="col-5">
                                             <select class="form-select form-select-sm" id="periodStart">
-                                                <option value="">开始时间</option>
+                                                <option value="">Start time</option>
                                                 <option value="0">00:00</option>
                                                 <option value="1">01:00</option>
                                                 <option value="2">02:00</option>
@@ -450,11 +450,11 @@
                                             </select>
                                         </div>
                                         <div class="col-auto d-flex align-items-center">
-                                            <span>至</span>
+                                            <span>to</span>
                                         </div>
                                         <div class="col-5">
                                             <select class="form-select form-select-sm" id="periodEnd">
-                                                <option value="">结束时间</option>
+                                                <option value="">End time</option>
                                                 <option value="1">01:00</option>
                                                 <option value="2">02:00</option>
                                                 <option value="3">03:00</option>
@@ -483,18 +483,18 @@
                                         </div>
                                         <div class="col-auto">
                                             <button type="button" class="btn btn-sm btn-primary" onclick="addWorkPeriod()">
-                                                <i class="bi bi-plus-circle"></i> 添加
+                                                <i class="bi bi-plus-circle"></i> Add
                                             </button>
                                         </div>
                                     </div>
                                     
                                     <div id="workPeriodsList" class="mt-2">
-                                        <!-- 已添加的时间段会显示在这里 -->
+                                        <!-- Added periods will appear here -->
                                     </div>
                                     
                                     <div class="form-text">
                                         <i class="bi bi-info-circle"></i> 
-                                        添加工厂的工作时间段，例如：8:00-12:00, 13:00-18:00
+                                        Add factory work periods, e.g. 8:00-12:00, 13:00-18:00
                                     </div>
                                 </div>
                             </div>
@@ -502,70 +502,70 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" id="factorySubmitBtn" onclick="createFactory()">
                         <i class="bi bi-check-circle me-1"></i>
-                        创建
+                        Create
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 设置面板模态框 -->
+    <!-- Settings panel modal -->
     <div class="modal fade" id="settingsModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
                         <i class="bi bi-gear-fill me-2"></i>
-                        系统设置
+                        System settings
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- UI 模式选择 -->
+                    <!-- UI mode selection -->
                     <div class="mb-4">
                         <h6 class="mb-3">
                             <i class="bi bi-palette me-2"></i>
-                            UI 模式
+                            UI mode
                         </h6>
                         <div class="btn-group w-100" role="group">
                             <input type="radio" class="btn-check" name="uiMode" id="uiModeFull" value="full" checked>
                             <label class="btn btn-outline-primary" for="uiModeFull">
                                 <i class="bi bi-stars me-1"></i>
-                                满血版
+                                Full mode
                             </label>
                             
                             <input type="radio" class="btn-check" name="uiMode" id="uiModeLite" value="lite">
                             <label class="btn btn-outline-primary" for="uiModeLite">
                                 <i class="bi bi-lightning me-1"></i>
-                                精简版
+                                Lite mode
                             </label>
                         </div>
                         <div class="form-text mt-2">
-                            满血版：完整特效，适合高性能设备<br>
-                            精简版：减少动画，适合低性能设备
+                            Full mode: full effects, suitable for high-performance devices<br>
+                            Lite mode: reduced animation, suitable for low-performance devices
                         </div>
                     </div>
                     
-                    <!-- 性能基准测试 -->
+                    <!-- Performance benchmark test -->
                     <div class="mb-4">
                         <h6 class="mb-3">
                             <i class="bi bi-speedometer2 me-2"></i>
-                            性能测试
+                            Performance test
                         </h6>
                         <button class="btn btn-primary w-100" id="benchmarkBtn" onclick="runBenchmark()">
                             <i class="bi bi-play-circle me-1"></i>
-                            开始基准测试（10秒）
+                            Start benchmark test (10 seconds)
                         </button>
                         <div id="benchmarkResult" class="mt-3" style="display: none;">
                             <div class="alert" id="benchmarkAlert">
                                 <div class="d-flex align-items-center mb-2">
                                     <i class="bi bi-speedometer2 me-2" style="font-size: 1.5rem;"></i>
                                     <div>
-                                        <strong>平均 FPS: <span id="avgFps">--</span></strong><br>
-                                        <strong>最低 FPS: <span id="minFps">--</span></strong><br>
+                                        <strong>Average FPS: <span id="avgFps">--</span></strong><br>
+                                        <strong>Minimum FPS: <span id="minFps">--</span></strong><br>
                                         <small id="recommendation">--</small>
                                     </div>
                                 </div>
@@ -573,21 +573,21 @@
                         </div>
                     </div>
                     
-                    <!-- FPS 显示开关 -->
+                    <!-- FPS display toggle -->
                     <div class="mb-3">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="showFpsToggle" onchange="toggleFpsDisplay()">
                             <label class="form-check-label" for="showFpsToggle">
-                                显示实时 FPS
+                                Show real-time FPS
                             </label>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" onclick="saveSettings()">
                         <i class="bi bi-check-circle me-1"></i>
-                        保存设置
+                        Save settings
                     </button>
                 </div>
             </div>
@@ -599,17 +599,17 @@
     
     <!-- Auto-dismiss Flash Messages -->
     <script>
-        // 自动关闭 Flash 消息（5秒后）
+        // Auto-close flash messages (after 5 seconds)
         document.addEventListener('DOMContentLoaded', function() {
             const flashMessages = document.querySelectorAll('#flashMessagesContainer .flash-message');
             flashMessages.forEach(function(message) {
-                // 添加淡入动画
+                // Add fade-in animation
                 setTimeout(function() {
                     message.style.opacity = '1';
                     message.style.transform = 'translateY(0)';
                 }, 10);
                 
-                // 5秒后淡出并移除
+                // Fade out and remove after 5 seconds
                 setTimeout(function() {
                     message.style.opacity = '0';
                     message.style.transform = 'translateY(-20px)';
@@ -624,7 +624,7 @@
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/dashboard.js') }}?v={{ cache_bust }}"></script>
     
-    <!-- 全局音乐播放器脚本 -->
+    <!-- Global music player script -->
     <script src="{{ url_for('static', filename='music-player/js/music-player.js') }}"></script>
 </body>
 </html>
