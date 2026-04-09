@@ -359,11 +359,12 @@ def get_factory_details(factory_id):
         if grid_price:
             for hour in range(24):
                 period_type = tou_map.get(hour, 'Normal')
-                if period_type == 'Peak':
+                # Support both Chinese and English period types
+                if period_type in ['Peak', '高峰']:
                     grid_prices[hour] = grid_price.peak_price
-                elif period_type == 'Valley':
+                elif period_type in ['Valley', '低谷']:
                     grid_prices[hour] = grid_price.valley_price
-                else:
+                else:  # Normal, 平时, or any other value
                     grid_prices[hour] = grid_price.normal_price
         
         # Add price comparison data to return result

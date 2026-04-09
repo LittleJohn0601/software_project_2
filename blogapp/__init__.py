@@ -108,4 +108,9 @@ def create_app() -> Flask:
         app.register_blueprint(auth.bp, url_prefix='/auth')
         app.register_blueprint(visualization.bp, url_prefix='/api')
     
+    # ---------- Auto-sync electricity prices on startup ----------
+    with app.app_context():
+        from blogapp.utils.price_sync import check_and_sync_on_startup
+        check_and_sync_on_startup(app)
+    
     return app
