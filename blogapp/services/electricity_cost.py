@@ -26,6 +26,15 @@ class ElectricityCostCalculator:
         periods = TimeOfUsePeriod.query.all()
         return {p.hour: p.period_type for p in periods}
     
+    def normalize_period_type(self, period_type: str) -> str:
+        """Normalize period type to English"""
+        if period_type in ['高峰', 'peak', 'Peak']:
+            return 'Peak'
+        elif period_type in ['低谷', 'valley', 'Valley']:
+            return 'Valley'
+        else:  # 平时, normal, Normal, or any other value
+            return 'Normal'
+    
     def get_price_for_hour(self, hour: int) -> float:
         """Get electricity price for a specific hour"""
         period_type = self.tou_periods.get(hour, 'Normal')
@@ -67,7 +76,7 @@ class ElectricityCostCalculator:
                     'usage': 0,
                     'price': self.get_price_for_hour(hour),
                     'cost': 0,
-                    'period_type': self.tou_periods.get(hour, 'Normal')
+                    'period_type': self.normalize_period_type(self.tou_periods.get(hour, 'Normal'))
                 } for hour in range(24)]
             }
         
@@ -106,7 +115,7 @@ class ElectricityCostCalculator:
                 'usage': round(usage, 2),
                 'price': price,
                 'cost': round(cost, 2),
-                'period_type': self.tou_periods.get(hour, 'Normal')
+                'period_type': self.normalize_period_type(self.tou_periods.get(hour, 'Normal'))
             })
         
         # Calculate monthly cost

@@ -547,6 +547,14 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                                 </div>
                             </div>
                         </div>
+                        ${suggestion.period_savings && suggestion.period_savings.length > 0 ? `
+                            <div class="mt-2 mb-2" style="background: rgba(59, 130, 246, 0.05); padding: 0.75rem; border-radius: 8px;">
+                                <div class="small text-muted mb-1"><i class="bi bi-clock-history me-1"></i>Period-wise savings breakdown:</div>
+                                <div class="small" style="white-space: pre-line; line-height: 1.6;">
+                                    ${suggestion.period_savings.join('\n')}
+                                </div>
+                            </div>
+                        ` : ''}
                         ${suggestion.action_items && suggestion.action_items.length > 0 ? `
                             <div class="mt-2">
                                 <div class="small text-muted mb-1">Action recommendations:</div>
