@@ -363,18 +363,89 @@ class SupplierOptimizer:
         }
     
     def get_suggestions(self) -> Dict[str, Any]:
-        """Get optimization suggestions"""
+        """Get optimization suggestions - supplier only"""
         result = self.optimize('cost')
+        carbon_result = self.optimize('carbon')
         suggestions = []
+    
+        # Get current and optimal schedules (for period calculation)
+        current_schedule = self._get_current_schedule()
+        grid_prices = self.get_grid_hourly_prices()
+        carbon_factors = self.get_carbon_factors()
+    
+        # Define periods
+        periods = {
+            'Peak': {'hours': list(range(8, 11)) + list(range(17, 23)), 'current_usage': 0, 'optimal_usage': 0,
+                    'current_cost': 0, 'optimal_cost': 0, 'current_carbon': 0, 'optimal_carbon': 0},
+            'Normal': {'hours': list(range(7, 8)) + list(range(13, 17)) + list(range(23, 24)), 'current_usage': 0, 'optimal_usage': 0,
+                   'current_cost': 0, 'optimal_cost': 0, 'current_carbon': 0, 'optimal_carbon': 0},
+            'Valley': {'hours': list(range(0, 7)) + list(range(11, 13)), 'current_usage': 0, 'optimal_usage': 0,
+                   'current_cost': 0, 'optimal_cost': 0, 'current_carbon': 0, 'optimal_carbon': 0}
+        }
+    
+        # Get optimal schedule (cost mode)
+        optimal_schedule = None
+        if result['optimized']['schedule']:
+            optimal_schedule = [0] * 24
+            for hour_str in result['optimized']['schedule']:
+                hour = int(hour_str[:2])
+                optimal_schedule[hour] = 1
+    
+        # Calculate period data
+        for period_name, period_info in periods.items():
+            # Calculate average price and carbon factor
+            avg_price = 0
+            avg_carbon = 0
+            hour_count = len(period_info['hours'])
         
-        # Supplier suggestions
+            for hour in period_info['hours']:
+                avg_price += grid_prices.get(hour, 0)
+                avg_carbon += carbon_factors.get(hour, 0)
+        
+            avg_price /= hour_count if hour_count > 0 else 1
+            avg_carbon /= hour_count if hour_count > 0 else 1
+        
+            # Current usage
+            for hour in period_info['hours']:
+                if current_schedule[hour]:
+                    period_info['current_usage'] += self.hourly_usage
+        
+            # Optimal usage
+            if optimal_schedule:
+                for hour in period_info['hours']:
+                    if optimal_schedule[hour]:
+                        period_info['optimal_usage'] += self.hourly_usage
+        
+            # Calculate cost and carbon
+            period_info['current_cost'] = period_info['current_usage'] * avg_price
+            period_info['optimal_cost'] = period_info['optimal_usage'] * avg_price
+            period_info['current_carbon'] = period_info['current_usage'] * avg_carbon
+            period_info['optimal_carbon'] = period_info['optimal_usage'] * avg_carbon
+    
+        monthly_days = self.factory.working_days_per_month
+    
+        # Build period savings details
+        period_savings = []
+        period_names = {'Peak': 'Peak', 'Normal': 'Normal', 'Valley': 'Valley'}
+        for period_name, p in periods.items():
+            cost_saving = p['current_cost'] - p['optimal_cost']
+            carbon_reduction = p['current_carbon'] - p['optimal_carbon']
+            if cost_saving != 0 or carbon_reduction != 0:
+                period_savings.append(
+                    f"  • {period_names[period_name]} period: Save {cost_saving * monthly_days:,.2f} CNY/month, "
+                    f"Reduce {carbon_reduction * monthly_days:,.2f} kg CO₂/month"
+                )
+    
+        # Supplier suggestion only
         if result['best_supplier']['type'] == SupplierType.SUPPLIER:
             suggestions.append({
-                'title': 'Switch to retail supplier',
-                'description': f'Retail supplier prices are more competitive, estimated monthly savings: {result["saving"]["cost"]:,.2f} CNY',
+                'title': 'Switch to Retail Supplier',
+                'description': f'Retail supplier offers better prices, estimated monthly savings: {result["saving"]["cost"]:,.2f} CNY, '
+                          f'carbon reduction: {result["saving"]["carbon"]:,.2f} kg CO₂',
                 'impact': 'high',
                 'potential_saving': result['saving']['cost'],
                 'potential_carbon_reduction': result['saving']['carbon'],
+                'period_savings': period_savings if period_savings else None,
                 'action_items': [
                     'Sign a long-term power purchase agreement with the retail supplier',
                     'Monitor retail supplier price fluctuations',
@@ -383,46 +454,27 @@ class SupplierOptimizer:
             })
         else:
             suggestions.append({
-                'title': 'Keep using the grid supplier',
+                'title': 'Continue Using Grid Supplier',
                 'description': 'Current retail supplier price does not meet constraint (must not exceed grid price by 1.6x), continue using grid supplier',
                 'impact': 'medium',
                 'potential_saving': 0,
                 'potential_carbon_reduction': 0,
+                'period_savings': None,
                 'action_items': [
                     'Monitor retail supplier price changes',
                     'Wait for better retail supplier offers',
                     'Consider participating in power market trading'
                 ]
-            })
-        
-        # Electricity usage timing suggestions
-        optimized_schedule = result['optimized']['schedule']
-        current_schedule = self._get_current_schedule()
-        current_hours = [h for h, w in enumerate(current_schedule) if w]
-        
-        new_hours = []
-        for hour_str in optimized_schedule:
-            hour = int(hour_str[:2])
-            if hour not in current_hours:
-                new_hours.append(hour_str)
-        
-        if new_hours:
-            suggestions.append({
-                'title': 'Adjust electricity usage schedule',
-                'description': f'Suggest moving some production tasks to lower price periods: {", ".join(new_hours[:3])}',
-                'impact': 'high' if len(new_hours) > 3 else 'medium',
-                'potential_saving': result['saving']['cost'] * 0.6,
-                'potential_carbon_reduction': result['saving']['carbon'] * 0.5,
-                'action_items': [
-                    f'Schedule production in lower-price periods such as {"、".join(new_hours[:3])}',
-                    'Adjust production shift schedule',
-                    'Optimize dispatch of shiftable loads'
-                ]
-            })
-        
+            })  
+    
         return {
             'success': True,
-            'suggestions': suggestions
+            'suggestions': suggestions,
+            'summary': {
+                'period_savings': period_savings,
+                'total_monthly_saving': result['saving']['cost'],
+                'total_monthly_reduction': result['saving']['carbon']
+            }
         }
     
     # Attribute aliases (compatibility)
