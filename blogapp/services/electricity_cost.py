@@ -30,9 +30,9 @@ class ElectricityCostCalculator:
         """Get electricity price for a specific hour"""
         period_type = self.tou_periods.get(hour, 'Normal')
         
-        if period_type == 'Peak':
+        if period_type in ['高峰', 'peak', 'Peak']:
             return self.grid_price.peak_price
-        elif period_type == 'Valley':
+        elif period_type in ['低谷', 'valley', 'Valley']:
             return self.grid_price.valley_price
         else:
             return self.grid_price.normal_price

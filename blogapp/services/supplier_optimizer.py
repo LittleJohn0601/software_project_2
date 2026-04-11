@@ -93,18 +93,11 @@ class SupplierOptimizer:
         """Get grid supplier time-of-use prices"""
         if self._grid_hourly_prices is None:
             self._grid_hourly_prices = {}
-            tou_map = self._get_tou_map()
-            
+            # 直接使用 ElectricityCostCalculator 获取电价
+            from blogapp.services.electricity_cost import ElectricityCostCalculator
+            calculator = ElectricityCostCalculator(self.factory.id)
             for hour in range(24):
-                period_type = tou_map.get(hour, 'Normal')
-                # Support both Chinese and English
-                if period_type in ['peak', 'Peak']:
-                    price = self.grid_price.peak_price if self.grid_price else 0
-                elif period_type in ['valley', 'Valley']:
-                    price = self.grid_price.valley_price if self.grid_price else 0
-                else:  # normal, Normal
-                    price = self.grid_price.normal_price if self.grid_price else 0
-                self._grid_hourly_prices[hour] = price
+                self._grid_hourly_prices[hour] = calculator.get_price_for_hour(hour)
         return self._grid_hourly_prices
     
     def get_supplier_hourly_prices(self) -> Dict[int, float]:
@@ -124,9 +117,9 @@ class SupplierOptimizer:
             for hour in range(24):
                 period_type = tou_map.get(hour, 'Normal')
                 # Support both Chinese and English
-                if period_type in ['peak', 'Peak']:
+                if period_type in ['peak', 'Peak','高峰']:
                     self._carbon_factors[hour] = 0.75
-                elif period_type in ['valley', 'Valley']:
+                elif period_type in ['valley', 'Valley','低谷']:
                     self._carbon_factors[hour] = 0.55
                 else:  # normal, Normal
                     self._carbon_factors[hour] = 0.65
