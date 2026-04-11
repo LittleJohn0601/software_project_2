@@ -699,7 +699,31 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                             },
                             afterLabel: function(context) {
                                 const index = context.dataIndex;
-                                return `Period: ${hourlyData[index].period_type}`;
+                                const datasetIndex = context.datasetIndex;
+                                
+                                // For grid price, use the period_type from hourlyData
+                                if (datasetIndex === 1) {
+                                    return `Period: ${hourlyData[index].period_type}`;
+                                }
+                                
+                                // For agent company price, determine period based on price level
+                                const agentPrice = agentPrices[index];
+                                const allAgentPrices = agentPrices.slice();
+                                allAgentPrices.sort((a, b) => a - b);
+                                
+                                const lowThreshold = allAgentPrices[Math.floor(allAgentPrices.length * 0.33)];
+                                const highThreshold = allAgentPrices[Math.floor(allAgentPrices.length * 0.67)];
+                                
+                                let agentPeriod;
+                                if (agentPrice <= lowThreshold) {
+                                    agentPeriod = 'Valley';
+                                } else if (agentPrice >= highThreshold) {
+                                    agentPeriod = 'Peak';
+                                } else {
+                                    agentPeriod = 'Normal';
+                                }
+                                
+                                return `Period: ${agentPeriod}`;
                             }
                         }
                     }
