@@ -93,13 +93,14 @@ def create_app() -> Flask:
     
     # ---------- Register blueprints ----------
     with app.app_context():
-        from blogapp.routes import auth, main, visualization
+        from blogapp.routes import auth, main, visualization, admin
         from blogapp.routes.public import bp as public_bp
         
         app.register_blueprint(public_bp)
         app.register_blueprint(main.bp)
         app.register_blueprint(auth.bp, url_prefix='/auth')
         app.register_blueprint(visualization.bp, url_prefix='/api')
+        app.register_blueprint(admin.bp)
     
     # ---------- Auto-sync electricity prices on startup ----------
     with app.app_context():

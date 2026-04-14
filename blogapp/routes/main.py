@@ -23,7 +23,11 @@ bp = Blueprint('main', __name__)
 def index():
     """Home page - redirect to authentication page"""
     if current_user.is_authenticated:
-        return redirect(url_for('main.dashboard'))
+        # Redirect admin to admin dashboard, regular users to user dashboard
+        if current_user.is_admin:
+            return redirect(url_for('admin.admin_dashboard'))
+        else:
+            return redirect(url_for('main.dashboard'))
     return redirect(url_for('auth.auth_page'))
 
 
@@ -31,6 +35,10 @@ def index():
 @login_required
 def dashboard():
     """Main application page - single-page application"""
+    # Redirect admin users to admin dashboard
+    if current_user.is_admin:
+        return redirect(url_for('admin.admin_dashboard'))
+    
     import time
     return render_template('dashboard.html', cache_bust=int(time.time()))
 

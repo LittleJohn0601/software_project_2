@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员控制台 - PeakShift</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    
+    <!-- Global music player styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='music-player/css/music-player.css') }}">
+    
+    <style>
+        /* Admin-specific stat cards */
+        .stat-card-admin {
+            background: rgba(255, 255, 255, 0.25) !important;
+            backdrop-filter: blur(40px) saturate(220%);
+            -webkit-backdrop-filter: blur(40px) saturate(220%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+        }
+        
+        .stat-card-admin:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
+        }
+        
+        .stat-card-admin .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card-admin .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: #0f172a;
+        }
+        
+        .stat-card-admin .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .icon-users { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .icon-factories { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .icon-energy { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
+        .icon-carbon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; }
+        
+        .table-responsive {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .nav-tabs {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-tabs .nav-link {
+            color: #64748b;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            color: #0ea5e9;
+            border: none;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: #0ea5e9;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #0ea5e9;
+        }
+    </style>
+</head>
+<body data-playlist="playlist-dashboard">
+    <!-- Main container -->
+    <div id="app" class="d-flex flex-column min-vh-100">
+        
+        <!-- Flash messages - centered at top -->
+        <div id="flashMessagesContainer" class="position-fixed start-50 translate-middle-x" style="z-index: 9999; min-width: 300px; top: 80px;">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}" role="alert">
+                            <div class="flash-icon">
+                                {% if category == 'success' %}
+                                    <i class="bi bi-check-circle-fill"></i>
+                                {% elif category == 'danger' or category == 'error' %}
+                                    <i class="bi bi-exclamation-circle-fill"></i>
+                                {% elif category == 'warning' %}
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                {% else %}
+                                    <i class="bi bi-info-circle-fill"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flash-content">
+                                <div class="flash-text">{{ message }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        
+        <!-- Top navigation bar -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <i class="bi bi-shield-lock-fill me-2"></i>
+                    <span class="fw-bold">PeakShift 管理员控制台</span>
+                </a>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <!-- FPS display -->
+                    <div id="fpsDisplay" class="text-white small" style="display: none;">
+                        <i class="bi bi-speedometer2 me-1"></i>
+                        <span id="fpsValue">--</span> FPS
+                    </div>
+                    
+                    <!-- Settings button -->
+                    <button class="btn btn-outline-light btn-sm" onclick="openSettings()" title="Settings">
+                        <i class="bi bi-gear-fill"></i>
+                    </button>
+                    
+                    <span class="text-white">
+                        <i class="bi bi-person-badge me-1"></i>
+                        {{ current_user.username }} (管理员)
+                    </span>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-box-arrow-right me-1"></i>
+                        退出登录
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main content area -->
+        <div class="flex-grow-1">
+            <div class="container-fluid py-4">
+                
+                <!-- Statistics cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card-admin">
+                            <div class="stat-icon icon-users">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                            <div class="stat-value" id="totalUsers">-</div>
+                            <div class="stat-label">注册用户总数</div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="stat-card-admin">
+                            <div class="stat-icon icon-factories">
+                                <i class="bi bi-building"></i>
+                            </div>
+                            <div class="stat-value" id="totalFactories">-</div>
+                            <div class="stat-label">工厂总数</div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="stat-card-admin">
+                            <div class="stat-icon icon-energy">
+                                <i class="bi bi-lightning-charge-fill"></i>
+                            </div>
+                            <div class="stat-value" id="totalEnergy">-</div>
+                            <div class="stat-label">总月用电量 (kWh)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="stat-card-admin">
+                            <div class="stat-icon icon-carbon">
+                                <i class="bi bi-tree-fill"></i>
+                            </div>
+                            <div class="stat-value" id="totalCarbon">-</div>
+                            <div class="stat-label">总碳排放 (kg CO₂)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs for different views -->
+                <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab">
+                            <i class="bi bi-people me-2"></i>
+                            用户管理
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="factories-tab" data-bs-toggle="tab" data-bs-target="#factories" type="button" role="tab">
+                            <i class="bi bi-building me-2"></i>
+                            工厂管理
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="system-tab" data-bs-toggle="tab" data-bs-target="#system" type="button" role="tab">
+                            <i class="bi bi-gear me-2"></i>
+                            系统数据
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab content -->
+                <div class="tab-content" id="adminTabContent">
+                    
+                    <!-- Users tab -->
+                    <div class="tab-pane fade show active" id="users" role="tabpanel">
+                        <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.25) !important; backdrop-filter: blur(40px) saturate(220%); -webkit-backdrop-filter: blur(40px) saturate(220%);">
+                            <div class="card-body p-3" style="background: transparent !important;">
+                                <h5 class="mb-3" style="font-size: 1rem;">
+                                    <i class="bi bi-people me-2"></i>
+                                    用户列表
+                                </h5>
+                                <div class="table-responsive">
+                                    <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem; background: transparent;">
+                                        <thead>
+                                            <tr style="background: transparent;">
+                                                <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">ID</th>
+                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">用户名</th>
+                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">邮箱</th>
+                                                <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">注册时间</th>
+                                                <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">工厂数量</th>
+                                                <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">总用电量 (kWh)</th>
+                                                <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">总碳排放 (kg)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="usersTableBody">
+                                            <tr style="background: transparent;">
+                                                <td colspan="7" style="padding: 0.75rem; text-align: center;">
+                                                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                                    加载中...
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Factories tab -->
+                    <div class="tab-pane fade" id="factories" role="tabpanel">
+                        <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.25) !important; backdrop-filter: blur(40px) saturate(220%); -webkit-backdrop-filter: blur(40px) saturate(220%);">
+                            <div class="card-body p-3" style="background: transparent !important;">
+                                <h5 class="mb-3" style="font-size: 1rem;">
+                                    <i class="bi bi-building me-2"></i>
+                                    工厂列表
+                                </h5>
+                                <div class="table-responsive">
+                                    <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem; background: transparent;">
+                                        <thead>
+                                            <tr style="background: transparent;">
+                                                <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">ID</th>
+                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">工厂名称</th>
+                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">位置</th>
+                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">行业类型</th>
+                                                <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">电压等级</th>
+                                                <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">月用电量 (kWh)</th>
+                                                <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">碳排放 (kg)</th>
+                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">所属用户</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="factoriesTableBody">
+                                            <tr style="background: transparent;">
+                                                <td colspan="8" style="padding: 0.75rem; text-align: center;">
+                                                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                                    加载中...
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- System tab -->
+                    <div class="tab-pane fade" id="system" role="tabpanel">
+                        <div class="card border-0 shadow-sm" style="background: rgba(255, 255, 255, 0.25) !important; backdrop-filter: blur(40px) saturate(220%); -webkit-backdrop-filter: blur(40px) saturate(220%);">
+                            <div class="card-body p-3" style="background: transparent !important;">
+                                <h5 class="mb-3" style="font-size: 1rem;">
+                                    <i class="bi bi-gear me-2"></i>
+                                    系统数据管理
+                                </h5>
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    系统数据（电价、碳因子等）通过 Excel 文件自动同步。如需修改，请编辑 <code>blogapp/data/</code> 目录下的相关文件，系统将在启动时自动检测并更新。
+                                </div>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6 class="card-title">
+                                                    <i class="bi bi-file-earmark-excel me-2"></i>
+                                                    电价数据文件
+                                                </h6>
+                                                <p class="card-text small text-muted">
+                                                    文件路径: <code>blogapp/data/hourly_avg_30days(1).xlsx</code>
+                                                </p>
+                                                <p class="card-text small">
+                                                    包含24小时分时电价和电网售卖价格数据
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6 class="card-title">
+                                                    <i class="bi bi-cloud me-2"></i>
+                                                    碳排放因子
+                                                </h6>
+                                                <p class="card-text small">
+                                                    电网碳因子: <strong>0.6634 kg CO₂/kWh</strong><br>
+                                                    光伏碳因子: <strong>0.0520 kg CO₂/kWh</strong>
+                                                </p>
+                                                <p class="card-text small text-muted">
+                                                    在 <code>models.py</code> 中定义
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings panel modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-gear-fill me-2"></i>
+                        System settings
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- UI mode selection -->
+                    <div class="mb-4">
+                        <h6 class="mb-3">
+                            <i class="bi bi-palette me-2"></i>
+                            UI mode
+                        </h6>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="uiMode" id="uiModeFull" value="full" checked>
+                            <label class="btn btn-outline-primary" for="uiModeFull">
+                                <i class="bi bi-stars me-1"></i>
+                                Full mode
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="uiMode" id="uiModeLite" value="lite">
+                            <label class="btn btn-outline-primary" for="uiModeLite">
+                                <i class="bi bi-lightning me-1"></i>
+                                Lite mode
+                            </label>
+                        </div>
+                        <div class="form-text mt-2">
+                            Full mode: full effects, suitable for high-performance devices<br>
+                            Lite mode: reduced animation, suitable for low-performance devices
+                        </div>
+                    </div>
+                    
+                    <!-- Performance benchmark test -->
+                    <div class="mb-4">
+                        <h6 class="mb-3">
+                            <i class="bi bi-speedometer2 me-2"></i>
+                            Performance test
+                        </h6>
+                        <button class="btn btn-primary w-100" id="benchmarkBtn" onclick="runBenchmark()">
+                            <i class="bi bi-play-circle me-1"></i>
+                            Start benchmark test (10 seconds)
+                        </button>
+                        <div id="benchmarkResult" class="mt-3" style="display: none;">
+                            <div class="alert" id="benchmarkAlert">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="bi bi-speedometer2 me-2" style="font-size: 1.5rem;"></i>
+                                    <div>
+                                        <strong>Average FPS: <span id="avgFps">--</span></strong><br>
+                                        <strong>Minimum FPS: <span id="minFps">--</span></strong><br>
+                                        <small id="recommendation">--</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FPS display toggle -->
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="showFpsToggle" onchange="toggleFpsDisplay()">
+                            <label class="form-check-label" for="showFpsToggle">
+                                Show real-time FPS
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSettings()">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Save settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Auto-dismiss Flash Messages -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('#flashMessagesContainer .flash-message');
+            flashMessages.forEach(function(message) {
+                setTimeout(function() {
+                    message.style.opacity = '1';
+                    message.style.transform = 'translateY(0)';
+                }, 10);
+                
+                setTimeout(function() {
+                    message.style.opacity = '0';
+                    message.style.transform = 'translateY(-20px)';
+                    setTimeout(function() {
+                        message.remove();
+                    }, 300);
+                }, 5000);
+            });
+        });
+    </script>
+    
+    <!-- Admin Dashboard JS -->
+    <script src="{{ url_for('static', filename='js/admin_dashboard.js') }}"></script>
+    
+    <!-- Global music player script -->
+    <script src="{{ url_for('static', filename='music-player/js/music-player.js') }}"></script>
+</body>
+</html>

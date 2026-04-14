@@ -122,7 +122,12 @@ def login():
             login_user(user)
             current_app.logger.info("User '%s' logged in successfully.", user.username)
             flash('Login successful!', 'success')
-            return redirect(url_for('main.dashboard'))
+            
+            # Redirect admin to admin dashboard, regular users to user dashboard
+            if user.is_admin:
+                return redirect(url_for('admin.admin_dashboard'))
+            else:
+                return redirect(url_for('main.dashboard'))
 
         # Username/Email does not exist or password is incorrect
         current_app.logger.warning("Failed login attempt for username/email='%s'", username)
