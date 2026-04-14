@@ -120,17 +120,10 @@ class SupplierOptimizer:
         """Get carbon emission factors for each hour (kg CO₂/kWh)"""
         if self._carbon_factors is None:
             self._carbon_factors = {}
-            tou_map = self._get_tou_map()
             
             for hour in range(24):
-                period_type = tou_map.get(hour, 'Normal')
-                # Support both Chinese and English
-                if period_type in ['peak', 'Peak','高峰']:
-                    self._carbon_factors[hour] = 0.75
-                elif period_type in ['valley', 'Valley','低谷']:
-                    self._carbon_factors[hour] = 0.55
-                else:  # normal, Normal
-                    self._carbon_factors[hour] = 0.65
+                # Use unified carbon factor 0.6634 kg CO₂/kWh for all hours
+                self._carbon_factors[hour] = 0.6634
         return self._carbon_factors
     
     def check_supplier_price_constraint(self) -> bool:
@@ -437,6 +430,20 @@ class SupplierOptimizer:
     
         monthly_days = self.factory.working_days_per_month
     
+        # Calculate photovoltaic (PV) carbon emissions using carbon factor 0.0520 kg CO₂/kWh
+        pv_carbon_factor = 0.0520
+        pv_total_carbon = 0.0
+        for hour, is_working in enumerate(current_schedule):
+            if is_working:
+                hourly_energy = self.hourly_usage
+                daily_carbon = hourly_energy * pv_carbon_factor
+                pv_total_carbon += daily_carbon * monthly_days
+        pv_total_carbon = round(pv_total_carbon, 2)
+        
+        # Calculate carbon comparison
+        current_carbon_total = current_carbon = self._calculate_current_carbon()
+        pv_carbon_reduction = current_carbon_total - pv_total_carbon
+    
         # Build period savings details
         period_savings = []
         period_names = {'Peak': 'Peak', 'Normal': 'Normal', 'Valley': 'Valley'}
@@ -453,11 +460,9 @@ class SupplierOptimizer:
         if result['best_supplier']['type'] == SupplierType.SUPPLIER:
             suggestions.append({
                 'title': 'Switch to Retail Supplier',
-                'description': f'Retail supplier offers better prices, estimated monthly savings: {result["saving"]["cost"]:,.2f} CNY, '
-                          f'carbon reduction: {result["saving"]["carbon"]:,.2f} kg CO₂',
+                'description': f'Retail supplier offers better prices, estimated monthly savings: {result["saving"]["cost"]:,.2f} CNY',
                 'impact': 'high',
                 'potential_saving': result['saving']['cost'],
-                'potential_carbon_reduction': result['saving']['carbon'],
                 'period_savings': period_savings if period_savings else None,
                 'action_items': [
                     'Sign a long-term power purchase agreement with the retail supplier',
@@ -471,14 +476,30 @@ class SupplierOptimizer:
                 'description': 'Current retail supplier price does not meet constraint (must not exceed grid price by 1.6x), continue using grid supplier',
                 'impact': 'medium',
                 'potential_saving': 0,
-                'potential_carbon_reduction': 0,
                 'period_savings': None,
                 'action_items': [
                     'Monitor retail supplier price changes',
                     'Wait for better retail supplier offers',
                     'Consider participating in power market trading'
                 ]
-            })  
+            })
+        
+        # Add photovoltaic comparison suggestion
+        suggestions.append({
+            'title': 'Consider Photovoltaic (PV) Power Generation',
+            'description': f'Switching to photovoltaic power can significantly reduce carbon emissions. '
+                          f'Current monthly carbon: {current_carbon_total:,.2f} kg CO₂, '
+                          f'With PV (0.0520 kg CO₂/kWh): {pv_total_carbon:,.2f} kg CO₂, '
+                          f'Carbon reduction: {pv_carbon_reduction:,.2f} kg CO₂/month ({pv_carbon_reduction/current_carbon_total*100:.1f}%)',
+            'impact': 'high',
+            'potential_carbon_reduction': pv_carbon_reduction,
+            'action_items': [
+                'Evaluate rooftop or ground-mounted PV system feasibility',
+                'Conduct solar irradiance assessment',
+                'Request quotations from PV system providers',
+                'Analyze investment ROI and payback period'
+            ]
+        })
     
         return {
             'success': True,
@@ -486,7 +507,14 @@ class SupplierOptimizer:
             'summary': {
                 'period_savings': period_savings,
                 'total_monthly_saving': result['saving']['cost'],
-                'total_monthly_reduction': result['saving']['carbon']
+                'total_monthly_reduction': result['saving']['carbon'],
+                'photovoltaic_comparison': {
+                    'current_carbon': current_carbon_total,
+                    'pv_carbon': pv_total_carbon,
+                    'carbon_reduction': pv_carbon_reduction,
+                    'reduction_percentage': round(pv_carbon_reduction / current_carbon_total * 100, 1) if current_carbon_total > 0 else 0,
+                    'unit': 'kg CO₂/month'
+                }
             }
         }
     
