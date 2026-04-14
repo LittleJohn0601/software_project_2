@@ -27,7 +27,9 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         # Check if user is authenticated and is admin
-        if not current_user.is_authenticated or current_user.user_type != 'admin':
-            abort(403)  # Forbidden access
+        if not current_user.is_authenticated:
+            abort(401)  # Unauthorized - not logged in
+        if current_user.user_type != 'admin':
+            abort(403)  # Forbidden - logged in but not admin
         return f(*args, **kwargs)
     return decorated_function

@@ -91,6 +91,46 @@ def create_app() -> Flask:
             return name in app.view_functions
         return dict(has_endpoint=has_endpoint)
     
+    # ---------- Error handlers ----------
+    @app.errorhandler(403)
+    def forbidden(e):
+        """Handle 403 Forbidden errors"""
+        from flask import render_template_string
+        return render_template_string('''
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Access Denied</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+            </head>
+            <body class="bg-light">
+                <div class="container">
+                    <div class="row justify-content-center align-items-center min-vh-100">
+                        <div class="col-md-6 text-center">
+                            <div class="card shadow">
+                                <div class="card-body p-5">
+                                    <i class="bi bi-shield-lock text-danger" style="font-size: 4rem;"></i>
+                                    <h1 class="mt-3">Access Denied</h1>
+                                    <p class="text-muted">You don't have permission to access this page.</p>
+                                    <p class="text-muted">This page is restricted to administrators only.</p>
+                                    <a href="{{ url_for('main.index') }}" class="btn btn-primary mt-3">
+                                        <i class="bi bi-house-door me-2"></i>Return to Home
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </body>
+            </html>
+        '''), 403
+    
+    @app.errorhandler(401)
+    def unauthorized(e):
+        """Handle 401 Unauthorized errors"""
+        from flask import redirect, url_for, request
+        return redirect(url_for('auth.auth_page', next=request.path))
+    
     # ---------- Register blueprints ----------
     with app.app_context():
         from blogapp.routes import auth, main, visualization, admin
