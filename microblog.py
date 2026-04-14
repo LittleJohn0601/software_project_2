@@ -87,20 +87,20 @@ with app.app_context():
     
     if grid_price_count == 0:
         print("📊 Importing grid electricity price data...")
-        excel_path = os.path.join('blogapp', 'data', 'grid electricity price.xlsx')
+        excel_path = os.path.join('blogapp', 'data', '电网售卖价格.xlsx')
         
         if os.path.exists(excel_path):
             try:
                 df = pd.read_excel(excel_path)
-                # Skip the first row (header row)
-                df = df.iloc[1:]
+                # Skip the first two rows (header rows)
+                df = df.iloc[2:]
                 
                 for index, row in df.iterrows():
-                    voltage_level = int(row['Voltage level'])
-                    peak_price = float(row['time-of-use price'])
+                    voltage_level = int(row['电压等级'])
+                    peak_price = float(row['分时电价'])
                     normal_price = float(row['Unnamed: 2'])
                     valley_price = float(row['Unnamed: 3'])
-                    capacity_price = float(row['capacity price'])
+                    capacity_price = float(row['容量电价'])
                     
                     record = GridElectricityPrice(
                         voltage_level=voltage_level,
@@ -131,7 +131,7 @@ with app.app_context():
     
     if tou_count == 0:
         print("📊 Importing time-of-use period data...")
-        excel_path = os.path.join('blogapp', 'data', 'time-of-use price details.xlsx')
+        excel_path = os.path.join('blogapp', 'data', '分时价格详情.xlsx')
         
         if os.path.exists(excel_path):
             try:
@@ -141,8 +141,8 @@ with app.app_context():
                 
                 # Parse time ranges and expand to every hour
                 for index, row in df.iterrows():
-                    time_range = str(row['time period'])
-                    period_type = str(row['price range'])
+                    time_range = str(row['时间段'])
+                    period_type = str(row['价格区间'])
                     
                     # Parse time ranges (e.g. "0-7" means hours 0-6)
                     start, end = map(int, time_range.split('-'))

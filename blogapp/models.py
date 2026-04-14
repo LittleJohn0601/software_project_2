@@ -6,6 +6,10 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from blogapp import db
 
+# Carbon emission factors
+DEFAULT_GRID_CARBON_FACTOR = 0.6634  # kg CO₂/kWh
+PHOTOVOLTAIC_CARBON_FACTOR = 0.0520  # kg CO₂/kWh
+
 
 class User(UserMixin, db.Model):
     """User model for PeakShift system"""
@@ -62,9 +66,36 @@ class Factory(db.Model):
         return round(self.daily_usage * self.working_days_per_month, 2)
     
     @property
+    def grid_carbon_factor(self):
+        """Grid electricity carbon emission factor (kg CO₂/kWh)"""
+        return DEFAULT_GRID_CARBON_FACTOR
+
+    @property
+    def pv_carbon_factor(self):
+        """Photovoltaic electricity carbon emission factor (kg CO₂/kWh)"""
+        return PHOTOVOLTAIC_CARBON_FACTOR
+
+    @property
     def carbon_emission(self):
-        """Calculate monthly carbon emissions = monthly usage * carbon emission factor (0.6634 kgCO2/kWh)"""
-        return round(self.monthly_usage * 0.6634, 2)
+        """Calculate monthly carbon emissions using grid electricity factor"""
+        return round(self.monthly_usage * self.grid_carbon_factor, 2)
+
+    @property
+    def pv_carbon_emission(self):
+        """Calculate monthly carbon emissions if all electricity came from photovoltaic power"""
+        return round(self.monthly_usage * self.pv_carbon_factor, 2)
+
+    @property
+    def pv_carbon_savings(self):
+        """Calculate monthly carbon savings from switching all electricity to photovoltaic power"""
+        return round(self.carbon_emission - self.pv_carbon_emission, 2)
+
+    @property
+    def pv_carbon_savings_percentage(self):
+        """Calculate the percentage reduction in carbon emissions from full PV conversion"""
+        if self.carbon_emission == 0:
+            return 0.0
+        return round(self.pv_carbon_savings / self.carbon_emission * 100, 2)
     
     def __repr__(self):
         return f'<Factory {self.name}>'

@@ -46,3 +46,10 @@ def test_factory_carbon_emission(app):
         # Verify carbon emission calculation
         expected_emission = round(3000.0 * 0.6634, 2)  # 1989.0
         assert factory.carbon_emission == expected_emission
+        
+        # Verify photovoltaic carbon savings calculation
+        expected_pv_emission = round(3000.0 * 0.0520, 2)  # 156.0
+        expected_savings = round(expected_emission - expected_pv_emission, 2)
+        assert factory.pv_carbon_emission == expected_pv_emission
+        assert factory.pv_carbon_savings == expected_savings
+        assert factory.pv_carbon_savings_percentage == round(expected_savings / expected_emission * 100, 2)

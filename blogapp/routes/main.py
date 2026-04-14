@@ -339,6 +339,14 @@ def get_factory_details(factory_id):
         }), 404
     
     try:
+        # Fetch grid price based on factory voltage level before performing calculations
+        grid_price = GridElectricityPrice.query.filter_by(voltage_level=factory.voltage_level).first()
+        if not grid_price:
+            return jsonify({
+                'success': False,
+                'message': f'Grid price not found for voltage level {factory.voltage_level} kV'
+            }), 404
+
         # Use electricity cost calculator
         calculator = ElectricityCostCalculator(factory_id)
         cost_result = calculator.calculate_monthly_cost()
@@ -346,9 +354,6 @@ def get_factory_details(factory_id):
         # Fetch supplier hourly prices (including 0.01 agent fee)
         hourly_prices = HourlyElectricityPrice.query.order_by(HourlyElectricityPrice.hour).all()
         agent_prices = {p.hour: round(p.price + 0.01, 4) for p in hourly_prices}
-        
-        # Fetch grid price based on factory voltage level
-        grid_price = GridElectricityPrice.query.filter_by(voltage_level=factory.voltage_level).first()
         
         # Fetch time-of-use periods
         tou_periods = TimeOfUsePeriod.query.order_by(TimeOfUsePeriod.hour).all()
@@ -513,6 +518,32 @@ def get_suggestions(factory_id):
             'success': False,
             'message': f'Suggestion generation failed: {str(e)}'
         }), 400
+
+
+@bp.route('/api/factory/<int:factory_id>/carbon/pv-savings', methods=['GET'])
+@login_required
+@csrf.exempt
+def get_factory_pv_carbon_savings(factory_id):
+    """API: Fetch carbon savings if all generation is converted to photovoltaic"""
+    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id).first()
+    if not factory:
+        return jsonify({
+            'success': False,
+            'message': 'Factory not found or unauthorized'
+        }), 404
+
+    return jsonify({
+        'success': True,
+        'factory_id': factory.id,
+        'monthly_usage': factory.monthly_usage,
+        'grid_carbon_factor': factory.grid_carbon_factor,
+        'pv_carbon_factor': factory.pv_carbon_factor,
+        'current_carbon_emission': factory.carbon_emission,
+        'pv_carbon_emission': factory.pv_carbon_emission,
+        'carbon_savings': factory.pv_carbon_savings,
+        'carbon_savings_percentage': factory.pv_carbon_savings_percentage,
+        'unit': 'kg CO₂/month'
+    })
 
 
 # ============================================================
