@@ -463,6 +463,7 @@ class SupplierOptimizer:
                 'description': f'Retail supplier offers better prices, estimated monthly savings: {result["saving"]["cost"]:,.2f} CNY',
                 'impact': 'high',
                 'potential_saving': result['saving']['cost'],
+                'potential_carbon_reduction': result['saving']['carbon'],  # Keep this for frontend compatibility
                 'period_savings': period_savings if period_savings else None,
                 'action_items': [
                     'Sign a long-term power purchase agreement with the retail supplier',
@@ -476,6 +477,7 @@ class SupplierOptimizer:
                 'description': 'Current retail supplier price does not meet constraint (must not exceed grid price by 1.6x), continue using grid supplier',
                 'impact': 'medium',
                 'potential_saving': 0,
+                'potential_carbon_reduction': 0,  # Keep this for frontend compatibility
                 'period_savings': None,
                 'action_items': [
                     'Monitor retail supplier price changes',
@@ -492,6 +494,7 @@ class SupplierOptimizer:
                           f'With PV (0.0520 kg CO₂/kWh): {pv_total_carbon:,.2f} kg CO₂, '
                           f'Carbon reduction: {pv_carbon_reduction:,.2f} kg CO₂/month ({pv_carbon_reduction/current_carbon_total*100:.1f}%)',
             'impact': 'high',
+            'potential_saving': 0,  # PV is about carbon reduction, not cost saving in this context
             'potential_carbon_reduction': pv_carbon_reduction,
             'action_items': [
                 'Evaluate rooftop or ground-mounted PV system feasibility',
