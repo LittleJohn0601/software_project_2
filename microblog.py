@@ -92,8 +92,8 @@ with app.app_context():
         if os.path.exists(excel_path):
             try:
                 df = pd.read_excel(excel_path)
-                # Skip the first two rows (header rows)
-                df = df.iloc[2:]
+                # Skip the first row (header row with "高峰", "平时", "低谷")
+                df = df.iloc[1:]
                 
                 for index, row in df.iterrows():
                     voltage_level = int(row['电压等级'])
