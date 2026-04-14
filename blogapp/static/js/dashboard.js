@@ -510,8 +510,50 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             const data = await response.json();
             
             if (data.success && data.suggestions && data.suggestions.length > 0) {
+                let html = '';
+                
+                // Add photovoltaic comparison summary if available
+                if (data.summary && data.summary.photovoltaic_comparison) {
+                    const pv = data.summary.photovoltaic_comparison;
+                    html += `
+                        <div class="mb-3 p-3" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border-radius: 12px; border: 2px solid rgba(16, 185, 129, 0.3);">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-sun-fill me-2" style="font-size: 1.25rem; color: #f59e0b;"></i>
+                                <h6 class="mb-0" style="font-size: 1rem; font-weight: 600;">Photovoltaic Power Comparison</h6>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="text-center p-2" style="background: rgba(255, 255, 255, 0.6); border-radius: 8px;">
+                                        <div class="small text-muted mb-1">Current Grid Carbon</div>
+                                        <div style="font-size: 1.125rem; font-weight: 600; color: #ef4444;">
+                                            ${formatNumber(pv.current_carbon)} kg CO₂
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center p-2" style="background: rgba(255, 255, 255, 0.6); border-radius: 8px;">
+                                        <div class="small text-muted mb-1">With Photovoltaic</div>
+                                        <div style="font-size: 1.125rem; font-weight: 600; color: #10b981;">
+                                            ${formatNumber(pv.pv_carbon)} kg CO₂
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center p-2" style="background: rgba(255, 255, 255, 0.6); border-radius: 8px;">
+                                        <div class="small text-muted mb-1">Reduction Potential</div>
+                                        <div style="font-size: 1.125rem; font-weight: 600; color: #3b82f6;">
+                                            ${formatNumber(pv.carbon_reduction)} kg CO₂
+                                            <span class="small" style="color: #10b981;">(${pv.reduction_percentage}%)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
                 // Render suggestion list
-                container.innerHTML = data.suggestions.map((suggestion, index) => `
+                html += data.suggestions.map((suggestion, index) => `
                     <div class="suggestion-item mb-3 p-3" style="background: rgba(255, 255, 255, 0.5); border-radius: 12px; border-left: 4px solid ${
                         suggestion.impact === 'high' ? '#ef4444' : 
                         suggestion.impact === 'medium' ? '#f59e0b' : '#10b981'
@@ -533,28 +575,6 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                             </span>
                         </div>
                         <p class="text-muted mb-2" style="font-size: 0.875rem;">${suggestion.description}</p>
-                        <div class="row g-2 mb-2">
-                            <div class="col-6">
-                                <div class="small">
-                                    <i class="bi bi-cash-coin me-1"></i>
-                                    Estimated saving: <strong>${formatNumber(suggestion.potential_saving)}</strong> CNY/month
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="small">
-                                    <i class="bi bi-tree me-1"></i>
-                                    Carbon reduction: <strong>${formatNumber(suggestion.potential_carbon_reduction)}</strong> kg CO₂/month
-                                </div>
-                            </div>
-                        </div>
-                        ${suggestion.period_savings && suggestion.period_savings.length > 0 ? `
-                            <div class="mt-2 mb-2" style="background: rgba(59, 130, 246, 0.05); padding: 0.75rem; border-radius: 8px;">
-                                <div class="small text-muted mb-1"><i class="bi bi-clock-history me-1"></i>Period-wise savings breakdown:</div>
-                                <div class="small" style="white-space: pre-line; line-height: 1.6;">
-                                    ${suggestion.period_savings.join('\n')}
-                                </div>
-                            </div>
-                        ` : ''}
                         ${suggestion.action_items && suggestion.action_items.length > 0 ? `
                             <div class="mt-2">
                                 <div class="small text-muted mb-1">Action recommendations:</div>
@@ -565,6 +585,8 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                         ` : ''}
                     </div>
                 `).join('');
+                
+                container.innerHTML = html;
             } else {
                 // No suggestions
                 container.innerHTML = `

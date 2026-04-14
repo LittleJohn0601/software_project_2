@@ -444,16 +444,14 @@ class SupplierOptimizer:
         current_carbon_total = current_carbon = self._calculate_current_carbon()
         pv_carbon_reduction = current_carbon_total - pv_total_carbon
     
-        # Build period savings details
+        # Build period savings details (cost only, carbon reduction not meaningful for supplier switch)
         period_savings = []
         period_names = {'Peak': 'Peak', 'Normal': 'Normal', 'Valley': 'Valley'}
         for period_name, p in periods.items():
             cost_saving = p['current_cost'] - p['optimal_cost']
-            carbon_reduction = p['current_carbon'] - p['optimal_carbon']
-            if cost_saving != 0 or carbon_reduction != 0:
+            if cost_saving > 0:  # Only show periods with actual cost savings
                 period_savings.append(
-                    f"  • {period_names[period_name]} period: Save {cost_saving * monthly_days:,.2f} CNY/month, "
-                    f"Reduce {carbon_reduction * monthly_days:,.2f} kg CO₂/month"
+                    f"  • {period_names[period_name]} period: Save {cost_saving * monthly_days:,.2f} CNY/month"
                 )
     
         # Supplier suggestion only
