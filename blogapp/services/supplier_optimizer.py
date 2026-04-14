@@ -346,9 +346,24 @@ class SupplierOptimizer:
             unit = "CNY/month"
             description = f"By choosing the best supplier and optimizing usage schedule, you can save approximately {value:,.2f} CNY per month"
         else:
-            value = result['saving']['carbon']
+            # For carbon mode, use photovoltaic carbon reduction potential
+            current_schedule = self._get_current_schedule()
+            pv_carbon_factor = 0.0520
+            grid_carbon_factor = 0.6634
+            monthly_days = self.factory.working_days_per_month
+            
+            # Calculate total carbon reduction from switching to PV
+            total_carbon_reduction = 0.0
+            for hour, is_working in enumerate(current_schedule):
+                if is_working:
+                    hourly_energy = self.hourly_usage
+                    # Carbon reduction = (grid_factor - pv_factor) * energy
+                    daily_reduction = hourly_energy * (grid_carbon_factor - pv_carbon_factor)
+                    total_carbon_reduction += daily_reduction * monthly_days
+            
+            value = round(total_carbon_reduction, 2)
             unit = "kg CO₂/month"
-            description = f"By choosing the best supplier and optimizing usage schedule, you can reduce approximately {value:,.2f} kg CO₂ emissions per month"
+            description = f"By switching to photovoltaic power generation, you can reduce approximately {value:,.2f} kg CO₂ emissions per month"
         
         return {
             'success': True,
