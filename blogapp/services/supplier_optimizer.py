@@ -105,7 +105,15 @@ class SupplierOptimizer:
         if self._supplier_hourly_prices is None:
             self._supplier_hourly_prices = {}
             for hp in self.supplier_prices_list:
-                self._supplier_hourly_prices[hp.hour] = hp.price
+                # Prefer actual_price (from HourlyElectricityPrice.actual_price) when available
+                price = None
+                if hasattr(hp, 'actual_price') and hp.actual_price is not None:
+                    price = hp.actual_price
+                elif hasattr(hp, 'price'):
+                    price = hp.price
+                else:
+                    price = 0
+                self._supplier_hourly_prices[hp.hour] = price
         return self._supplier_hourly_prices
     
     def get_carbon_factors(self) -> Dict[int, float]:
@@ -391,36 +399,41 @@ class SupplierOptimizer:
                 hour = int(hour_str[:2])
                 optimal_schedule[hour] = 1
     
-        # Calculate period data
+        # Calculate period data per-hour (use supplier actual price when comparing)
+        supplier_prices = self.get_supplier_hourly_prices()
+        best_supplier_type = result['best_supplier']['type']
+
         for period_name, period_info in periods.items():
-            # Calculate average price and carbon factor
-            avg_price = 0
-            avg_carbon = 0
-            hour_count = len(period_info['hours'])
-        
+            # Reset accumulators (daily)
+            current_cost_daily = 0.0
+            optimal_cost_daily = 0.0
+            current_carbon_daily = 0.0
+            optimal_carbon_daily = 0.0
+
             for hour in period_info['hours']:
-                avg_price += grid_prices.get(hour, 0)
-                avg_carbon += carbon_factors.get(hour, 0)
-        
-            avg_price /= hour_count if hour_count > 0 else 1
-            avg_carbon /= hour_count if hour_count > 0 else 1
-        
-            # Current usage
-            for hour in period_info['hours']:
+                grid_p = grid_prices.get(hour, 0)
+                sup_p = supplier_prices.get(hour, grid_p)
+
+                # current usage at this hour (daily)
                 if current_schedule[hour]:
-                    period_info['current_usage'] += self.hourly_usage
-        
-            # Optimal usage
-            if optimal_schedule:
-                for hour in period_info['hours']:
-                    if optimal_schedule[hour]:
-                        period_info['optimal_usage'] += self.hourly_usage
-        
-            # Calculate cost and carbon
-            period_info['current_cost'] = period_info['current_usage'] * avg_price
-            period_info['optimal_cost'] = period_info['optimal_usage'] * avg_price
-            period_info['current_carbon'] = period_info['current_usage'] * avg_carbon
-            period_info['optimal_carbon'] = period_info['optimal_usage'] * avg_carbon
+                    usage = self.hourly_usage
+                    current_cost_daily += usage * grid_p
+                    current_carbon_daily += usage * carbon_factors.get(hour, 0)
+
+                # optimal usage at this hour (daily)
+                if optimal_schedule and optimal_schedule[hour]:
+                    usage = self.hourly_usage
+                    # If best supplier is retail, use supplier price; otherwise grid price
+                    price_for_opt = sup_p if best_supplier_type == SupplierType.SUPPLIER else grid_p
+                    optimal_cost_daily += usage * price_for_opt
+                    optimal_carbon_daily += usage * carbon_factors.get(hour, 0)
+
+            period_info['current_usage'] = sum(1 for h in period_info['hours'] if current_schedule[h]) * self.hourly_usage
+            period_info['optimal_usage'] = sum(1 for h in period_info['hours'] if optimal_schedule and optimal_schedule[h]) * self.hourly_usage
+            period_info['current_cost'] = current_cost_daily
+            period_info['optimal_cost'] = optimal_cost_daily
+            period_info['current_carbon'] = current_carbon_daily
+            period_info['optimal_carbon'] = optimal_carbon_daily
     
         monthly_days = self.factory.working_days_per_month
     
