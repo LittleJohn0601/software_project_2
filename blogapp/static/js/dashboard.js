@@ -71,7 +71,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         emptyState.style.display = 'none';
         
         factoryList.innerHTML = AppState.factories.map(factory => `
-            <div class="col-md-6 col-lg-4">
+            <div class="col-xl-4 col-lg-6 col-md-12">
                 <div class="factory-card">
                     <div class="factory-card-header">
                         <div>
@@ -80,7 +80,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                             </div>
                         </div>
                         <button class="btn btn-sm btn-link text-primary p-0" onclick="editFactory(${factory.id})" title="Edit factory">
-                            <i class="bi bi-pencil-square" style="font-size: 1.2rem;"></i>
+                            <i class="bi bi-pencil-square" style="font-size: 1.1rem;"></i>
                         </button>
                     </div>
                     
@@ -102,42 +102,42 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                     
                     <div class="factory-location mt-1">
                         <i class="bi bi-lightning"></i>
-                        <span>Voltage level: ${factory.voltage_level} kV</span>
+                        <span>Voltage: ${factory.voltage_level} kV</span>
                     </div>
                     
                     <div class="factory-location mt-1">
                         <i class="bi bi-gear"></i>
-                        <span>Transformer capacity: ${formatNumber(factory.transformer_capacity)} kVA</span>
+                        <span>Capacity: ${formatNumber(factory.transformer_capacity)} kVA</span>
                     </div>
                     
                     <div class="factory-stats">
                         <div class="stat-item">
                             <span class="stat-label">
-                                <i class="bi bi-cash me-1"></i>
+                                <i class="bi bi-cash"></i>
                                 Capacity fee
                             </span>
-                            <span class="stat-value cost">¥${formatNumber(factory.capacity_fee)}/month</span>
+                            <span class="stat-value cost">¥${formatNumber(factory.capacity_fee)}/mo</span>
                         </div>
                         
                         <div class="stat-item">
                             <span class="stat-label">
-                                <i class="bi bi-lightning-charge me-1"></i>
+                                <i class="bi bi-lightning-charge"></i>
                                 Daily usage
                             </span>
-                            <span class="stat-value usage">${formatNumber(factory.daily_usage)} kWh/day</span>
+                            <span class="stat-value usage">${formatNumber(factory.daily_usage)} kWh</span>
                         </div>
                         
                         <div class="stat-item">
                             <span class="stat-label">
-                                <i class="bi bi-calendar-check me-1"></i>
-                                Monthly working days
+                                <i class="bi bi-calendar-check"></i>
+                                Working days
                             </span>
                             <span class="stat-value">${factory.working_days_per_month} days</span>
                         </div>
                         
                         <div class="stat-item">
                             <span class="stat-label">
-                                <i class="bi bi-lightning-charge me-1"></i>
+                                <i class="bi bi-lightning-charge"></i>
                                 Monthly usage
                             </span>
                             <span class="stat-value usage">${formatNumber(factory.monthly_usage)} kWh</span>
@@ -145,13 +145,13 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                     </div>
                     
                     ${factory.work_periods ? `
-                        <div class="mt-2">
-                            <div class="small text-muted mb-1">
-                                <i class="bi bi-clock me-1"></i>Working periods:
+                        <div class="mt-2" style="margin-top: 0.375rem !important;">
+                            <div class="text-muted mb-1" style="font-size: 0.6875rem; margin-bottom: 0.25rem !important;">
+                                <i class="bi bi-clock"></i> Work periods:
                             </div>
                             <div class="d-flex flex-wrap gap-1">
                                 ${JSON.parse(factory.work_periods).map(p => `
-                                    <span class="badge bg-secondary">
+                                    <span class="badge bg-secondary" style="font-size: 0.625rem; padding: 0.125rem 0.375rem;">
                                         ${String(p.start).padStart(2, '0')}:00-${String(p.end).padStart(2, '0')}:00
                                     </span>
                                 `).join('')}
