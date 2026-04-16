@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PeakShift - Authentication</title>
+    <title>PeakShift - Smart Energy Management</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,14 +11,647 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
+    <!-- Inter Font (Stripe style) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
     
     <!-- Global music player styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='music-player/css/music-player.css') }}">
+    
+    <!-- Welcome page styles (Professional & Formal) -->
+    <style>
+        /* Welcome page specific styles */
+        #welcomeSection {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #FFFFFF;
+            overflow-y: auto;
+        }
+        
+        /* Sections layout */
+        #welcomeSection section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .welcome-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid #E5E7EB;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .welcome-navbar.scrolled {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .welcome-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #111827;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: opacity 0.2s;
+        }
+        
+        .welcome-logo:hover {
+            opacity: 0.7;
+            color: #111827;
+        }
+        
+        .welcome-logo i {
+            color: #2563EB;
+        }
+        
+        .welcome-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .welcome-nav-link {
+            color: #6B7280;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9375rem;
+            transition: color 0.2s;
+        }
+        
+        .welcome-nav-link:hover {
+            color: #111827;
+        }
+        
+        .welcome-btn-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .welcome-btn {
+            padding: 0.625rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .welcome-btn-secondary {
+            background: transparent;
+            color: #6B7280;
+            border: 1px solid #E5E7EB;
+        }
+        
+        .welcome-btn-secondary:hover {
+            background: #F9FAFB;
+            color: #111827;
+            border-color: #D1D5DB;
+        }
+        
+        .welcome-btn-primary {
+            background: #2563EB;
+            color: white;
+        }
+        
+        .welcome-btn-primary:hover {
+            background: #1D4ED8;
+            color: white;
+        }
+        
+        .welcome-hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 0 2rem;
+            background: #FFFFFF;
+        }
+        
+        .welcome-hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #111827;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .welcome-hero-subtitle {
+            font-size: 1.25rem;
+            color: #6B7280;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+        
+        .welcome-cta-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .welcome-cta-btn {
+            padding: 0.875rem 2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .welcome-cta-primary {
+            background: #2563EB;
+            color: white;
+        }
+        
+        .welcome-cta-primary:hover {
+            background: #1D4ED8;
+            color: white;
+        }
+        
+        .welcome-cta-secondary {
+            background: white;
+            color: #111827;
+            border: 1px solid #E5E7EB;
+        }
+        
+        .welcome-cta-secondary:hover {
+            background: #F9FAFB;
+            border-color: #D1D5DB;
+        }
+        
+        .welcome-features {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 0 2rem;
+            background: #F9FAFB;
+            border-top: 1px solid #E5E7EB;
+        }
+        
+        .welcome-section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #111827;
+            text-align: center;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .welcome-section-subtitle {
+            font-size: 1.125rem;
+            color: #6B7280;
+            text-align: center;
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+        
+        .feature-card {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 1.75rem;
+            height: 100%;
+            transition: all 0.2s;
+        }
+        
+        .feature-card:hover {
+            border-color: #D1D5DB;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: #EFF6FF;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2563EB;
+            font-size: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .feature-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.75rem;
+        }
+        
+        .feature-description {
+            color: #6B7280;
+            line-height: 1.6;
+            font-size: 0.9375rem;
+        }
+        
+        .welcome-about {
+            min-height: 100vh;
+            max-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 0 2rem;
+            background: white;
+            overflow: hidden;
+        }
+        
+        .about-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .about-text {
+            font-size: 0.875rem;
+            color: #6B7280;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+        
+        .about-highlight {
+            background: #F9FAFB;
+            border-left: 3px solid #2563EB;
+            padding: 0.875rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+        
+        .about-highlight-title {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.375rem;
+            font-size: 0.875rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: #F9FAFB;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+        }
+        
+        .stat-value {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 0.375rem;
+        }
+        
+        .stat-label {
+            color: #6B7280;
+            font-weight: 500;
+            font-size: 0.8125rem;
+        }
+        
+        .welcome-footer {
+            background: #F9FAFB;
+            border-top: 1px solid #E5E7EB;
+            padding: 2rem 0;
+        }
+        
+        .welcome-footer-content {
+            color: #6B7280;
+            font-size: 0.875rem;
+        }
+        
+        .welcome-footer-link {
+            color: #6B7280;
+            text-decoration: none;
+            margin: 0 0.75rem;
+            transition: color 0.2s;
+        }
+        
+        .welcome-footer-link:hover {
+            color: #111827;
+        }
+        
+        @media (max-width: 992px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .welcome-hero-title {
+                font-size: 2.25rem;
+            }
+            
+            .welcome-hero,
+            .welcome-features,
+            .welcome-about {
+                min-height: auto;
+                padding: 60px 0 2rem;
+            }
+            
+            .welcome-nav-links {
+                display: none;
+            }
+            
+            .welcome-section-title {
+                font-size: 1.75rem;
+            }
+            
+            .welcome-cta-btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9375rem;
+            }
+            
+            .feature-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body data-playlist="playlist-auth">
-    <div class="container-fluid">
+    
+    <!-- Welcome Section (Landing Page) -->
+    <div id="welcomeSection" style="display: none;">
+        <!-- Navigation Bar -->
+        <nav class="welcome-navbar" id="welcomeNavbar">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="#" class="welcome-logo" onclick="showWelcome(); return false;">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                        PeakShift
+                    </a>
+                    
+                    <div class="welcome-nav-links">
+                        <a href="#features" class="welcome-nav-link">Features</a>
+                        <a href="#about" class="welcome-nav-link">About</a>
+                    </div>
+                    
+                    <div class="welcome-btn-group">
+                        <a href="#" onclick="showLogin(); return false;" class="welcome-btn welcome-btn-secondary">
+                            Sign in
+                        </a>
+                        <a href="#" onclick="showRegister(); return false;" class="welcome-btn welcome-btn-primary">
+                            Get started
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Hero Section -->
+        <section class="welcome-hero">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <h1 class="welcome-hero-title">
+                            Optimize electricity costs with peak-valley pricing
+                        </h1>
+                        <p class="welcome-hero-subtitle">
+                            Analyze time-of-use electricity rates, calculate monthly costs, and get actionable recommendations to reduce expenses and carbon emissions.
+                        </p>
+                        <div class="welcome-cta-group">
+                            <a href="#" onclick="showRegister(); return false;" class="welcome-cta-btn welcome-cta-primary">
+                                Start free trial
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                            <a href="#about" class="welcome-cta-btn welcome-cta-secondary">
+                                Learn more
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 d-none d-lg-block">
+                        <div class="row g-3">
+                            <!-- Top card - Cost Savings -->
+                            <div class="col-12">
+                                <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 2rem;">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <div style="color: #6B7280; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">COST OPTIMIZATION</div>
+                                            <div style="font-size: 1.5rem; font-weight: 600; color: #111827;">Reduce Electricity Expenses</div>
+                                        </div>
+                                        <div style="width: 48px; height: 48px; background: #EFF6FF; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-lightning-charge-fill" style="font-size: 1.5rem; color: #2563EB;"></i>
+                                        </div>
+                                    </div>
+                                    <p style="color: #6B7280; font-size: 0.9375rem; margin-bottom: 0;">
+                                        Analyze peak-valley pricing and get recommendations to shift production to lower-cost periods
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <!-- Bottom two cards -->
+                            <div class="col-6">
+                                <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 1.5rem;">
+                                    <div style="width: 40px; height: 40px; background: #EFF6FF; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                                        <i class="bi bi-clock-history" style="font-size: 1.25rem; color: #2563EB;"></i>
+                                    </div>
+                                    <div style="color: #6B7280; font-size: 0.8125rem; font-weight: 500; margin-bottom: 0.5rem;">PEAK AVOIDANCE</div>
+                                    <div style="font-size: 1.125rem; font-weight: 600; color: #111827;">Avoid High-Cost Hours</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-6">
+                                <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 1.5rem;">
+                                    <div style="width: 40px; height: 40px; background: #F0FDF4; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                                        <i class="bi bi-tree-fill" style="font-size: 1.25rem; color: #10B981;"></i>
+                                    </div>
+                                    <div style="color: #6B7280; font-size: 0.8125rem; font-weight: 500; margin-bottom: 0.5rem;">CARBON REDUCTION</div>
+                                    <div style="font-size: 1.125rem; font-weight: 600; color: #111827;">Lower Emissions</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Features Section -->
+        <section id="features" class="welcome-features">
+            <div class="container">
+                <h2 class="welcome-section-title">Everything you need to optimize energy</h2>
+                <p class="welcome-section-subtitle">
+                    Analyze peak-valley pricing, calculate costs, and get recommendations to reduce your factory's electricity expenses.
+                </p>
+                
+                <div class="row g-4">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-calculator"></i>
+                            </div>
+                            <h3 class="feature-title">Cost Calculation</h3>
+                            <p class="feature-description">
+                                Calculate monthly electricity costs based on your factory's voltage level, transformer capacity, and time-of-use pricing.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+                            <h3 class="feature-title">Peak-Valley Analysis</h3>
+                            <p class="feature-description">
+                                Compare hourly electricity prices between grid and supplier rates to identify the best times for production.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-tree-fill"></i>
+                            </div>
+                            <h3 class="feature-title">Carbon Tracking</h3>
+                            <p class="feature-description">
+                                Calculate carbon emissions from grid electricity and compare with potential savings from renewable sources.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-building"></i>
+                            </div>
+                            <h3 class="feature-title">Factory Management</h3>
+                            <p class="feature-description">
+                                Manage multiple factories with customizable work schedules, voltage levels, and transformer specifications.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-lightbulb"></i>
+                            </div>
+                            <h3 class="feature-title">Optimization Suggestions</h3>
+                            <p class="feature-description">
+                                Get actionable recommendations on when to shift production to valley hours for maximum cost savings.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-4">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="bi bi-graph-up"></i>
+                            </div>
+                            <h3 class="feature-title">Supplier Comparison</h3>
+                            <p class="feature-description">
+                                Compare costs between purchasing from grid vs. third-party suppliers with detailed hourly breakdowns.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- About Section -->
+        <section id="about" class="welcome-about">
+            <div class="container">
+                <h2 class="welcome-section-title" style="font-size: 2rem; margin-bottom: 0.75rem;">How PeakShift works</h2>
+                
+                <!-- Feature highlights -->
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 0.5rem;">Cost Analysis</div>
+                        <div class="stat-label">Compare peak, normal, and valley pricing</div>
+                    </div>
+                    <div class="stat-item">
+                        <div style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 0.5rem;">4 Voltage Levels</div>
+                        <div class="stat-label">Support 10/35/110/220 kV</div>
+                    </div>
+                    <div class="stat-item">
+                        <div style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 0.5rem;">24-Hour Tracking</div>
+                        <div class="stat-label">Hourly rate comparison</div>
+                    </div>
+                </div>
+                
+                <div class="about-content">
+                    <p class="about-text">
+                        PeakShift analyzes time-of-use electricity pricing to help industrial facilities reduce costs. The system calculates monthly expenses based on your factory's specifications and provides recommendations for shifting production to lower-cost periods.
+                    </p>
+                    
+                    <div class="about-highlight">
+                        <div class="about-highlight-title">
+                            <i class="bi bi-lightning-charge-fill" style="color: #2563EB;"></i>
+                            Peak-Valley Optimization
+                        </div>
+                        <p class="mb-0" style="color: #6B7280; line-height: 1.5; font-size: 0.875rem;">
+                            By analyzing hourly electricity rates and your work schedule, PeakShift identifies opportunities to shift production from peak to valley hours for cost reduction.
+                        </p>
+                    </div>
+                    
+                    <p class="about-text">
+                        <strong style="color: #111827;">Key capabilities:</strong>
+                    </p>
+                    <ul style="color: #6B7280; line-height: 1.5; font-size: 0.875rem; margin-bottom: 1rem; padding-left: 1.25rem;">
+                        <li><strong>Hourly cost analysis</strong> with peak/normal/valley pricing</li>
+                        <li><strong>Carbon emission calculation</strong> for grid vs. renewable sources</li>
+                        <li><strong>Supplier comparison</strong> between grid and third-party rates</li>
+                        <li><strong>Factory configuration</strong> with voltage levels and work schedules</li>
+                    </ul>
+                    
+                    <div class="text-center mt-3">
+                        <a href="#" onclick="showRegister(); return false;" class="welcome-cta-btn welcome-cta-primary" style="padding: 0.75rem 1.75rem; font-size: 0.9375rem;">
+                            Get started today
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Footer (outside scroll-snap sections) -->
+        <footer class="welcome-footer">
+            <div class="container">
+                <div class="text-center">
+                    <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+                        <i class="bi bi-lightning-charge-fill" style="font-size: 1.25rem; color: #2563EB;"></i>
+                        <span style="font-size: 1.125rem; font-weight: 700; color: #111827;">PeakShift</span>
+                    </div>
+                    <p class="welcome-footer-content mb-0">
+                        © 2026 PeakShift. Smart energy management for modern factories.
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Auth Container (Login/Register) -->
+    <div class="container-fluid" id="authContainer">
         <!-- Global clouds -->
         <div class="cloud cloud-1"></div>
         <div class="cloud cloud-2"></div>
@@ -417,11 +1050,76 @@
         });
         
         // ========================================
+        // View switching functions
+        // ========================================
+        
+        // Show welcome page
+        function showWelcome() {
+            document.getElementById('welcomeSection').style.display = 'block';
+            document.getElementById('authContainer').style.display = 'none';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Update URL without reload
+            window.history.pushState({view: 'welcome'}, '', '{{ url_for("auth.login") }}');
+        }
+        
+        // Show auth container
+        function showAuthContainer() {
+            document.getElementById('welcomeSection').style.display = 'none';
+            document.getElementById('authContainer').style.display = 'block';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.view === 'welcome') {
+                // Show welcome page without pushing new state
+                document.getElementById('welcomeSection').style.display = 'block';
+                document.getElementById('authContainer').style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (event.state && event.state.view === 'login') {
+                // Show login form
+                document.getElementById('welcomeSection').style.display = 'none';
+                document.getElementById('authContainer').style.display = 'block';
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('registerSection').style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (event.state && event.state.view === 'register') {
+                // Show register form
+                document.getElementById('welcomeSection').style.display = 'none';
+                document.getElementById('authContainer').style.display = 'block';
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('registerSection').style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('welcomeNavbar');
+            if (navbar) {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            }
+        });
+        
+        // ========================================
         // Switch to registration form
         // ========================================
         function showRegister() {
+            showAuthContainer();
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('registerSection').style.display = 'block';
+            
+            // Update URL with state
+            window.history.pushState({view: 'register'}, '', '{{ url_for("auth.login") }}?mode=register');
             
             // Clear flash messages
             const flashMessages = document.getElementById('flashMessages');
@@ -445,8 +1143,12 @@
         
         // Switch to login form
         function showLogin() {
+            showAuthContainer();
             document.getElementById('registerSection').style.display = 'none';
             document.getElementById('loginSection').style.display = 'block';
+            
+            // Update URL with state
+            window.history.pushState({view: 'login'}, '', '{{ url_for("auth.login") }}?mode=login');
             
             // Clear flash messages
             const flashMessages = document.getElementById('flashMessages');
@@ -628,12 +1330,23 @@
             const urlParams = new URLSearchParams(window.location.search);
             const mode = urlParams.get('mode');
             
+            // Check if user is coming from a redirect (has 'next' parameter or explicit mode)
+            const hasNext = urlParams.get('next');
+            
             if (mode === 'register') {
                 showRegister();
+                // Set initial state
+                window.history.replaceState({view: 'register'}, '', window.location.href);
+            } else if (mode === 'login' || hasNext) {
+                // If has 'next' parameter or explicit login mode, show login form
+                showLogin();
+                // Set initial state
+                window.history.replaceState({view: 'login'}, '', window.location.href);
             } else {
-                // Ensure login page displays normally
-                document.getElementById('loginSection').style.display = 'block';
-                document.getElementById('registerSection').style.display = 'none';
+                // Default: show welcome page
+                showWelcome();
+                // Set initial state
+                window.history.replaceState({view: 'welcome'}, '', window.location.href);
             }
         });
     </script>
