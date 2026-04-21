@@ -122,12 +122,49 @@ python3 test_encryption.py
 echo "yes" | python3 migrate_to_encrypted_db.py
 ```
 
+### 开发环境配置 🔧
+
+**团队协作模式：**
+
+- ✅ `instance/greenlife.db` 数据库已同步到仓库（包含测试数据）
+- ✅ `.env` 文件不同步（密钥由团队负责人手动分发）
+- ✅ 所有人使用相同的加密密钥，可以读取相同的数据
+
+**快速开始（团队成员）：**
+
+```bash
+# 1. 克隆项目
+git clone <仓库地址>
+cd software_project_2
+
+# 2. 创建 .env 文件（从团队负责人获取密钥）
+cp .env.example .env
+# 编辑 .env 文件，填入团队负责人提供的密钥：
+# - SECRET_KEY=<团队负责人提供>
+# - ENCRYPTION_MASTER_KEY=<团队负责人提供>
+
+# 3. 启动项目
+docker-compose up
+
+# 4. 访问应用
+# http://localhost:5001
+```
+
+**团队负责人分发密钥：**
+
+当前项目使用的密钥（通过安全渠道发送给队友）：
+```
+SECRET_KEY=34e8b019bc442035b4816e712a529e18a27ee720523cb750a1fd1adbbec84ff1
+ENCRYPTION_MASTER_KEY=ar5r93oB646IVE5i76w5WAnt_lR9nNpoREwUZixHdtY=
+```
+
 ### 安全提醒 ⚠️
 
-- ✅ 密钥已自动添加到 `.gitignore`，不会提交到 Git
+- ⚠️ **仅适用于开发/学习环境**
+- ⚠️ **通过安全渠道分发密钥**（微信/钉钉/邮件等）
+- ⚠️ **生产环境必须使用独立密钥，不要提交到 Git**
 - ✅ 备份密钥到安全位置（密码管理器）
 - ✅ 密钥丢失将导致数据无法恢复
-- ✅ 不要通过不安全渠道传输密钥
 
 ---
 

@@ -7,11 +7,11 @@ __pycache__/
 venv/
 
 # Flask
-instance/*.db
-instance/*.sqlite
+# instance/*.db  # 开发环境允许同步数据库
+# instance/*.sqlite
 
 # Environment variables
-.env
+.env  # 密钥不同步，手动分发给队友
 .env.local
 .env.production
 
