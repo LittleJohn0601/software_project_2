@@ -3,6 +3,24 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SelectField, SubmitField, FloatField, TextAreaField, DateField, IntegerField
 from wtforms.validators import DataRequired, Email, Length, ValidationError, NumberRange
 from blogapp.models import User
+from blogapp.utils.sensitive_word_filter import validate_text
+
+
+class SensitiveWordValidator:
+    """Custom validator for sensitive word checking"""
+    
+    def __init__(self, field_name=None):
+        self.field_name = field_name
+    
+    def __call__(self, form, field):
+        if not field.data:
+            return
+        
+        field_name = self.field_name or field.label.text or '内容'
+        is_valid, error_msg = validate_text(field.data, field_name)
+        
+        if not is_valid:
+            raise ValidationError(error_msg)
 
 
 class LoginForm(FlaskForm):
@@ -20,19 +38,23 @@ class RegistrationForm(FlaskForm):
     """User registration form"""
     username = StringField('Username', validators=[
         DataRequired(message='Username is required'),
-        Length(min=3, max=32, message='Username must be between 3 and 32 characters')
+        Length(min=3, max=32, message='Username must be between 3 and 32 characters'),
+        SensitiveWordValidator(field_name='用户名')
     ])
     email = StringField('Email', validators=[
         DataRequired(message='Email is required'),
         Email(message='Please enter a valid email address'),
-        Length(max=120, message='Email cannot exceed 120 characters')
+        Length(max=120, message='Email cannot exceed 120 characters'),
+        SensitiveWordValidator(field_name='邮箱')
     ])
     password = PasswordField('Password', validators=[
         DataRequired(message='Password is required'),
-        Length(min=6, max=128, message='Password must be between 6 and 128 characters')
+        Length(min=6, max=128, message='Password must be between 6 and 128 characters'),
+        SensitiveWordValidator(field_name='密码')
     ])
     company_name = StringField('Company Name', validators=[
-        Length(max=100, message='Company name cannot exceed 100 characters')
+        Length(max=100, message='Company name cannot exceed 100 characters'),
+        SensitiveWordValidator(field_name='公司名称')
     ])
     user_type = SelectField('User Type', choices=[
         ('user', 'User'), 

@@ -80,12 +80,41 @@ def create_factory():
     data = request.get_json()
     
     try:
+        # Import sensitive word filter
+        from blogapp.utils.sensitive_word_filter import validate_text
+        
         # Validate required fields
         if not data.get('name'):
             return jsonify({
                 'success': False,
                 'message': 'Factory name cannot be empty'
             }), 400
+        
+        # Check sensitive words in factory name
+        is_valid, error_msg = validate_text(data.get('name'), '工厂名称')
+        if not is_valid:
+            return jsonify({
+                'success': False,
+                'message': error_msg
+            }), 400
+        
+        # Check sensitive words in location
+        if data.get('location'):
+            is_valid, error_msg = validate_text(data.get('location'), '工厂地址')
+            if not is_valid:
+                return jsonify({
+                    'success': False,
+                    'message': error_msg
+                }), 400
+        
+        # Check sensitive words in industry type
+        if data.get('industry_type'):
+            is_valid, error_msg = validate_text(data.get('industry_type'), '行业类型')
+            if not is_valid:
+                return jsonify({
+                    'success': False,
+                    'message': error_msg
+                }), 400
         
         if not data.get('voltage_level'):
             return jsonify({
@@ -230,12 +259,41 @@ def update_factory(factory_id):
     data = request.get_json()
     
     try:
+        # Import sensitive word filter
+        from blogapp.utils.sensitive_word_filter import validate_text
+        
         # Validate required fields
         if not data.get('name'):
             return jsonify({
                 'success': False,
                 'message': 'Factory name cannot be empty'
             }), 400
+        
+        # Check sensitive words in factory name
+        is_valid, error_msg = validate_text(data.get('name'), '工厂名称')
+        if not is_valid:
+            return jsonify({
+                'success': False,
+                'message': error_msg
+            }), 400
+        
+        # Check sensitive words in location
+        if data.get('location'):
+            is_valid, error_msg = validate_text(data.get('location'), '工厂地址')
+            if not is_valid:
+                return jsonify({
+                    'success': False,
+                    'message': error_msg
+                }), 400
+        
+        # Check sensitive words in industry type
+        if data.get('industry_type'):
+            is_valid, error_msg = validate_text(data.get('industry_type'), '行业类型')
+            if not is_valid:
+                return jsonify({
+                    'success': False,
+                    'message': error_msg
+                }), 400
         
         if not data.get('voltage_level'):
             return jsonify({
