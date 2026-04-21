@@ -34,7 +34,7 @@ with app.app_context():
     
     if price_count == 0:
         print("📊 Importing hourly electricity price data...")
-        excel_path = os.path.join('blogapp', 'data', 'hourly_avg_30days(1).xlsx')
+        excel_path = os.path.join('data', 'excel', 'hourly_avg_30days(1).xlsx')
         
         if os.path.exists(excel_path):
             try:
@@ -87,7 +87,7 @@ with app.app_context():
     
     if grid_price_count == 0:
         print("📊 Importing grid electricity price data...")
-        excel_path = os.path.join('blogapp', 'data', '电网售卖价格.xlsx')
+        excel_path = os.path.join('data', 'excel', '电网售卖价格.xlsx')
         
         if os.path.exists(excel_path):
             try:
@@ -131,7 +131,7 @@ with app.app_context():
     
     if tou_count == 0:
         print("📊 Importing time-of-use period data...")
-        excel_path = os.path.join('blogapp', 'data', '分时价格详情.xlsx')
+        excel_path = os.path.join('data', 'excel', '分时价格详情.xlsx')
         
         if os.path.exists(excel_path):
             try:

@@ -2,6 +2,12 @@
 # migrate_to_encrypted_db.py
 # Migrate existing unencrypted data to encrypted format
 
+import sys
+import os
+
+# Add project root to Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 from blogapp import create_app, db
 from blogapp.models import User, Factory
 from blogapp.utils.encryption import encrypt_field
@@ -103,7 +109,7 @@ def main():
             # Check if encryption key is set
             if not app.config.get('ENCRYPTION_MASTER_KEY'):
                 print("❌ ERROR: ENCRYPTION_MASTER_KEY not set in .env file!")
-                print("   Please run: python generate_encryption_key.py")
+                print("   Please run: python scripts/security/generate_encryption_key.py")
                 return
             
             # Migrate users

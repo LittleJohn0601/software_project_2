@@ -7,7 +7,8 @@ services:
     volumes:
       - ./blogapp:/app/blogapp
       - ./microblog.py:/app/microblog.py
-      - ./init_db.py:/app/init_db.py
+      - ./scripts:/app/scripts
+      - ./data:/app/data
       - ./instance:/app/instance
       - ./logs:/app/logs
       - ./tests:/app/tests

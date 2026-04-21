@@ -4,6 +4,12 @@
 用于创建或更新管理员账号（密码使用哈希加密）
 """
 
+import sys
+import os
+
+# Add project root to Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 from microblog import app
 from blogapp import db
 from blogapp.models import User

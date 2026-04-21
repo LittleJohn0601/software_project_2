@@ -24,10 +24,14 @@ class SensitiveWordFilter:
         
         cls._words = set()
         
-        # Get XML file path
+        # Get XML file path (relative to project root)
+        # current_app.root_path points to blogapp directory
+        # We need to go up one level to reach project root
+        project_root = os.path.dirname(current_app.root_path)
         xml_path = os.path.join(
-            current_app.root_path,
+            project_root,
             'data',
+            'xml',
             'dirtywords.xml'
         )
         

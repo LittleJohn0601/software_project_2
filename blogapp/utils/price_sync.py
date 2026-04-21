@@ -70,7 +70,7 @@ def sync_electricity_prices(app, force=False):
     Returns:
         bool: 是否进行了更新
     """
-    excel_path = os.path.join('blogapp', 'data', 'hourly_avg_30days(1).xlsx')
+    excel_path = os.path.join('data', 'excel', 'hourly_avg_30days(1).xlsx')
     
     if not os.path.exists(excel_path):
         app.logger.warning(f"电价数据文件不存在: {excel_path}")

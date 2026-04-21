@@ -2,10 +2,15 @@
 # test_encryption.py
 # Test database encryption functionality
 
+import sys
+import os
+
+# Add project root to Python path (go up two levels: security -> scripts -> project_root)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 from blogapp import create_app, db
 from blogapp.models import User, Factory
 from blogapp.utils.encryption import EncryptionManager
-import sys
 
 def test_encryption_basic():
     """Test basic encryption/decryption"""
