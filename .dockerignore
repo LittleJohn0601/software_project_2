@@ -25,11 +25,5 @@ instance/*.db
 # macOS
 .DS_Store
 
-# Docker
-Dockerfile
-docker-compose.yml
-.dockerignore
-
 # Documentation
 *.md
-FACTORY_MANAGEMENT_TEST.md

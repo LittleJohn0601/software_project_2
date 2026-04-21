@@ -34,8 +34,13 @@ def setup_test_data(app):
     print("="*80)
     
     with app.app_context():
-        # Create test user
-        user = User.query.filter_by(username='test_user').first()
+        # Create test user (username is encrypted, need to check all users)
+        user = None
+        for u in User.query.all():
+            if u.username == 'test_user':
+                user = u
+                break
+        
         if not user:
             user = User(
                 username='test_user',
@@ -49,8 +54,13 @@ def setup_test_data(app):
         else:
             print("✅ Test user already exists")
         
-        # CreateTest factory
-        factory = Factory.query.filter_by(name='Test factory').first()
+        # Create test factory (name is encrypted, need to check all factories)
+        factory = None
+        for f in Factory.query.all():
+            if f.name == 'Test factory':
+                factory = f
+                break
+        
         if not factory:
             factory = Factory(
                 name='Test factory',
@@ -145,8 +155,13 @@ def test_supplier_valid_check(app):
     print("="*80)
     
     with app.app_context():
-        # Re-query factory object
-        factory = Factory.query.filter_by(name='Test factory').first()
+        # Re-query factory object (name is encrypted, need to check all factories)
+        factory = None
+        for f in Factory.query.all():
+            if f.name == 'Test factory':
+                factory = f
+                break
+        
         if not factory:
             print("❌ Test factory not found")
             return False
@@ -182,7 +197,12 @@ def test_optimize_cost_mode(app):
     print("="*80)
     
     with app.app_context():
-        factory = Factory.query.filter_by(name='Test factory').first()
+        factory = None
+        for f in Factory.query.all():
+            if f.name == 'Test factory':
+                factory = f
+                break
+        
         if not factory:
             print("❌ Test factory not found")
             return None
@@ -217,7 +237,12 @@ def test_optimize_carbon_mode(app):
     print("="*80)
     
     with app.app_context():
-        factory = Factory.query.filter_by(name='Test factory').first()
+        factory = None
+        for f in Factory.query.all():
+            if f.name == 'Test factory':
+                factory = f
+                break
+        
         if not factory:
             print("❌ Test factory not found")
             return None
@@ -249,7 +274,12 @@ def test_saving_potential(app):
     print("="*80)
     
     with app.app_context():
-        factory = Factory.query.filter_by(name='Test factory').first()
+        factory = None
+        for f in Factory.query.all():
+            if f.name == 'Test factory':
+                factory = f
+                break
+        
         if not factory:
             print("❌ Test factory not found")
             return None
@@ -280,7 +310,12 @@ def test_suggestions(app):
     print("="*80)
     
     with app.app_context():
-        factory = Factory.query.filter_by(name='Test factory').first()
+        factory = None
+        for f in Factory.query.all():
+            if f.name == 'Test factory':
+                factory = f
+                break
+        
         if not factory:
             print("❌ Test factory not found")
             return None

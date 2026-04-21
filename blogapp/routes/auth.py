@@ -47,10 +47,17 @@ def register():
         password = form.password.data
         user_type = form.user_type.data
         
-        # Check if username already exists
-        if User.query.filter_by(username=username).first():
-            flash('Username already exists', 'danger')
-            return redirect(url_for('auth.auth_page') + '?mode=register')
+        # Check if username already exists (need to check all users since username is encrypted)
+        for u in User.query.all():
+            if u.username == username:
+                flash('Username already exists', 'danger')
+                return redirect(url_for('auth.auth_page') + '?mode=register')
+        
+        # Check if email already exists (need to check all users since email is encrypted)
+        for u in User.query.all():
+            if u.email == email:
+                flash('Email already exists', 'danger')
+                return redirect(url_for('auth.auth_page') + '?mode=register')
         
         # Create user (email will be encrypted automatically)
         user = User(
@@ -85,12 +92,16 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        username = form.username.data
+        username_or_email = form.username.data.strip()
         password = form.password.data
-        # Support login by username or email
-        user = User.query.filter(
-            (User.username == username) | (User.email == username)
-        ).first()
+        
+        # Since username and email are encrypted, we need to check all users
+        user = None
+        for u in User.query.all():
+            # Check if input matches username or email
+            if u.username == username_or_email or u.email == username_or_email:
+                user = u
+                break
 
         # First check username + password
         if user and user.check_password(password):

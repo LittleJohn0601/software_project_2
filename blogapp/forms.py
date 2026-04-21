@@ -41,16 +41,16 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField('Register')
 
     def validate_username(self, username):
-        """Check if username already exists"""
-        user = User.query.filter_by(username=username.data).first()
-        if user:
-            raise ValidationError('Username already exists')
+        """Check if username already exists (username is encrypted, need to check all users)"""
+        for user in User.query.all():
+            if user.username == username.data:
+                raise ValidationError('Username already exists')
     
     def validate_email(self, email):
-        """Check if email already exists"""
-        user = User.query.filter_by(email=email.data).first()
-        if user:
-            raise ValidationError('Email already registered')
+        """Check if email already exists (email is encrypted, need to check all users)"""
+        for user in User.query.all():
+            if user.email == email.data:
+                raise ValidationError('Email already registered')
 
 
 # TODO: Add your PeakShift forms here

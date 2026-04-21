@@ -13,8 +13,12 @@ import sys
 def create_admin(username, email, password):
     """创建或更新管理员账号"""
     with app.app_context():
-        # 检查用户是否已存在
-        existing_user = User.query.filter_by(username=username).first()
+        # Check if user already exists (username is encrypted, need to check all users)
+        existing_user = None
+        for user in User.query.all():
+            if user.username == username:
+                existing_user = user
+                break
         
         if existing_user:
             print(f"⚠️  用户 '{username}' 已存在")

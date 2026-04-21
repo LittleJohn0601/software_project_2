@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   web:
     build: .
@@ -7,18 +5,16 @@ services:
     ports:
       - "5001:5001"
     volumes:
-      # Mount the entire blogapp directory (includes all Python code)
       - ./blogapp:/app/blogapp
-      # Mount startup files
       - ./microblog.py:/app/microblog.py
       - ./init_db.py:/app/init_db.py
-      # Mount the database directory (data persistence)
       - ./instance:/app/instance
-      # Mount logs
       - ./logs:/app/logs
-      # Mount test directory
       - ./tests:/app/tests
+      - ./.env:/app/.env
     environment:
       - FLASK_ENV=development
       - FLASK_DEBUG=1
+      - ENCRYPTION_MASTER_KEY=${ENCRYPTION_MASTER_KEY:-}
+      - SECRET_KEY=${SECRET_KEY:-}
     restart: unless-stopped

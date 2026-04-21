@@ -5,6 +5,7 @@ from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from blogapp import db
+from blogapp.utils.encryption import encrypt_field, decrypt_field
 
 # Carbon emission factors
 DEFAULT_GRID_CARBON_FACTOR = 0.6634  # kg CO₂/kWh
@@ -12,14 +13,50 @@ PHOTOVOLTAIC_CARBON_FACTOR = 0.0520  # kg CO₂/kWh
 
 
 class User(UserMixin, db.Model):
-    """User model for PeakShift system"""
+    """User model for PeakShift system with encrypted sensitive fields"""
     
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), unique=True, nullable=False, index=True)
-    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    _username = db.Column('username', db.String(500), unique=True, nullable=False)  # Encrypted field
+    _email = db.Column('email', db.String(500), unique=True, nullable=False)  # Encrypted field
     password_hash = db.Column(db.String(128), nullable=False)
     user_type = db.Column(db.String(20), default='user')  # user, admin
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    @property
+    def username(self):
+        """Decrypt username when reading"""
+        if not self._username:
+            return self._username
+        try:
+            return decrypt_field(self._username)
+        except:
+            return self._username  # Return as-is if decryption fails (legacy data)
+    
+    @username.setter
+    def username(self, value):
+        """Encrypt username when writing"""
+        if value:
+            self._username = encrypt_field(value)
+        else:
+            self._username = value
+    
+    @property
+    def email(self):
+        """Decrypt email when reading"""
+        if not self._email:
+            return self._email
+        try:
+            return decrypt_field(self._email)
+        except:
+            return self._email  # Return as-is if decryption fails (legacy data)
+    
+    @email.setter
+    def email(self, value):
+        """Encrypt email when writing"""
+        if value:
+            self._email = encrypt_field(value)
+        else:
+            self._email = value
     
     def set_password(self, password):
         """Set password hash"""
@@ -39,11 +76,11 @@ class User(UserMixin, db.Model):
 
 
 class Factory(db.Model):
-    """Factory model"""
+    """Factory model with encrypted sensitive fields"""
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    location = db.Column(db.String(200))
-    industry_type = db.Column(db.String(50))  # Industry type
+    _name = db.Column('name', db.String(500), nullable=False)  # Encrypted field
+    _location = db.Column('location', db.String(500))  # Encrypted field
+    _industry_type = db.Column('industry_type', db.String(500))  # Encrypted field
     voltage_level = db.Column(db.Integer, nullable=False)  # Voltage level (kV): 10, 35, 110, 220
     transformer_capacity = db.Column(db.Float, nullable=False)  # Transformer capacity (kVA)
     daily_usage = db.Column(db.Float, nullable=False)  # Daily usage (kWh/day)
@@ -51,6 +88,60 @@ class Factory(db.Model):
     working_days_per_month = db.Column(db.Integer, default=26)  # Working days per month
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    @property
+    def name(self):
+        """Decrypt name when reading"""
+        if not self._name:
+            return self._name
+        try:
+            return decrypt_field(self._name)
+        except:
+            return self._name  # Return as-is if decryption fails (legacy data)
+    
+    @name.setter
+    def name(self, value):
+        """Encrypt name when writing"""
+        if value:
+            self._name = encrypt_field(value)
+        else:
+            self._name = value
+    
+    @property
+    def location(self):
+        """Decrypt location when reading"""
+        if not self._location:
+            return self._location
+        try:
+            return decrypt_field(self._location)
+        except:
+            return self._location  # Return as-is if decryption fails (legacy data)
+    
+    @location.setter
+    def location(self, value):
+        """Encrypt location when writing"""
+        if value:
+            self._location = encrypt_field(value)
+        else:
+            self._location = value
+    
+    @property
+    def industry_type(self):
+        """Decrypt industry_type when reading"""
+        if not self._industry_type:
+            return self._industry_type
+        try:
+            return decrypt_field(self._industry_type)
+        except:
+            return self._industry_type  # Return as-is if decryption fails (legacy data)
+    
+    @industry_type.setter
+    def industry_type(self, value):
+        """Encrypt industry_type when writing"""
+        if value:
+            self._industry_type = encrypt_field(value)
+        else:
+            self._industry_type = value
     
     @property
     def capacity_fee(self):
