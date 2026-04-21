@@ -13,28 +13,25 @@ PHOTOVOLTAIC_CARBON_FACTOR = 0.0520  # kg CO₂/kWh
 
 
 class User(UserMixin, db.Model):
-    """User model for PeakShift system with encrypted sensitive fields"""
     
     id = db.Column(db.Integer, primary_key=True)
-    _username = db.Column('username', db.String(500), unique=True, nullable=False)  # Encrypted field
-    _email = db.Column('email', db.String(500), unique=True, nullable=False)  # Encrypted field
+    _username = db.Column('username', db.String(500), unique=True, nullable=False)
+    _email = db.Column('email', db.String(500), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    user_type = db.Column(db.String(20), default='user')  # user, admin
+    user_type = db.Column(db.String(20), default='user')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     @property
     def username(self):
-        """Decrypt username when reading"""
         if not self._username:
             return self._username
         try:
             return decrypt_field(self._username)
         except:
-            return self._username  # Return as-is if decryption fails (legacy data)
+            return self._username
     
     @username.setter
     def username(self, value):
-        """Encrypt username when writing"""
         if value:
             self._username = encrypt_field(value)
         else:
@@ -42,17 +39,15 @@ class User(UserMixin, db.Model):
     
     @property
     def email(self):
-        """Decrypt email when reading"""
         if not self._email:
             return self._email
         try:
             return decrypt_field(self._email)
         except:
-            return self._email  # Return as-is if decryption fails (legacy data)
+            return self._email
     
     @email.setter
     def email(self, value):
-        """Encrypt email when writing"""
         if value:
             self._email = encrypt_field(value)
         else:

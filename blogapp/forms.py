@@ -7,7 +7,6 @@ from blogapp.utils.sensitive_word_filter import validate_text
 
 
 class SensitiveWordValidator:
-    """Custom validator for sensitive word checking"""
     
     def __init__(self, field_name=None):
         self.field_name = field_name
@@ -24,7 +23,6 @@ class SensitiveWordValidator:
 
 
 class LoginForm(FlaskForm):
-    """User login form"""
     username = StringField('Username', validators=[
         DataRequired(message='Username is required'),
     ])
@@ -35,7 +33,6 @@ class LoginForm(FlaskForm):
 
 
 class RegistrationForm(FlaskForm):
-    """User registration form"""
     username = StringField('Username', validators=[
         DataRequired(message='Username is required'),
         Length(min=3, max=32, message='Username must be between 3 and 32 characters'),
