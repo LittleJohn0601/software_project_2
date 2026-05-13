@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理员控制台 - PeakShift</title>
+    <title>Admin Console - PeakShift</title>
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -131,7 +131,7 @@
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center" href="#">
                     <i class="bi bi-shield-lock-fill me-2"></i>
-                    <span class="fw-bold">PeakShift 管理员控制台</span>
+                    <span class="fw-bold">PeakShift Admin Console</span>
                 </a>
                 
                 <div class="d-flex align-items-center gap-3">
@@ -148,11 +148,11 @@
                     
                     <span class="text-white">
                         <i class="bi bi-person-badge me-1"></i>
-                        {{ current_user.username }} (管理员)
+                        {{ current_user.username }} (Admin)
                     </span>
                     <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">
                         <i class="bi bi-box-arrow-right me-1"></i>
-                        退出登录
+                        Log out
                     </a>
                 </div>
             </div>
@@ -170,7 +170,7 @@
                                 <i class="bi bi-people-fill"></i>
                             </div>
                             <div class="stat-value" id="totalUsers">-</div>
-                            <div class="stat-label">注册用户总数</div>
+                            <div class="stat-label">Total Registered Users</div>
                         </div>
                     </div>
                     
@@ -180,7 +180,7 @@
                                 <i class="bi bi-building"></i>
                             </div>
                             <div class="stat-value" id="totalFactories">-</div>
-                            <div class="stat-label">工厂总数</div>
+                            <div class="stat-label">Total Factories</div>
                         </div>
                     </div>
                     
@@ -190,7 +190,7 @@
                                 <i class="bi bi-lightning-charge-fill"></i>
                             </div>
                             <div class="stat-value" id="totalEnergy">-</div>
-                            <div class="stat-label">总月用电量 (kWh)</div>
+                            <div class="stat-label">Total Monthly Usage (kWh)</div>
                         </div>
                     </div>
                     
@@ -200,7 +200,7 @@
                                 <i class="bi bi-tree-fill"></i>
                             </div>
                             <div class="stat-value" id="totalCarbon">-</div>
-                            <div class="stat-label">总碳排放 (kg CO₂)</div>
+                            <div class="stat-label">Total Carbon Emission (kg CO₂)</div>
                         </div>
                     </div>
                 </div>
@@ -210,19 +210,19 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab">
                             <i class="bi bi-people me-2"></i>
-                            用户管理
+                            User Management
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="factories-tab" data-bs-toggle="tab" data-bs-target="#factories" type="button" role="tab">
                             <i class="bi bi-building me-2"></i>
-                            工厂管理
+                            Factory Management
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="system-tab" data-bs-toggle="tab" data-bs-target="#system" type="button" role="tab">
                             <i class="bi bi-gear me-2"></i>
-                            系统数据
+                            System Data
                         </button>
                     </li>
                 </ul>
@@ -236,26 +236,26 @@
                             <div class="card-body p-3" style="background: transparent !important;">
                                 <h5 class="mb-3" style="font-size: 1rem;">
                                     <i class="bi bi-people me-2"></i>
-                                    用户列表
+                                    User List
                                 </h5>
                                 <div class="table-responsive">
                                     <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem; background: transparent;">
                                         <thead>
                                             <tr style="background: transparent;">
                                                 <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">ID</th>
-                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">用户名</th>
-                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">邮箱</th>
-                                                <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">注册时间</th>
-                                                <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">工厂数量</th>
-                                                <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">总用电量 (kWh)</th>
-                                                <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">总碳排放 (kg)</th>
+                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Username</th>
+                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Email</th>
+                                                <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Registered</th>
+                                                <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Factories</th>
+                                                <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Total Usage (kWh)</th>
+                                                <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Carbon (kg)</th>
                                             </tr>
                                         </thead>
                                         <tbody id="usersTableBody">
                                             <tr style="background: transparent;">
                                                 <td colspan="7" style="padding: 0.75rem; text-align: center;">
                                                     <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-                                                    加载中...
+                                                    Loading...
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -271,27 +271,27 @@
                             <div class="card-body p-3" style="background: transparent !important;">
                                 <h5 class="mb-3" style="font-size: 1rem;">
                                     <i class="bi bi-building me-2"></i>
-                                    工厂列表
+                                    Factory List
                                 </h5>
                                 <div class="table-responsive">
                                     <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem; background: transparent;">
                                         <thead>
                                             <tr style="background: transparent;">
                                                 <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">ID</th>
-                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">工厂名称</th>
-                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">位置</th>
-                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">行业类型</th>
-                                                <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">电压等级</th>
-                                                <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">月用电量 (kWh)</th>
-                                                <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">碳排放 (kg)</th>
-                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">所属用户</th>
+                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Factory Name</th>
+                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Location</th>
+                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Industry Type</th>
+                                                <th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Voltage Level</th>
+                                                <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Monthly Usage (kWh)</th>
+                                                <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Carbon (kg)</th>
+                                                <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">Owner</th>
                                             </tr>
                                         </thead>
                                         <tbody id="factoriesTableBody">
                                             <tr style="background: transparent;">
                                                 <td colspan="8" style="padding: 0.75rem; text-align: center;">
                                                     <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-                                                    加载中...
+                                                    Loading...
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -307,11 +307,11 @@
                             <div class="card-body p-3" style="background: transparent !important;">
                                 <h5 class="mb-3" style="font-size: 1rem;">
                                     <i class="bi bi-gear me-2"></i>
-                                    系统数据管理
+                                    System Data Management
                                 </h5>
                                 <div class="alert alert-info">
                                     <i class="bi bi-info-circle me-2"></i>
-                                    系统数据（电价、碳因子等）通过 Excel 文件自动同步。如需修改，请编辑 <code>blogapp/data/</code> 目录下的相关文件，系统将在启动时自动检测并更新。
+                                    System data (electricity prices, carbon factors, etc.) is automatically synced from Excel files. To modify, edit the relevant files in the <code>data/</code> directory. The system will detect and update on startup.
                                 </div>
                                 
                                 <div class="row g-3">
@@ -320,13 +320,13 @@
                                             <div class="card-body">
                                                 <h6 class="card-title">
                                                     <i class="bi bi-file-earmark-excel me-2"></i>
-                                                    电价数据文件
+                                                    Electricity Price Data
                                                 </h6>
                                                 <p class="card-text small text-muted">
-                                                    文件路径: <code>blogapp/data/hourly_avg_30days(1).xlsx</code>
+                                                    File path: <code>data/excel/hourly_avg_30days(1).xlsx</code>
                                                 </p>
                                                 <p class="card-text small">
-                                                    包含24小时分时电价和电网售卖价格数据
+                                                    Contains 24-hour time-of-use pricing and grid selling prices
                                                 </p>
                                             </div>
                                         </div>
@@ -337,14 +337,14 @@
                                             <div class="card-body">
                                                 <h6 class="card-title">
                                                     <i class="bi bi-cloud me-2"></i>
-                                                    碳排放因子
+                                                    Carbon Emission Factors
                                                 </h6>
                                                 <p class="card-text small">
-                                                    电网碳因子: <strong>0.6634 kg CO₂/kWh</strong><br>
-                                                    光伏碳因子: <strong>0.0520 kg CO₂/kWh</strong>
+                                                    Grid carbon factor: <strong>0.6634 kg CO₂/kWh</strong><br>
+                                                    PV carbon factor: <strong>0.0520 kg CO₂/kWh</strong>
                                                 </p>
                                                 <p class="card-text small text-muted">
-                                                    在 <code>models.py</code> 中定义
+                                                    Defined in <code>models.py</code>
                                                 </p>
                                             </div>
                                         </div>

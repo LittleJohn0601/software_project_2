@@ -93,7 +93,7 @@ class SupplierOptimizer:
         """Get grid supplier time-of-use prices"""
         if self._grid_hourly_prices is None:
             self._grid_hourly_prices = {}
-            # 直接使用 ElectricityCostCalculator 获取电价
+            # Use ElectricityCostCalculator to get hourly prices
             from blogapp.services.electricity_cost import ElectricityCostCalculator
             calculator = ElectricityCostCalculator(self.factory.id)
             for hour in range(24):

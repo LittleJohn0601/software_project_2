@@ -1,12 +1,12 @@
 """
-山西版绿电采购引导服务
-根据山西省发改委新能源上网电价市场化改革方案定制
+Green Power Procurement Guide Service
+Customized based on Shanxi Province renewable energy pricing reform
 """
 
 class GreenPowerService:
-    """山西版绿电采购引导服务"""
+    """Green power procurement guide service"""
     
-    # 山西官方交易平台
+    # Shanxi official trading platforms
     SHANXI_PLATFORMS = [
         {
             'name': 'Electric Power Trading Centre',
@@ -31,18 +31,18 @@ class GreenPowerService:
         }
     ]
     
-    # 山西省燃煤基准价（元/kWh）
+    # Shanxi coal-fired benchmark price (CNY/kWh)
     SHANXI_BENCHMARK_PRICE = 0.332
     
     @classmethod
     def get_recommendation(cls, monthly_usage, project_type='existing'):
         """
         Args:
-            monthly_usage: 月用电量（kWh）
-            project_type: 项目类型，'existing'存量项目 或 'incremental'增量项目
+            monthly_usage: Monthly electricity consumption (kWh)
+            project_type: 'existing' or 'incremental'
         """
         
-        # 1. 根据用电量分级
+        # 1. Tier based on usage
         if monthly_usage < 100000:
             tier = 'small'
             tier_name = 'Small and Medium-sized Enterprises'
@@ -82,7 +82,7 @@ class GreenPowerService:
             ]
             certificates_needed = None
         
-        # 2. 设置电价方案
+        # 2. Set pricing scheme
         if project_type == 'existing':
             mechanism_price = cls.SHANXI_BENCHMARK_PRICE
             price_info = f'Mechanism electricity price for existing projects：{mechanism_price}CNY/kWh'
@@ -91,16 +91,16 @@ class GreenPowerService:
             price_info = 'Incremental project bidding mechanism price：0.199-0.332CNY/kWh'
             policy_note = 'According to the policy of June 2025, incremental projects put into operation after 1 June 2025 will have their mechanism prices determined through bidding'
         
-        # 3. 计算减碳量（使用全国电网平均排放因子0.6634kg CO₂/kWh）
-        carbon_reduction = round(monthly_usage * 0.0006634, 2)  # 吨CO₂/月
+        # 3. Calculate carbon reduction (national grid average emission factor 0.6634 kg CO₂/kWh)
+        carbon_reduction = round(monthly_usage * 0.0006634, 2)  # tons CO₂/month
         
-        # 4. 估算费用
+        # 4. Estimate costs
         if strategy == 'green_certificate':
-            estimated_cost = round(monthly_usage * 0.04, 2)  # 绿证约0.04元/kWh
+            estimated_cost = round(monthly_usage * 0.04, 2)  # Green cert ~0.04 CNY/kWh
         elif strategy == 'green_ppa':
-            estimated_cost = round(monthly_usage * 0.05, 2)  # PPA约0.05元/kWh
+            estimated_cost = round(monthly_usage * 0.05, 2)  # PPA ~0.05 CNY/kWh
         else:
-            estimated_cost = round(monthly_usage * 0.045, 2)  # 综合方案约0.045元/kWh
+            estimated_cost = round(monthly_usage * 0.045, 2)  # Combined ~0.045 CNY/kWh
         
         return {
             'success': True,

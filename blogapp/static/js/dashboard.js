@@ -935,7 +935,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         container.innerHTML = html;
     }
     
-    // 加载能效基准
+    // Load efficiency benchmark
     function loadEfficiencyBenchmark(factoryId) {
         const card = document.getElementById('efficiencyBenchmarkCard');
     
@@ -985,12 +985,12 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                 }
             })
             .catch(err => {
-                console.error('能效基准加载失败:', err);
+                console.error('Efficiency benchmark loading failed:', err);
                 card.style.display = 'none';
             });
     }
     
-    // 加载山西版绿电采购引导
+    // Load green power procurement guide
     function loadGreenPowerGuide(factoryId) {
         const card = document.getElementById('greenPowerCard');
         if (!card) return;
@@ -1002,7 +1002,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                     card.style.display = 'block';
                     const g = data.data;
                 
-                    // 生成平台按钮
+                    // Generate platform buttons
                     let platformButtons = '';
                     g.platforms.forEach(platform => {
                         platformButtons += `<a href="${platform.url}" target="_blank" class="btn btn-sm btn-outline-success me-2 mb-2">${platform.name}</a>`;
@@ -1056,7 +1056,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                 if (data.success && data.data && data.data.length > 0) {
                     card.style.display = 'block';
                 
-                    // 横排布局：三个卡片在一行
+                    // Horizontal layout: three cards in a row
                     let html = '<div class="row">';
                     data.data.forEach(rec => {
                         html += `
@@ -1125,7 +1125,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     // Format numbers
     function formatNumber(num) {
         if (num === null || num === undefined) return '0';
-        return parseFloat(num).toLocaleString('zh-CN', {
+        return parseFloat(num).toLocaleString('en-US', {
             minimumFractionDigits: 0,
             maximumFractionDigits: 2
         });

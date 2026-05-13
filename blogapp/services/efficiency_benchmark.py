@@ -1,70 +1,70 @@
 """
-行业能效基准服务
-从数据库读取行业基准数据
+Industry Efficiency Benchmark Service
+Reads industry benchmark data from database
 """
 
 from blogapp.models import IndustryBenchmark, Factory
 
 
 class EfficiencyBenchmarkService:
-    """能效基准服务"""
+    """Efficiency benchmark service"""
     
     @classmethod
     def get_benchmark(cls, industry_type, monthly_usage):
-        """从数据库获取能效基准和排名"""
+        """Get efficiency benchmark and ranking from database"""
         
-        # 从数据库读取行业基准
+        # Read industry benchmark from database
         benchmark_data = IndustryBenchmark.query.filter_by(
             industry_type=industry_type
         ).first()
         
-        # 如果没有找到，使用默认值
+        # If not found, use defaults
         if not benchmark_data:
             benchmark_data = IndustryBenchmark.query.filter_by(
                 industry_type='Other'
             ).first()
             
             if not benchmark_data:
-                # 如果连默认都没有，返回 None
+                # If no default either, return None
                 return None
         
-        # 估算月产值（万元）
+        # Estimate monthly output (ten thousand yuan)
         estimated_output = round(
             (monthly_usage * benchmark_data.output_per_kwh) / 10000, 2
         )
         
-        # 计算单位产值能耗（kWh/万元）
+        # Calculate energy intensity (kWh per ten thousand yuan)
         energy_intensity = round(
             monthly_usage / estimated_output, 2
         ) if estimated_output > 0 else 0
         
-        # 判断等级
+        # Determine level
         if energy_intensity <= benchmark_data.excellent_intensity:
             level = 'excellent'
-            level_text = 'excellent'
+            level_text = 'Excellent'
             level_color = 'success'
             level_icon = '🏆'
-            tip = f'能效水平优于行业 {round((1 - energy_intensity/benchmark_data.excellent_intensity)*100)}% 的同行'
+            tip = f'Outperforms {round((1 - energy_intensity/benchmark_data.excellent_intensity)*100)}% of industry peers'
         elif energy_intensity <= benchmark_data.avg_intensity:
             level = 'good'
-            level_text = 'good'
+            level_text = 'Good'
             level_color = 'primary'
             level_icon = '👍'
-            tip = f'能效水平处于行业平均，还有 {round(benchmark_data.avg_intensity - energy_intensity)} kWh/万元 的提升空间'
+            tip = f'At industry average, {round(benchmark_data.avg_intensity - energy_intensity)} kWh/10k yuan room for improvement'
         elif energy_intensity <= benchmark_data.poor_intensity:
             level = 'average'
-            level_text = 'average'
+            level_text = 'Average'
             level_color = 'warning'
             level_icon = '⚠️'
-            tip = '能效水平低于行业平均，建议优化用电模式'
+            tip = 'Below industry average, consider optimizing power usage patterns'
         else:
             level = 'poor'
-            level_text = 'poor'
+            level_text = 'Poor'
             level_color = 'danger'
             level_icon = '🔴'
-            tip = '能效水平处于行业后 30%，建议尽快采取优化措施'
+            tip = 'In the bottom 30% of industry, optimization measures recommended'
         
-        # 计算潜在节省
+        # Calculate potential savings
         target_intensity = benchmark_data.excellent_intensity
         target_usage = target_intensity * estimated_output
         potential_savings_kwh = monthly_usage - target_usage
@@ -92,7 +92,7 @@ class EfficiencyBenchmarkService:
 
 
 def get_efficiency_benchmark(factory):
-    """获取工厂的能效基准"""
+    """Get factory efficiency benchmark"""
     if not factory:
         return None
     

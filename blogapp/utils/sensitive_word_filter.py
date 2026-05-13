@@ -121,7 +121,7 @@ class SensitiveWordFilter:
         return list(set(matches))  # Remove duplicates
     
     @classmethod
-    def validate_text(cls, text: str, field_name: str = "内容") -> tuple:
+    def validate_text(cls, text: str, field_name: str = "content") -> tuple:
         """
         Validate text and return result.
         
@@ -140,7 +140,7 @@ class SensitiveWordFilter:
         if found_words:
             # Mask sensitive words in error message
             masked_words = [word[0] + '*' * (len(word) - 1) for word in found_words]
-            error_msg = f"{field_name}包含敏感词: {', '.join(masked_words)}"
+            error_msg = f"{field_name} contains sensitive words: {', '.join(masked_words)}"
             return False, error_msg
         
         return True, None
@@ -152,7 +152,7 @@ def contains_sensitive_word(text: str) -> bool:
     return SensitiveWordFilter.contains_sensitive_word(text)
 
 
-def validate_text(text: str, field_name: str = "内容") -> tuple:
+def validate_text(text: str, field_name: str = "content") -> tuple:
     """Validate text and return (is_valid, error_message)"""
     return SensitiveWordFilter.validate_text(text, field_name)
 

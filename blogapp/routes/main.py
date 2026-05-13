@@ -91,7 +91,7 @@ def create_factory():
             }), 400
         
         # Check sensitive words in factory name
-        is_valid, error_msg = validate_text(data.get('name'), '工厂名称')
+        is_valid, error_msg = validate_text(data.get('name'), 'Factory name')
         if not is_valid:
             return jsonify({
                 'success': False,
@@ -100,7 +100,7 @@ def create_factory():
         
         # Check sensitive words in location
         if data.get('location'):
-            is_valid, error_msg = validate_text(data.get('location'), '工厂地址')
+            is_valid, error_msg = validate_text(data.get('location'), 'Factory location')
             if not is_valid:
                 return jsonify({
                     'success': False,
@@ -109,7 +109,7 @@ def create_factory():
         
         # Check sensitive words in industry type
         if data.get('industry_type'):
-            is_valid, error_msg = validate_text(data.get('industry_type'), '行业类型')
+            is_valid, error_msg = validate_text(data.get('industry_type'), 'Industry type')
             if not is_valid:
                 return jsonify({
                     'success': False,
@@ -270,7 +270,7 @@ def update_factory(factory_id):
             }), 400
         
         # Check sensitive words in factory name
-        is_valid, error_msg = validate_text(data.get('name'), '工厂名称')
+        is_valid, error_msg = validate_text(data.get('name'), 'Factory name')
         if not is_valid:
             return jsonify({
                 'success': False,
@@ -279,7 +279,7 @@ def update_factory(factory_id):
         
         # Check sensitive words in location
         if data.get('location'):
-            is_valid, error_msg = validate_text(data.get('location'), '工厂地址')
+            is_valid, error_msg = validate_text(data.get('location'), 'Factory location')
             if not is_valid:
                 return jsonify({
                     'success': False,
@@ -288,7 +288,7 @@ def update_factory(factory_id):
         
         # Check sensitive words in industry type
         if data.get('industry_type'):
-            is_valid, error_msg = validate_text(data.get('industry_type'), '行业类型')
+            is_valid, error_msg = validate_text(data.get('industry_type'), 'Industry type')
             if not is_valid:
                 return jsonify({
                     'success': False,
@@ -672,16 +672,16 @@ def production_schedule():
     return jsonify({'message': 'Production schedule - Under development'})
 
 
-# ========== 行业能效基准 API ==========
+# ========== Efficiency Benchmark API ==========
 @bp.route('/api/factory/<int:factory_id>/efficiency-benchmark')
 @login_required
 def api_efficiency_benchmark(factory_id):
-    """获取工厂的能效基准数据"""
+    """Get factory efficiency benchmark data"""
     from blogapp.services.efficiency_benchmark import get_efficiency_benchmark
     
     factory = Factory.query.get_or_404(factory_id)
     if factory.user_id != current_user.id and not current_user.is_admin:
-        return jsonify({'success': False, 'error': '无权访问'}), 403
+        return jsonify({'success': False, 'error': 'Access denied'}), 403
     
     result = get_efficiency_benchmark(factory)
     return jsonify({'success': True, 'data': result})
@@ -690,14 +690,14 @@ def api_efficiency_benchmark(factory_id):
 @bp.route('/api/factory/<int:factory_id>/green-power-guide')
 @login_required
 def api_green_power_guide(factory_id):
-    """获取工厂的绿电采购建议（山西版）"""
+    """Get green power procurement recommendations"""
     from blogapp.services.green_power import get_green_power_recommendation
     
     factory = Factory.query.get_or_404(factory_id)
     if factory.user_id != current_user.id and not current_user.is_admin:
         return jsonify({'success': False, 'error': 'Access denied'}), 403
     
-    # 可以从工厂信息中获取项目类型，或让用户选择
+    # Get project type from factory info or user selection
     project_type = request.args.get('project_type', 'existing')
     
     result = get_green_power_recommendation(factory, project_type)

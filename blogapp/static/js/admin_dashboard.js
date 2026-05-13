@@ -275,7 +275,7 @@ async function loadUsers() {
                 <tr>
                     <td colspan="7" class="text-center text-muted">
                         <i class="bi bi-inbox me-2"></i>
-                        暂无用户数据
+                        No user data available
                     </td>
                 </tr>
             `;
@@ -286,7 +286,7 @@ async function loadUsers() {
             <tr>
                 <td colspan="7" class="text-center text-danger">
                     <i class="bi bi-exclamation-triangle me-2"></i>
-                    加载失败: ${error.message}
+                    Failed to load: ${error.message}
                 </td>
             </tr>
         `;
@@ -328,7 +328,7 @@ async function loadFactories() {
                 <tr>
                     <td colspan="8" class="text-center text-muted">
                         <i class="bi bi-inbox me-2"></i>
-                        暂无工厂数据
+                        No factory data available
                     </td>
                 </tr>
             `;
@@ -339,7 +339,7 @@ async function loadFactories() {
             <tr>
                 <td colspan="8" class="text-center text-danger">
                     <i class="bi bi-exclamation-triangle me-2"></i>
-                    加载失败: ${error.message}
+                    Failed to load: ${error.message}
                 </td>
             </tr>
         `;
