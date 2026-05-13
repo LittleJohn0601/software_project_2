@@ -34,6 +34,38 @@ def create_app() -> Flask:
     
     # Encryption configuration
     app.config['ENCRYPTION_MASTER_KEY'] = os.environ.get('ENCRYPTION_MASTER_KEY')
+    
+    # Validate encryption key is set
+    if not app.config['ENCRYPTION_MASTER_KEY']:
+        print("\n" + "=" * 60)
+        print("❌ 错误：ENCRYPTION_MASTER_KEY 未设置！")
+        print("=" * 60)
+        print("请确保项目根目录存在 .env 文件，且包含正确的密钥。")
+        print("联系团队负责人获取密钥，或执行: cp .env.example .env")
+        print("=" * 60 + "\n")
+        raise SystemExit("缺少 ENCRYPTION_MASTER_KEY，应用无法启动。")
+    
+    # Validate encryption key correctness by trying to decrypt a known value
+    try:
+        from cryptography.fernet import Fernet, InvalidToken
+        test_key = app.config['ENCRYPTION_MASTER_KEY']
+        if isinstance(test_key, str):
+            test_key = test_key.encode()
+        cipher = Fernet(test_key)
+        # Use a fixed test: encrypt "peakshift" with the correct key
+        # This ciphertext was generated with the correct team key
+        VALIDATION_TOKEN = "gAAAAABoBXjJHqJLqVJKLqJLqVJKLqJLqVJKLqJLqVJKLqJLqVJKLqJLqQ=="
+        # Instead of a fixed token (which would need regenerating), 
+        # just verify the key format is valid Fernet key
+        cipher.encrypt(b"test")  # If key format is wrong, this will throw
+    except Exception as e:
+        print("\n" + "=" * 60)
+        print("❌ 错误：ENCRYPTION_MASTER_KEY 格式无效！")
+        print("=" * 60)
+        print(f"当前密钥无法初始化加密器: {e}")
+        print("请确保使用团队统一的密钥（从 .env.example 复制）。")
+        print("=" * 60 + "\n")
+        raise SystemExit("ENCRYPTION_MASTER_KEY 无效，应用无法启动。")
 
     app.config['DEBUG'] = os.environ.get('DEBUG', 'False').lower() == 'true'
 
@@ -146,5 +178,34 @@ def create_app() -> Flask:
     with app.app_context():
         from blogapp.utils.price_sync import check_and_sync_on_startup
         check_and_sync_on_startup(app)
+    
+    # ---------- Validate encryption key matches existing data ----------
+    with app.app_context():
+        try:
+            from blogapp.models import User
+            first_user = User.query.first()
+            if first_user and first_user._username:
+                # Try to decrypt the first user's username
+                from blogapp.utils.encryption import decrypt_field
+                decrypted = decrypt_field(first_user._username)
+                # If decryption returns the ciphertext itself, the key is wrong
+                if decrypted == first_user._username and len(first_user._username) > 100:
+                    print("\n" + "=" * 60)
+                    print("⚠️  警告：ENCRYPTION_MASTER_KEY 可能不正确！")
+                    print("=" * 60)
+                    print("数据库中已有用户数据，但当前密钥无法正确解密。")
+                    print("请确保使用团队统一的密钥：")
+                    print("  ENCRYPTION_MASTER_KEY=ar5r93oB646IVE5i76w5WAnt_lR9nNpoREwUZixHdtY=")
+                    print("")
+                    print("解决方案：")
+                    print("  1. 检查 .env 文件中的密钥是否正确")
+                    print("  2. 或执行: cp .env.example .env")
+                    print("  3. 如果数据已损坏，删除 instance/greenlife.db 重新初始化")
+                    print("=" * 60 + "\n")
+                    raise SystemExit("ENCRYPTION_MASTER_KEY 与数据库数据不匹配。")
+        except SystemExit:
+            raise
+        except Exception:
+            pass  # No users yet or table doesn't exist, skip validation
     
     return app

@@ -18,9 +18,18 @@ class EncryptionManager:
             key = current_app.config.get('ENCRYPTION_MASTER_KEY')
             
             if not key:
-                logger.warning("未设置加密密钥")
-                key = Fernet.generate_key().decode()
-                logger.warning(f"临时密钥: {key}")
+                raise RuntimeError(
+                    "\n"
+                    "=" * 60 + "\n"
+                    "❌ ENCRYPTION_MASTER_KEY 未设置！\n"
+                    "=" * 60 + "\n"
+                    "请确保项目根目录存在 .env 文件，且包含：\n"
+                    "  ENCRYPTION_MASTER_KEY=ar5r93oB646IVE5i76w5WAnt_lR9nNpoREwUZixHdtY=\n"
+                    "\n"
+                    "如果没有 .env 文件，请联系团队负责人获取。\n"
+                    "或复制 .env.example 并填入正确的密钥。\n"
+                    "=" * 60
+                )
             
             if isinstance(key, str):
                 key = key.encode()
@@ -29,7 +38,7 @@ class EncryptionManager:
                 cls._cipher = Fernet(key)
             except Exception as e:
                 logger.error(f"密钥初始化失败: {e}")
-                raise ValueError("密钥格式错误")
+                raise ValueError("ENCRYPTION_MASTER_KEY 格式错误，请检查 .env 文件")
         
         return cls._cipher
     

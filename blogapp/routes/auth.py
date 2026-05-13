@@ -49,15 +49,21 @@ def register():
         
         # Check if username already exists (need to check all users since username is encrypted)
         for u in User.query.all():
-            if u.username == username:
-                flash('Username already exists', 'danger')
-                return redirect(url_for('auth.auth_page') + '?mode=register')
+            try:
+                if u.username == username:
+                    flash('Username already exists', 'danger')
+                    return redirect(url_for('auth.auth_page') + '?mode=register')
+            except Exception:
+                continue
         
         # Check if email already exists (need to check all users since email is encrypted)
         for u in User.query.all():
-            if u.email == email:
-                flash('Email already exists', 'danger')
-                return redirect(url_for('auth.auth_page') + '?mode=register')
+            try:
+                if u.email == email:
+                    flash('Email already exists', 'danger')
+                    return redirect(url_for('auth.auth_page') + '?mode=register')
+            except Exception:
+                continue
         
         # Create user (email will be encrypted automatically)
         user = User(
@@ -98,10 +104,18 @@ def login():
         # Since username and email are encrypted, we need to check all users
         user = None
         for u in User.query.all():
-            # Check if input matches username or email
-            if u.username == username_or_email or u.email == username_or_email:
-                user = u
-                break
+            try:
+                # Check if input matches username or email
+                if u.username == username_or_email or u.email == username_or_email:
+                    user = u
+                    break
+            except Exception as e:
+                # Decryption failed for this user (likely encrypted with a different key)
+                current_app.logger.warning(
+                    f"Failed to decrypt user data for user_id={u.id}: {e}. "
+                    f"This user may have been created with a different encryption key."
+                )
+                continue
 
         # First check username + password
         if user and user.check_password(password):
@@ -141,7 +155,7 @@ def login():
                 return redirect(url_for('main.dashboard'))
 
         # Username/Email does not exist or password is incorrect
-        current_app.logger.warning("Failed login attempt for username/email='%s'", username)
+        current_app.logger.warning("Failed login attempt for username/email='%s'", username_or_email)
         flash('Invalid username/email or password', 'danger')
 
     return redirect(url_for('auth.auth_page'))

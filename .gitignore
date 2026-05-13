@@ -6,9 +6,9 @@ __pycache__/
 .venv/
 venv/
 
-# Flask - 开发环境允许同步数据库
-# instance/*.db
-# instance/*.sqlite
+# Flask - 数据库不通过 Git 同步，每人本地初始化
+instance/*.db
+instance/*.sqlite
 
 # Environment variables - 密钥不同步，手动分发给队友
 .env
@@ -32,3 +32,6 @@ logs/*.log.*
 # macOS
 .DS_Store
 Thumbs.db
+
+# Backup files
+*.bak
