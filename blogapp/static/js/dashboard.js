@@ -968,9 +968,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                                     <div class="progress-bar bg-${b.level_color}" style="width: ${Math.min(100, (b.energy_intensity / b.benchmark_poor) * 100)}%"></div>
                                 </div>
                                 <div class="d-flex justify-content-between small text-muted">
-                                    <span>优秀 ${b.benchmark_excellent}</span>
-                                    <span>平均 ${b.benchmark_avg}</span>
-                                    <span>较差 ${b.benchmark_poor}</span>
+                                    <span>Excellent ${b.benchmark_excellent}</span>
+                                    <span>Average ${b.benchmark_avg}</span>
+                                    <span>Poor ${b.benchmark_poor}</span>
                                 </div>
                             </div>
                             <div class="col-md-4">
