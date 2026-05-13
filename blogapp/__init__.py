@@ -1,6 +1,5 @@
 # blogapp/__init__.py
 
-
 import os
 from flask import Flask, current_app
 from flask_sqlalchemy import SQLAlchemy
@@ -141,6 +140,7 @@ def create_app() -> Flask:
         app.register_blueprint(auth.bp, url_prefix='/auth')
         app.register_blueprint(visualization.bp, url_prefix='/api')
         app.register_blueprint(admin.bp)
+          # <-- 添加这一行：注册成本预测路由
     
     # ---------- Auto-sync electricity prices on startup ----------
     with app.app_context():

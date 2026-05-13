@@ -444,6 +444,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                 AppState.currentFactory = data;
                 renderFactoryDetails(data);
                 showView('factoryDetails');
+                document.getElementById('currentFactoryId').value = factoryId;
             } else {
                 showError(data.message || 'Failed to load factory details');
             }
@@ -492,6 +493,12 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         // Load optimization suggestions
         loadOptimizationSuggestions(factory.id);
+
+        loadEfficiencyBenchmark(factory.id);
+        // Load green power guide\
+        loadGreenPowerGuide(factory.id);
+
+        loadEquipmentRecommendations(factory.id);
         
         // Render charts
         renderPriceChart(costAnalysis.hourly_breakdown);
@@ -928,7 +935,157 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         container.innerHTML = html;
     }
     
+    // 加载能效基准
+    function loadEfficiencyBenchmark(factoryId) {
+        const card = document.getElementById('efficiencyBenchmarkCard');
     
+        fetch(`/api/factory/${factoryId}/efficiency-benchmark`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    card.style.display = 'block';
+                    const b = data.data;
+                    
+                    let bgColor = '';
+                    if (b.level === 'excellent') bgColor = 'rgba(16, 185, 129, 0.1)';
+                    else if (b.level === 'good') bgColor = 'rgba(59, 130, 246, 0.1)';
+                    else if (b.level === 'average') bgColor = 'rgba(245, 158, 11, 0.1)';
+                    else bgColor = 'rgba(239, 68, 68, 0.1)';
+                
+                    document.getElementById('benchmarkContent').innerHTML = `
+                        <div class="row align-items-center" style="background: ${bgColor}; border-radius: 12px; padding: 12px;">
+                            <div class="col-md-3 text-center">
+                                <div style="font-size: 2.5rem;">${b.level_icon}</div>
+                                <span class="badge bg-${b.level_color} mt-1">${b.level_text}</span>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="small text-muted">${b.industry}</div>
+                                <div class="mb-2">
+                                    <span class="fw-bold">${b.energy_intensity}</span>
+                                    <span class="text-muted"> kWh/ten thousand yuan</span>
+                                </div>
+                                <div class="progress mb-2" style="height: 6px;">
+                                    <div class="progress-bar bg-${b.level_color}" style="width: ${Math.min(100, (b.energy_intensity / b.benchmark_poor) * 100)}%"></div>
+                                </div>
+                                <div class="d-flex justify-content-between small text-muted">
+                                    <span>优秀 ${b.benchmark_excellent}</span>
+                                    <span>平均 ${b.benchmark_avg}</span>
+                                    <span>较差 ${b.benchmark_poor}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="small text-muted">📊 Monthly Electricity Consumption</div>
+                                <div class="fw-bold">${b.monthly_usage.toLocaleString()} kWh</div>
+                                <div class="small text-muted mt-2">💰 Estimated Monthly Output</div>
+                                <div class="fw-bold">${b.estimated_output*10} thousand yuan</div>
+                                <div class="small text-${b.level_color} mt-2">${b.tip}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            })
+            .catch(err => {
+                console.error('能效基准加载失败:', err);
+                card.style.display = 'none';
+            });
+    }
+    
+    // 加载山西版绿电采购引导
+    function loadGreenPowerGuide(factoryId) {
+        const card = document.getElementById('greenPowerCard');
+        if (!card) return;
+    
+        fetch(`/api/factory/${factoryId}/green-power-guide?project_type=existing`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    card.style.display = 'block';
+                    const g = data.data;
+                
+                    // 生成平台按钮
+                    let platformButtons = '';
+                    g.platforms.forEach(platform => {
+                        platformButtons += `<a href="${platform.url}" target="_blank" class="btn btn-sm btn-outline-success me-2 mb-2">${platform.name}</a>`;
+                    });
+                
+                    document.getElementById('greenPowerContent').innerHTML = `
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center">
+                                <div style="font-size: 2rem;">🌱</div>
+                                <span class="badge bg-success mt-1">${g.tier_name}</span>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="small text-muted">Recommended plan</div>
+                                <div class="fw-bold mb-1">${g.description}</div>
+                                <div class="small text-muted">Monthly electricity consumption: ${g.monthly_usage.toLocaleString()} kWh</div>
+                                <div class="small text-success">Estimated monthly cost: ¥${g.estimated_cost_per_month.toLocaleString()}</div>
+                                <div class="small text-info">Carbon reduction: ${g.carbon_reduction_per_month.toLocaleString()} tons/month</div>
+                                <div class="small text-primary mt-1">💰 ${g.price_info}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="small text-muted">Official Purchase Platforms</div>
+                                <div class="mt-1">${platformButtons}</div>
+                                ${g.certificates_needed ? `<div class="small text-muted mt-2">Recommended to purchase: ${g.certificates_needed} green certificates/month</div>` : ''}
+                            </div>
+                        </div>
+                        <div class="mt-2 p-2 bg-light rounded">
+                            <div class="small fw-bold">📋 Implementation Steps</div>
+                            <div class="small">${g.steps.join(' → ')}</div>
+                            <div class="small text-muted mt-1">📌 ${g.policy_note}</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                card.style.display = 'none';
+            }
+        })
+        .catch(err => {
+            console.error('Green power guide loading failed:', err);
+            card.style.display = 'none';
+        });
+    }
+
+    // Load equipment recommendations
+    function loadEquipmentRecommendations(factoryId) {
+        const card = document.getElementById('equipmentCard');
+        if (!card) return;
+    
+        fetch(`/api/factory/${factoryId}/equipment-recommendations`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data && data.data.length > 0) {
+                    card.style.display = 'block';
+                
+                    // 横排布局：三个卡片在一行
+                    let html = '<div class="row">';
+                    data.data.forEach(rec => {
+                        html += `
+                            <div class="col-md-4">
+                                <div class="card h-100 text-center p-3" style="background: rgba(255,255,255,0.5);">
+                                    <div style="font-size: 2.5rem;">${rec.icon}</div>
+                                    <h6 class="mt-2 fw-bold">${rec.category}</h6>
+                                    <div class="small fw-bold">${rec.recommended_device || rec.description}</div>
+                                    <hr class="my-2">
+                                    <div class="small text-muted">💰 Investment: ${rec.investment_formatted}</div>
+                                    <div class="small text-success">💵 Annual Saving: ${rec.annual_saving_formatted}</div>
+                                    <div class="small text-info">⏱️ Payback: ${rec.payback_years} years</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    document.getElementById('equipmentContent').innerHTML = html;
+                } else {
+                    card.style.display = 'none';
+                }
+            })
+            .catch(err => {
+                console.error('Equipment recommendations failed:', err);
+                card.style.display = 'none';
+            });
+    }
+
+
     // Delete factory
     window.deleteFactory = async function(factoryId, factoryName) {
         if (!confirm(`Are you sure you want to delete factory "${factoryName}"? This action cannot be undone.`)) {

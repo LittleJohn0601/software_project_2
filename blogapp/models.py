@@ -261,3 +261,19 @@ class TimeOfUsePeriod(db.Model):
 #     end_hour = db.Column(db.Integer)
 #     price_per_kwh = db.Column(db.Float)  # CNY/kWh
 #     region = db.Column(db.String(50))
+
+class IndustryBenchmark(db.Model):
+    """行业能效基准表"""
+    __tablename__ = 'industry_benchmark'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    industry_type = db.Column(db.String(100), unique=True, nullable=False)  # 行业类型
+    avg_intensity = db.Column(db.Float, nullable=False)  # 行业平均能耗 (kWh/万元)
+    excellent_intensity = db.Column(db.Float, nullable=False)  # 优秀线能耗
+    poor_intensity = db.Column(db.Float, nullable=False)  # 较差线能耗
+    output_per_kwh = db.Column(db.Float, nullable=False)  # 每度电产值 (元/kWh)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<IndustryBenchmark {self.industry_type}>'

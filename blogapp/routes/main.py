@@ -672,6 +672,52 @@ def production_schedule():
     return jsonify({'message': 'Production schedule - Under development'})
 
 
+# ========== 行业能效基准 API ==========
+@bp.route('/api/factory/<int:factory_id>/efficiency-benchmark')
+@login_required
+def api_efficiency_benchmark(factory_id):
+    """获取工厂的能效基准数据"""
+    from blogapp.services.efficiency_benchmark import get_efficiency_benchmark
+    
+    factory = Factory.query.get_or_404(factory_id)
+    if factory.user_id != current_user.id and not current_user.is_admin:
+        return jsonify({'success': False, 'error': '无权访问'}), 403
+    
+    result = get_efficiency_benchmark(factory)
+    return jsonify({'success': True, 'data': result})
+
+
+@bp.route('/api/factory/<int:factory_id>/green-power-guide')
+@login_required
+def api_green_power_guide(factory_id):
+    """获取工厂的绿电采购建议（山西版）"""
+    from blogapp.services.green_power import get_green_power_recommendation
+    
+    factory = Factory.query.get_or_404(factory_id)
+    if factory.user_id != current_user.id and not current_user.is_admin:
+        return jsonify({'success': False, 'error': 'Access denied'}), 403
+    
+    # 可以从工厂信息中获取项目类型，或让用户选择
+    project_type = request.args.get('project_type', 'existing')
+    
+    result = get_green_power_recommendation(factory, project_type)
+    return jsonify({'success': True, 'data': result})
+
+# ========== Equipment Recommendations API ==========
+@bp.route('/api/factory/<int:factory_id>/equipment-recommendations')
+@login_required
+def api_equipment_recommendations(factory_id):
+    """Get energy-saving equipment recommendations for factory"""
+    from blogapp.services.equipment_recommendation import get_equipment_recommendations
+    
+    factory = Factory.query.get_or_404(factory_id)
+    if factory.user_id != current_user.id and not current_user.is_admin:
+        return jsonify({'success': False, 'error': 'Access denied'}), 403
+    
+    result = get_equipment_recommendations(factory)
+    return jsonify({'success': True, 'data': result})
+
+
 # ============================================================
 # API routes (TODO)
 # ============================================================
