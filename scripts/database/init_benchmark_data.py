@@ -87,7 +87,7 @@ def init_benchmark_data():
         print("\n📊 行业基准数据列表:")
         print("-" * 60)
         for b in IndustryBenchmark.query.all():
-            print(f"  {b.industry_type}: 平均={b.avg_intensity}, 优秀={b.excellent_intensity}, 较差={b.poor_intensity}, 产值={b.output_per_kwh}元/kWh")
+            print(f"  {b.industry_type}: average={b.avg_intensity}, excellent={b.excellent_intensity}, poor={b.poor_intensity}, output={b.output_per_kwh} yuan/kWh")
 
 if __name__ == '__main__':
     init_benchmark_data()

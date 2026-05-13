@@ -41,25 +41,25 @@ class EfficiencyBenchmarkService:
         # 判断等级
         if energy_intensity <= benchmark_data.excellent_intensity:
             level = 'excellent'
-            level_text = '优秀'
+            level_text = 'excellent'
             level_color = 'success'
             level_icon = '🏆'
             tip = f'Your energy efficiency level is above {round((1 - energy_intensity/benchmark_data.excellent_intensity)*100)}% of industry peers'
         elif energy_intensity <= benchmark_data.avg_intensity:
             level = 'good'
-            level_text = '良好'
+            level_text = 'good'
             level_color = 'primary'
             level_icon = '👍'
             tip = f'Your energy efficiency level is at the industry average, with {round(benchmark_data.avg_intensity - energy_intensity)} kWh/ten thousand yuan of room for improvement'
         elif energy_intensity <= benchmark_data.poor_intensity:
             level = 'average'
-            level_text = '一般'
+            level_text = 'average'
             level_color = 'warning'
             level_icon = '⚠️'
             tip = f'Your energy efficiency level is below the industry average,建议优化用电模式'
         else:
             level = 'poor'
-            level_text = '待改进'
+            level_text = 'poor'
             level_color = 'danger'
             level_icon = '🔴'
             tip = f'Your energy efficiency level is in the bottom 30% of the industry,建议尽快采取优化措施'
