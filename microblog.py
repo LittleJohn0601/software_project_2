@@ -173,6 +173,30 @@ with app.app_context():
     else:
         print(f"✅ TOU period data already exists ({tou_count} records)")
 
+    # ========================================
+    # 4. Auto-create default admin account
+    # ========================================
+    from blogapp.models import User
+    
+    admin_exists = False
+    for u in User.query.all():
+        try:
+            if u.username == 'admin':
+                admin_exists = True
+                break
+        except Exception:
+            continue
+    
+    if not admin_exists:
+        print("👤 Creating default admin account...")
+        admin = User(username='admin', email='admin@example.com', user_type='admin')
+        admin.set_password('admin123')
+        db.session.add(admin)
+        db.session.commit()
+        print("✅ Default admin created (admin / admin123)")
+    else:
+        print("✅ Admin account already exists")
+
 if __name__ == '__main__':
     # Use 0.0.0.0 to allow external access (required for Docker)
     app.run(debug=True, host='0.0.0.0', port=5001)
