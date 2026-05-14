@@ -107,14 +107,20 @@ def create_factory():
                     'message': error_msg
                 }), 400
         
+        # Validate industry type (required)
+        if not data.get('industry_type'):
+            return jsonify({
+                'success': False,
+                'message': 'Industry type is required'
+            }), 400
+        
         # Check sensitive words in industry type
-        if data.get('industry_type'):
-            is_valid, error_msg = validate_text(data.get('industry_type'), 'Industry type')
-            if not is_valid:
-                return jsonify({
-                    'success': False,
-                    'message': error_msg
-                }), 400
+        is_valid, error_msg = validate_text(data.get('industry_type'), 'Industry type')
+        if not is_valid:
+            return jsonify({
+                'success': False,
+                'message': error_msg
+            }), 400
         
         if not data.get('voltage_level'):
             return jsonify({
@@ -168,7 +174,7 @@ def create_factory():
         factory = Factory(
             name=data.get('name').strip(),
             location=data.get('location', '').strip() if data.get('location') else None,
-            industry_type=data.get('industry_type', '').strip() if data.get('industry_type') else None,
+            industry_type=data.get('industry_type', '').strip(),
             voltage_level=voltage_level,
             transformer_capacity=transformer_capacity,
             daily_usage=daily_usage,
@@ -286,14 +292,20 @@ def update_factory(factory_id):
                     'message': error_msg
                 }), 400
         
+        # Validate industry type (required)
+        if not data.get('industry_type'):
+            return jsonify({
+                'success': False,
+                'message': 'Industry type is required'
+            }), 400
+        
         # Check sensitive words in industry type
-        if data.get('industry_type'):
-            is_valid, error_msg = validate_text(data.get('industry_type'), 'Industry type')
-            if not is_valid:
-                return jsonify({
-                    'success': False,
-                    'message': error_msg
-                }), 400
+        is_valid, error_msg = validate_text(data.get('industry_type'), 'Industry type')
+        if not is_valid:
+            return jsonify({
+                'success': False,
+                'message': error_msg
+            }), 400
         
         if not data.get('voltage_level'):
             return jsonify({
@@ -341,7 +353,7 @@ def update_factory(factory_id):
         # Update factory information
         factory.name = data.get('name').strip()
         factory.location = data.get('location', '').strip() if data.get('location') else None
-        factory.industry_type = data.get('industry_type', '').strip() if data.get('industry_type') else None
+        factory.industry_type = data.get('industry_type', '').strip()
         factory.voltage_level = voltage_level
         factory.transformer_capacity = float(data.get('transformer_capacity'))
         factory.daily_usage = float(data.get('daily_usage'))
