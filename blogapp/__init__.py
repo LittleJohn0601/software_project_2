@@ -84,34 +84,56 @@ def create_app() -> Flask:
     # ---------- Logging ----------
     log_dir = os.path.join(app.root_path, '..', 'logs')
     os.makedirs(log_dir, exist_ok=True)
-    log_path = os.path.join(log_dir, 'greenlife.log')
     
-    file_handler = RotatingFileHandler(
-        log_path, maxBytes=10240, backupCount=10, encoding='utf-8'
-    )
-    file_handler.setLevel(logging.INFO)
     formatter = logging.Formatter(
         '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
     )
-    file_handler.setFormatter(formatter)
+    
+    # INFO log file
+    info_handler = RotatingFileHandler(
+        os.path.join(log_dir, 'info.log'), maxBytes=10240, backupCount=5, encoding='utf-8'
+    )
+    info_handler.setLevel(logging.INFO)
+    info_handler.addFilter(lambda record: record.levelno == logging.INFO)
+    info_handler.setFormatter(formatter)
+    
+    # WARNING log file
+    warning_handler = RotatingFileHandler(
+        os.path.join(log_dir, 'warning.log'), maxBytes=10240, backupCount=5, encoding='utf-8'
+    )
+    warning_handler.setLevel(logging.WARNING)
+    warning_handler.addFilter(lambda record: record.levelno == logging.WARNING)
+    warning_handler.setFormatter(formatter)
+    
+    # ERROR log file
+    error_handler = RotatingFileHandler(
+        os.path.join(log_dir, 'error.log'), maxBytes=10240, backupCount=5, encoding='utf-8'
+    )
+    error_handler.setLevel(logging.ERROR)
+    error_handler.setFormatter(formatter)
+    
+    # Combined log file (all levels)
+    combined_handler = RotatingFileHandler(
+        os.path.join(log_dir, 'greenlife.log'), maxBytes=10240, backupCount=10, encoding='utf-8'
+    )
+    combined_handler.setLevel(logging.INFO)
+    combined_handler.setFormatter(formatter)
 
+    # Console handler
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.DEBUG)
     console_handler.setFormatter(formatter)
 
     app.logger.handlers.clear()
-    app.logger.addHandler(file_handler)
+    app.logger.addHandler(info_handler)
+    app.logger.addHandler(warning_handler)
+    app.logger.addHandler(error_handler)
+    app.logger.addHandler(combined_handler)
     app.logger.addHandler(console_handler)
 
     app.logger.setLevel(logging.INFO)
     app.logger.info(f'GreenLife app startup with encryption (loaded from {env_file})')
-    app.logger.info(f'Log file location: {log_path}')
-    
-    if not app.logger.handlers:
-        app.logger.addHandler(file_handler)
-    
-    app.logger.setLevel(logging.INFO)
-    app.logger.info(f'GreenLife app startup with encryption (loaded from {env_file})')
+    app.logger.info(f'Log directory: {log_dir}')
 
     """Add helper functions to all templates"""
     @app.context_processor
