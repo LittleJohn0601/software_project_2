@@ -2,7 +2,7 @@
 # flask app is set in this file
 
 from blogapp import create_app, db
-from blogapp.models import HourlyElectricityPrice, GridElectricityPrice, TimeOfUsePeriod
+from blogapp.models import HourlyElectricityPrice, GridElectricityPrice, TimeOfUsePeriod, IndustryBenchmark
 import os
 import pandas as pd
 
@@ -174,7 +174,39 @@ with app.app_context():
         print(f"✅ TOU period data already exists ({tou_count} records)")
 
     # ========================================
-    # 4. Auto-create default admin account
+    # 4. Import industry benchmark data
+    # ========================================
+    from blogapp.models import IndustryBenchmark
+    
+    try:
+        benchmark_count = IndustryBenchmark.query.count()
+    except:
+        benchmark_count = 0
+    
+    if benchmark_count == 0:
+        print("📊 Importing industry benchmark data...")
+        BENCHMARK_DATA = [
+            {'industry_type': 'Aluminum Smelting', 'avg_intensity': 13500, 'excellent_intensity': 11000, 'poor_intensity': 16000, 'output_per_kwh': 8.5},
+            {'industry_type': 'Steel', 'avg_intensity': 4500, 'excellent_intensity': 3800, 'poor_intensity': 5200, 'output_per_kwh': 12.0},
+            {'industry_type': 'Cement', 'avg_intensity': 3200, 'excellent_intensity': 2600, 'poor_intensity': 3800, 'output_per_kwh': 9.0},
+            {'industry_type': 'Chemical', 'avg_intensity': 1800, 'excellent_intensity': 1400, 'poor_intensity': 2200, 'output_per_kwh': 15.0},
+            {'industry_type': 'Coal Refining', 'avg_intensity': 2200, 'excellent_intensity': 1700, 'poor_intensity': 2700, 'output_per_kwh': 11.0},
+            {'industry_type': 'Textile', 'avg_intensity': 800, 'excellent_intensity': 600, 'poor_intensity': 1000, 'output_per_kwh': 18.0},
+            {'industry_type': 'Other', 'avg_intensity': 1500, 'excellent_intensity': 1000, 'poor_intensity': 2000, 'output_per_kwh': 14.0},
+        ]
+        try:
+            for data in BENCHMARK_DATA:
+                db.session.add(IndustryBenchmark(**data))
+            db.session.commit()
+            print(f"✅ Imported {len(BENCHMARK_DATA)} industry benchmark records!")
+        except Exception as e:
+            print(f"⚠️  Failed to import benchmark data: {e}")
+            db.session.rollback()
+    else:
+        print(f"✅ Industry benchmark data already exists ({benchmark_count} records)")
+
+    # ========================================
+    # 5. Auto-create default admin account
     # ========================================
     from blogapp.models import User
     
