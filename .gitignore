@@ -20,8 +20,8 @@ encryption_key.txt
 *.key
 
 # Logs
-logs/*.log
-logs/*.log.*
+logs/**/*.log
+logs/**/*.log.*
 
 # IDE
 .vscode/

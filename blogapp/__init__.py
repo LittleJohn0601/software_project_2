@@ -83,7 +83,12 @@ def create_app() -> Flask:
     
     # ---------- Logging ----------
     log_dir = os.path.join(app.root_path, '..', 'logs')
-    os.makedirs(log_dir, exist_ok=True)
+    info_dir = os.path.join(log_dir, 'info')
+    warning_dir = os.path.join(log_dir, 'warning')
+    error_dir = os.path.join(log_dir, 'error')
+    os.makedirs(info_dir, exist_ok=True)
+    os.makedirs(warning_dir, exist_ok=True)
+    os.makedirs(error_dir, exist_ok=True)
     
     formatter = logging.Formatter(
         '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
@@ -91,7 +96,7 @@ def create_app() -> Flask:
     
     # INFO log file
     info_handler = RotatingFileHandler(
-        os.path.join(log_dir, 'info.log'), maxBytes=10240, backupCount=5, encoding='utf-8'
+        os.path.join(info_dir, 'info.log'), maxBytes=10240, backupCount=5, encoding='utf-8'
     )
     info_handler.setLevel(logging.INFO)
     info_handler.addFilter(lambda record: record.levelno == logging.INFO)
@@ -99,7 +104,7 @@ def create_app() -> Flask:
     
     # WARNING log file
     warning_handler = RotatingFileHandler(
-        os.path.join(log_dir, 'warning.log'), maxBytes=10240, backupCount=5, encoding='utf-8'
+        os.path.join(warning_dir, 'warning.log'), maxBytes=10240, backupCount=5, encoding='utf-8'
     )
     warning_handler.setLevel(logging.WARNING)
     warning_handler.addFilter(lambda record: record.levelno == logging.WARNING)
@@ -107,17 +112,10 @@ def create_app() -> Flask:
     
     # ERROR log file
     error_handler = RotatingFileHandler(
-        os.path.join(log_dir, 'error.log'), maxBytes=10240, backupCount=5, encoding='utf-8'
+        os.path.join(error_dir, 'error.log'), maxBytes=10240, backupCount=5, encoding='utf-8'
     )
     error_handler.setLevel(logging.ERROR)
     error_handler.setFormatter(formatter)
-    
-    # Combined log file (all levels)
-    combined_handler = RotatingFileHandler(
-        os.path.join(log_dir, 'greenlife.log'), maxBytes=10240, backupCount=10, encoding='utf-8'
-    )
-    combined_handler.setLevel(logging.INFO)
-    combined_handler.setFormatter(formatter)
 
     # Console handler
     console_handler = logging.StreamHandler()
@@ -128,7 +126,6 @@ def create_app() -> Flask:
     app.logger.addHandler(info_handler)
     app.logger.addHandler(warning_handler)
     app.logger.addHandler(error_handler)
-    app.logger.addHandler(combined_handler)
     app.logger.addHandler(console_handler)
 
     app.logger.setLevel(logging.INFO)
