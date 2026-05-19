@@ -334,20 +334,77 @@ const I18N = {
         'tons/month': '吨/月',
 
         // ===== Cost report / chart =====
-        'Period type': '时段类型',
-        'Price (CNY/kWh)': '电价 (元/kWh)',
-        'Cost (CNY)': '费用 (元)',
-        'Share': '占比',
-        'Peak': '高峰',
-        'Normal': '平时',
-        'Valley': '低谷',
-        'Total': '合计',
-        'Agent company price (incl. fees)': '售电公司电价（含服务费）',
-        'Grid price': '电网电价',
-        'Grid electricity': '电网用电',
-        'Photovoltaic': '光伏',
         'CNY/month': '元/月',
         'kg CO₂/month': 'kg CO₂/月',
+
+        // ===== Optimization suggestions (backend generated) =====
+        'Switch to Retail Supplier': '切换到售电商',
+        'Retail supplier offers better prices, estimated monthly savings:': '售电商提供更优惠的电价，预计月节省：',
+        'Consider': '考虑',
+        'Power Generation': '发电',
+        'Switching to photovoltaic power can significantly reduce carbon emissions.': '切换到光伏发电可以显著减少碳排放。',
+        'Current monthly carbon:': '当前月碳排放：',
+        'With PV': '使用光伏后',
+        'Sign a long-term power purchase agreement with the retail supplier': '与售电商签订长期购电协议',
+        'Monitor retail supplier price fluctuations': '关注售电商电价波动',
+        'Regularly evaluate supplier cost-effectiveness': '定期评估供应商性价比',
+        'Evaluate rooftop or ground-mounted PV system feasibility': '评估屋顶或地面光伏系统可行性',
+        'Conduct solar irradiance assessment': '进行太阳辐照度评估',
+        'Request quotations from PV system providers': '向光伏系统供应商询价',
+        'Analyze investment ROI and payback period': '分析投资回报率和回收期',
+        'Shift Production to Valley Hours': '将生产转移到谷时',
+        'Move production to off-peak hours for lower electricity costs': '将生产转移到非高峰时段以降低电费',
+        'Reduce Peak Hour Usage': '减少高峰时段用电',
+
+        // ===== Equipment recommendations (backend generated) =====
+        'Energy Storage': '储能设备',
+        'Variable Frequency Drive': '变频器',
+        'LED Lighting': 'LED照明',
+        'Compact Storage Unit': '紧凑型储能单元',
+        'High-Performance VFD': '高性能变频器',
+        'Replace traditional lighting with LED': '用LED替换传统照明',
+        'Solar PV System': '光伏发电系统',
+        'Power Factor Correction': '功率因数校正',
+        'Smart Energy Management': '智能能源管理',
+        'Rooftop solar panel installation': '屋顶光伏板安装',
+        'Automatic power factor correction unit': '自动功率因数校正装置',
+        'IoT-based energy monitoring system': '基于物联网的能源监控系统',
+
+        // ===== Welcome/About page =====
+        'Key capabilities:': '核心功能：',
+        'Hourly cost analysis': '逐时成本分析',
+        'with peak/normal/valley pricing': '含峰/平/谷电价',
+        'Carbon emission calculation': '碳排放计算',
+        'for grid vs. renewable sources': '电网 vs. 可再生能源对比',
+        'Supplier comparison': '供应商对比',
+        'between grid and third-party rates': '电网与第三方电价对比',
+        'Factory configuration': '工厂配置',
+        'with voltage levels and work schedules': '含电压等级和工作时间表',
+        'PeakShift analyzes time-of-use electricity pricing to help industrial facilities reduce costs. The system calculates monthly expenses based on your factory\'s specifications and provides recommendations for shifting production to lower-cost periods.': 'PeakShift 分析分时电价，帮助工业设施降低成本。系统根据工厂参数计算月度费用，并提供将生产转移到低成本时段的建议。',
+        'Smart energy management for modern factories.': '现代工厂的智能能源管理。',
+
+        // ===== Chart axis labels =====
+        'Time': '时间',
+        'Price (CNY/kWh)': '电价（元/kWh）',
+
+        // ===== Placeholders =====
+        'e.g. Beijing Aluminum Electrolyzer': '例如：北京铝电解厂',
+        'e.g. Chaoyang District, Beijing': '例如：北京市朝阳区',
+        'e.g. 5000': '例如：5000',
+        'e.g. 50000': '例如：50000',
+        'e.g. 26': '例如：26',
+        'your.email@company.com': '您的邮箱@公司.com',
+
+        // ===== Policy notes (green power) =====
+        'According to the policy of June 2025, existing projects put into operation before 1 June 2025 will be settled based on the coal-fired benchmark price': '根据2025年6月政策，2025年6月1日前投运的存量项目按燃煤基准价结算',
+        'According to the policy of June 2025, incremental projects put into operation after 1 June 2025 will have their mechanism prices determined through bidding': '根据2025年6月政策，2025年6月1日后投运的增量项目通过竞价确定机制电价',
+        'Mechanism electricity price for existing projects': '存量项目机制电价',
+
+        // ===== Misc missing =====
+        'Outperforms': '优于',
+        'of industry peers': '的同行',
+        'less than': '低于',
+        'greater than': '大于',
     },
 
     // Reverse dict (Chinese -> English) built automatically
@@ -370,6 +427,9 @@ const I18N = {
         if (!text || typeof text !== 'string') return text;
         const trimmed = text.trim();
         if (!trimmed) return text;
+        
+        // Never translate PeakShift brand name
+        if (trimmed === 'PeakShift') return text;
 
         if (this.currentLang === 'zh') {
             // Exact match first
@@ -380,7 +440,15 @@ const I18N = {
             // Sort keys by length (longest first) to avoid partial replacements
             const keys = Object.keys(this.dict).sort((a, b) => b.length - a.length);
             for (const key of keys) {
-                if (key.length >= 4 && result.includes(key)) {
+                if (key.length >= 5 && result.includes(key)) {
+                    // Skip if the match is part of "PeakShift"
+                    const idx = result.indexOf(key);
+                    const before = result.substring(Math.max(0, idx - 10), idx);
+                    const after = result.substring(idx + key.length, idx + key.length + 10);
+                    if (before.includes('Peak') && key === 'Shift') continue;
+                    if (after.includes('Shift') && key === 'Peak') continue;
+                    if (key === 'Peak' && result.includes('PeakShift')) continue;
+                    if (key === 'Shift' && result.includes('PeakShift')) continue;
                     result = result.replace(key, this.dict[key]);
                 }
             }
@@ -394,7 +462,7 @@ const I18N = {
             let result = trimmed;
             const revKeys = Object.keys(rev).sort((a, b) => b.length - a.length);
             for (const key of revKeys) {
-                if (key.length >= 3 && result.includes(key)) {
+                if (key.length >= 4 && result.includes(key)) {
                     result = result.replace(key, rev[key]);
                 }
             }

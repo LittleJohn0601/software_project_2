@@ -764,7 +764,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                         position: 'left',
                         title: {
                             display: true,
-                            text: 'Price (CNY/kWh)',
+                            text: typeof I18N !== 'undefined' && I18N.currentLang === 'zh' ? '电价（元/kWh）' : 'Price (CNY/kWh)',
                             font: {
                                 size: 13,
                                 weight: '600'
@@ -779,7 +779,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                     x: {
                         title: {
                             display: true,
-                            text: 'Time',
+                            text: typeof I18N !== 'undefined' && I18N.currentLang === 'zh' ? '时间' : 'Time',
                             font: {
                                 size: 13,
                                 weight: '600'
