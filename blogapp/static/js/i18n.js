@@ -138,14 +138,6 @@ const I18N = {
         'Save': '保存',
         'No work periods added yet': '尚未添加工作时段',
 
-        // ===== Factory Card =====
-        'Voltage:': '电压：',
-        'Capacity:': '容量：',
-        'Capacity fee': '容量费',
-        'Monthly usage': '月用电量',
-        'Working days': '工作天数',
-        'Work periods:': '工作时段：',
-
         // ===== Settings =====
         'System settings': '系统设置',
         'UI mode': 'UI 模式',
@@ -196,34 +188,6 @@ const I18N = {
         'Contains 24-hour time-of-use pricing and grid selling prices': '包含24小时分时电价和电网售卖价格数据',
         'Defined in': '定义于',
 
-        // ===== Optimization / Benchmark =====
-        'Photovoltaic Power Comparison': '光伏发电对比',
-        'Current Grid Carbon': '当前电网碳排',
-        'With Photovoltaic': '使用光伏后',
-        'Reduction Potential': '减排潜力',
-        'High impact': '高影响',
-        'Medium impact': '中影响',
-        'Low impact': '低影响',
-        'Action recommendations:': '行动建议：',
-        'The current power plan is already well optimized!': '当前用电方案已经很优化了！',
-        'Failed to load optimization suggestions. Please try again later.': '加载优化建议失败，请稍后重试。',
-        'Excellent': '优秀',
-        'Good': '良好',
-        'Average': '一般',
-        'Poor': '较差',
-        'Monthly Electricity Consumption': '月用电量',
-        'Estimated Monthly Output': '预估月产值',
-        'kWh/ten thousand yuan': 'kWh/万元',
-        'Recommended plan': '推荐方案',
-        'Monthly electricity consumption:': '月用电量：',
-        'Estimated monthly cost:': '预估月费用：',
-        'Carbon reduction:': '碳减排：',
-        'Official Purchase Platforms': '官方采购平台',
-        'Implementation Steps': '实施步骤',
-        'Investment:': '投资：',
-        'Annual Saving:': '年节省：',
-        'Payback:': '回收期：',
-
         // ===== Password Strength =====
         'Weak': '弱',
         'Medium': '中',
@@ -252,6 +216,82 @@ const I18N = {
         'This action cannot be undone.': '此操作不可撤销。',
         'Industry type is required': '行业类型为必填项',
         'days': '天',
+
+        // ===== Cost Report Table =====
+        'Period type': '时段类型',
+        'Usage (kWh)': '用电量 (kWh)',
+        'Price (CNY/kWh)': '电价 (元/kWh)',
+        'Cost (CNY)': '费用 (元)',
+        'Share': '占比',
+        'Peak': '高峰',
+        'Normal': '平时',
+        'Valley': '低谷',
+        'Total': '合计',
+
+        // ===== Chart Labels =====
+        'Agent company price (incl. fees)': '售电公司电价（含服务费）',
+        'Grid price': '电网电价',
+        'Grid electricity': '电网用电',
+        'Photovoltaic': '光伏',
+
+        // ===== Factory Details =====
+        'CNY/month': '元/月',
+        'kg CO₂/month': 'kg CO₂/月',
+        'CNY': '元',
+        'kWh': 'kWh',
+        'kV': 'kV',
+        'kVA': 'kVA',
+
+        // ===== Factory Card (JS generated) =====
+        'Voltage:': '电压：',
+        'Capacity:': '容量：',
+        'Capacity fee': '容量费',
+        'Daily usage': '日用电量',
+        'Monthly usage': '月用电量',
+        'Working days': '工作天数',
+        'Work periods:': '工作时段：',
+
+        // ===== Benchmark (JS generated) =====
+        'Excellent': '优秀',
+        'Good': '良好',
+        'Average': '一般',
+        'Poor': '较差',
+        'excellent': '优秀',
+        'good': '良好',
+        'average': '一般',
+        'poor': '较差',
+        'Monthly Electricity Consumption': '月用电量',
+        'Estimated Monthly Output': '预估月产值',
+        'kWh/ten thousand yuan': 'kWh/万元',
+        'thousand yuan': '万元',
+
+        // ===== Green Power (JS generated) =====
+        'Recommended plan': '推荐方案',
+        'Monthly electricity consumption:': '月用电量：',
+        'Estimated monthly cost:': '预估月费用：',
+        'Carbon reduction:': '碳减排：',
+        'Official Purchase Platforms': '官方采购平台',
+        'Implementation Steps': '实施步骤',
+
+        // ===== Equipment (JS generated) =====
+        'Investment:': '投资：',
+        'Annual Saving:': '年节省：',
+        'Payback:': '回收期：',
+        'years': '年',
+
+        // ===== Photovoltaic Comparison =====
+        'Photovoltaic Power Comparison': '光伏发电对比',
+        'Current Grid Carbon': '当前电网碳排',
+        'With Photovoltaic': '使用光伏后',
+        'Reduction Potential': '减排潜力',
+
+        // ===== Optimization Suggestions =====
+        'High impact': '高影响',
+        'Medium impact': '中影响',
+        'Low impact': '低影响',
+        'Action recommendations:': '行动建议：',
+        'The current power plan is already well optimized!': '当前用电方案已经很优化了！',
+        'Failed to load optimization suggestions. Please try again later.': '加载优化建议失败，请稍后重试。',
     },
 
     // Reverse dict (Chinese -> English) built automatically
@@ -354,27 +394,10 @@ const I18N = {
     },
 
     /**
-     * Apply translations (data-i18n attributes + full page scan)
+     * Apply translations (full page text node scan)
      */
     apply() {
-        // First handle data-i18n elements (for backward compat)
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            // data-i18n stores the English text as key
-            if (this.currentLang === 'zh' && this.dict[key]) {
-                el.textContent = this.dict[key];
-            } else if (this.currentLang === 'en') {
-                const rev = this.getReverseDict();
-                // If current text is Chinese, revert to English key
-                if (rev[el.textContent.trim()]) {
-                    el.textContent = key;
-                } else {
-                    el.textContent = key;
-                }
-            }
-        });
-
-        // Then do full page text node scan
+        // Do full page text node scan
         this.translatePage();
     },
 

@@ -131,7 +131,7 @@
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center" href="#">
                     <i class="bi bi-shield-lock-fill me-2"></i>
-                    <span class="no-translate">PeakShift</span> <span data-i18n="nav.admin_console">Admin Console</span>
+                    <span class="no-translate">PeakShift</span> <span>Admin Console</span>
                 </a>
                 
                 <div class="d-flex align-items-center gap-3">
@@ -148,11 +148,11 @@
                     
                     <span class="text-white no-translate">
                         <i class="bi bi-person-badge me-1"></i>
-                        {{ current_user.username }} (<span data-i18n="nav.admin">Admin</span>)
+                        {{ current_user.username }} (<span>Admin</span>)
                     </span>
                     <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">
                         <i class="bi bi-box-arrow-right me-1"></i>
-                        <span data-i18n="nav.logout">Log out</span>
+                        <span>Log out</span>
                     </a>
                 </div>
             </div>
@@ -170,7 +170,7 @@
                                 <i class="bi bi-people-fill"></i>
                             </div>
                             <div class="stat-value" id="totalUsers">-</div>
-                            <div class="stat-label" data-i18n="admin.total_users">Total Registered Users</div>
+                            <div class="stat-label">Total Registered Users</div>
                         </div>
                     </div>
                     
@@ -180,7 +180,7 @@
                                 <i class="bi bi-building"></i>
                             </div>
                             <div class="stat-value" id="totalFactories">-</div>
-                            <div class="stat-label" data-i18n="admin.total_factories">Total Factories</div>
+                            <div class="stat-label">Total Factories</div>
                         </div>
                     </div>
                     
@@ -190,7 +190,7 @@
                                 <i class="bi bi-lightning-charge-fill"></i>
                             </div>
                             <div class="stat-value" id="totalEnergy">-</div>
-                            <div class="stat-label" data-i18n="admin.total_usage">Total Monthly Usage (kWh)</div>
+                            <div class="stat-label">Total Monthly Usage (kWh)</div>
                         </div>
                     </div>
                     
@@ -200,7 +200,7 @@
                                 <i class="bi bi-tree-fill"></i>
                             </div>
                             <div class="stat-value" id="totalCarbon">-</div>
-                            <div class="stat-label" data-i18n="admin.total_carbon">Total Carbon Emission (kg CO₂)</div>
+                            <div class="stat-label">Total Carbon Emission (kg CO₂)</div>
                         </div>
                     </div>
                 </div>
@@ -210,19 +210,19 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab">
                             <i class="bi bi-people me-2"></i>
-                            <span data-i18n="admin.user_mgmt">User Management</span>
+                            <span>User Management</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="factories-tab" data-bs-toggle="tab" data-bs-target="#factories" type="button" role="tab">
                             <i class="bi bi-building me-2"></i>
-                            <span data-i18n="admin.factory_mgmt">Factory Management</span>
+                            <span>Factory Management</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="system-tab" data-bs-toggle="tab" data-bs-target="#system" type="button" role="tab">
                             <i class="bi bi-gear me-2"></i>
-                            <span data-i18n="admin.system_data">System Data</span>
+                            <span>System Data</span>
                         </button>
                     </li>
                 </ul>
@@ -375,14 +375,14 @@
                     <div class="mb-4">
                         <h6 class="mb-3">
                             <i class="bi bi-translate me-2"></i>
-                            <span data-i18n="settings.language">Language</span>
+                            <span>Language</span>
                         </h6>
                         <div class="btn-group w-100" role="group">
                             <input type="radio" class="btn-check" name="langChoice" id="langEn" value="en">
-                            <label class="btn btn-outline-primary" for="langEn" data-i18n="settings.lang_en">English</label>
+                            <label class="btn btn-outline-primary" for="langEn">English</label>
                             
                             <input type="radio" class="btn-check" name="langChoice" id="langZh" value="zh">
-                            <label class="btn btn-outline-primary" for="langZh" data-i18n="settings.lang_zh">中文</label>
+                            <label class="btn btn-outline-primary" for="langZh">中文</label>
                         </div>
                     </div>
                     

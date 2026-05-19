@@ -76,7 +76,7 @@
                     </span>
                     <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">
                         <i class="bi bi-box-arrow-right me-1"></i>
-                        <span data-i18n="nav.logout">Log out</span>
+                        <span>Log out</span>
                     </a>
                 </div>
             </div>
@@ -92,17 +92,17 @@
                         <div class="col">
                             <h2 class="mb-1">
                                 <i class="bi bi-building me-2"></i>
-                                <span data-i18n="dash.factory_mgmt">Factory management</span>
+                                <span>Factory management</span>
                             </h2>
                             <p class="text-muted mb-0">
                                 <i class="bi bi-info-circle me-1"></i>
-                                <span data-i18n="dash.factory_desc">Manage your factory information, view power data and cost analysis</span>
+                                <span>Manage your factory information, view power data and cost analysis</span>
                             </p>
                         </div>
                         <div class="col-auto">
                             <button class="btn btn-primary" onclick="showCreateFactoryModal()">
                                 <i class="bi bi-plus-circle me-2"></i>
-                                <span data-i18n="dash.create_factory">Create Factory</span>
+                                <span>Create Factory</span>
                             </button>
                         </div>
                     </div>
@@ -589,14 +589,14 @@
                     <div class="mb-4">
                         <h6 class="mb-3">
                             <i class="bi bi-translate me-2"></i>
-                            <span data-i18n="settings.language">Language</span>
+                            <span>Language</span>
                         </h6>
                         <div class="btn-group w-100" role="group">
                             <input type="radio" class="btn-check" name="langChoice" id="langEn" value="en">
-                            <label class="btn btn-outline-primary" for="langEn" data-i18n="settings.lang_en">English</label>
+                            <label class="btn btn-outline-primary" for="langEn">English</label>
                             
                             <input type="radio" class="btn-check" name="langChoice" id="langZh" value="zh">
-                            <label class="btn btn-outline-primary" for="langZh" data-i18n="settings.lang_zh">中文</label>
+                            <label class="btn btn-outline-primary" for="langZh">中文</label>
                         </div>
                     </div>
                     
@@ -604,7 +604,7 @@
                     <div class="mb-4">
                         <h6 class="mb-3">
                             <i class="bi bi-palette me-2"></i>
-                            <span data-i18n="settings.ui_mode">UI mode</span>
+                            <span>UI mode</span>
                         </h6>
                         <div class="btn-group w-100" role="group">
                             <input type="radio" class="btn-check" name="uiMode" id="uiModeFull" value="full" checked>
