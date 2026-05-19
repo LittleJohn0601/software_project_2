@@ -292,6 +292,62 @@ const I18N = {
         'Action recommendations:': '行动建议：',
         'The current power plan is already well optimized!': '当前用电方案已经很优化了！',
         'Failed to load optimization suggestions. Please try again later.': '加载优化建议失败，请稍后重试。',
+
+        // ===== Backend-generated text (efficiency benchmark) =====
+        'Steel': '钢铁',
+        'Aluminum Smelting': '铝冶炼',
+        'Cement': '水泥',
+        'Chemical': '化工',
+        'Coal Refining': '煤炼',
+        'Textile': '纺织',
+        'Other': '其他',
+        'Below industry average, consider optimizing power usage patterns': '低于行业平均，建议优化用电模式',
+        'In the bottom 30% of industry, optimization measures recommended': '处于行业后30%，建议尽快采取优化措施',
+
+        // ===== Backend-generated text (green power) =====
+        'Small and Medium-sized Enterprises': '中小型企业',
+        'Medium-sized Enterprises': '中型企业',
+        'Large-scale Electricity Consumers': '大型用电企业',
+        'Electric Power Trading Centre': '电力交易中心',
+        'Electric Power Medium and Long-term Trading Platform': '电力中长期交易平台',
+        'National Green Power Certificate Subscription Trading Platform': '国家绿色电力证书认购交易平台',
+        'Bidding price: 0.199-0.332 CNY/kWh': '竞价区间：0.199-0.332 元/kWh',
+        'Market-based pricing': '市场化定价',
+        '30-50 CNY per certificate (1000 kWh)': '每张证书30-50元（1000 kWh）',
+        'It is recommended to directly purchase green certificates.': '建议直接购买绿色电力证书。',
+        'It is recommended to sign a green power purchase agreement (PPA).': '建议签订绿电购买协议（PPA）。',
+        'It is recommended to build a distributed photovoltaic system combined with green certificates.': '建议建设分布式光伏系统并结合绿证。',
+        '1. Calculate monthly electricity consumption and determine the number of green certificates to purchase': '1. 计算月用电量，确定需购买的绿证数量',
+        '2. Register enterprise account on the national green certificate platform': '2. 在国家绿证平台注册企业账号',
+        '3. Purchase green certificates as needed and obtain green electricity certificates': '3. 按需购买绿证，获取绿电证书',
+        '4. Disclose green certificate usage in ESG reports': '4. 在ESG报告中披露绿证使用情况',
+        '1. Contact Electric Power Trading Centre to inquire about green power packages': '1. 联系电力交易中心咨询绿电套餐',
+        '2. Sign a green power purchase agreement (PPA)': '2. 签订绿电购买协议（PPA）',
+        '3. Obtain green power consumption certificates': '3. 获取绿电消费凭证',
+        '4. Enjoy the carbon reduction benefits from the green power premium': '4. 享受绿电溢价带来的碳减排收益',
+        '1. Evaluate the feasibility of installing rooftop solar panels at the factory': '1. 评估工厂屋顶安装光伏板的可行性',
+        '2. Choose between the EMC (Energy Management Contract) model or self-investment': '2. 选择合同能源管理（EMC）模式或自投',
+        '3. Remaining electricity consumption can be offset by green certificates': '3. 剩余用电量可通过绿证抵消',
+        '4. Surplus green electricity can participate in market-based transactions': '4. 多余绿电可参与市场化交易',
+        'Recommended to purchase:': '建议购买：',
+        'green certificates/month': '张绿证/月',
+        'tons/month': '吨/月',
+
+        // ===== Cost report / chart =====
+        'Period type': '时段类型',
+        'Price (CNY/kWh)': '电价 (元/kWh)',
+        'Cost (CNY)': '费用 (元)',
+        'Share': '占比',
+        'Peak': '高峰',
+        'Normal': '平时',
+        'Valley': '低谷',
+        'Total': '合计',
+        'Agent company price (incl. fees)': '售电公司电价（含服务费）',
+        'Grid price': '电网电价',
+        'Grid electricity': '电网用电',
+        'Photovoltaic': '光伏',
+        'CNY/month': '元/月',
+        'kg CO₂/month': 'kg CO₂/月',
     },
 
     // Reverse dict (Chinese -> English) built automatically
@@ -316,11 +372,33 @@ const I18N = {
         if (!trimmed) return text;
 
         if (this.currentLang === 'zh') {
-            return this.dict[trimmed] || text;
+            // Exact match first
+            if (this.dict[trimmed]) return this.dict[trimmed];
+            
+            // Partial match: replace known English phrases within the text
+            let result = trimmed;
+            // Sort keys by length (longest first) to avoid partial replacements
+            const keys = Object.keys(this.dict).sort((a, b) => b.length - a.length);
+            for (const key of keys) {
+                if (key.length >= 4 && result.includes(key)) {
+                    result = result.replace(key, this.dict[key]);
+                }
+            }
+            return result !== trimmed ? result : text;
         } else {
             // English: reverse lookup in case text is Chinese
             const rev = this.getReverseDict();
-            return rev[trimmed] || text;
+            if (rev[trimmed]) return rev[trimmed];
+            
+            // Partial reverse match
+            let result = trimmed;
+            const revKeys = Object.keys(rev).sort((a, b) => b.length - a.length);
+            for (const key of revKeys) {
+                if (key.length >= 3 && result.includes(key)) {
+                    result = result.replace(key, rev[key]);
+                }
+            }
+            return result !== trimmed ? result : text;
         }
     },
 

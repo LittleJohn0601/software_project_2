@@ -674,7 +674,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Agent company price (incl. fees)',
+                    label: typeof I18N !== 'undefined' && I18N.currentLang === 'zh' ? '售电公司电价（含服务费）' : 'Agent company price (incl. fees)',
                     data: agentPrices,
                     borderColor: 'rgb(14, 165, 233)',
                     backgroundColor: 'rgba(14, 165, 233, 0.1)',
@@ -684,7 +684,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                     pointRadius: 3,
                     pointHoverRadius: 6
                 }, {
-                    label: 'Grid price',
+                    label: typeof I18N !== 'undefined' && I18N.currentLang === 'zh' ? '电网电价' : 'Grid price',
                     data: gridPrices,
                     borderColor: 'rgb(245, 158, 11)',
                     backgroundColor: 'rgba(245, 158, 11, 0.1)',
@@ -810,10 +810,11 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         const normalUsage = hourlyData.filter(h => h.period_type === 'Normal').reduce((sum, h) => sum + h.usage, 0);
         const valleyUsage = hourlyData.filter(h => h.period_type === 'Valley').reduce((sum, h) => sum + h.usage, 0);
         
+        const isZh = typeof I18N !== 'undefined' && I18N.currentLang === 'zh';
         energyPieChartInstance = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['Peak', 'Normal', 'Valley'],
+                labels: isZh ? ['高峰', '平时', '低谷'] : ['Peak', 'Normal', 'Valley'],
                 datasets: [{
                     data: [peakUsage, normalUsage, valleyUsage],
                     backgroundColor: [
@@ -968,16 +969,16 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                                     <div class="progress-bar bg-${b.level_color}" style="width: ${Math.min(100, (b.energy_intensity / b.benchmark_poor) * 100)}%"></div>
                                 </div>
                                 <div class="d-flex justify-content-between small text-muted">
-                                    <span>Excellent ${b.benchmark_excellent}</span>
-                                    <span>Average ${b.benchmark_avg}</span>
-                                    <span>Poor ${b.benchmark_poor}</span>
+                                    <span><span>Excellent</span> ${b.benchmark_excellent}</span>
+                                    <span><span>Average</span> ${b.benchmark_avg}</span>
+                                    <span><span>Poor</span> ${b.benchmark_poor}</span>
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="small text-muted">📊 Monthly Electricity Consumption</div>
+                                <div class="small text-muted">📊 <span>Monthly Electricity Consumption</span></div>
                                 <div class="fw-bold">${b.monthly_usage.toLocaleString()} kWh</div>
-                                <div class="small text-muted mt-2">💰 Estimated Monthly Output</div>
-                                <div class="fw-bold">${b.estimated_output*10} thousand yuan</div>
+                                <div class="small text-muted mt-2">💰 <span>Estimated Monthly Output</span></div>
+                                <div class="fw-bold">${b.estimated_output*10} <span>thousand yuan</span></div>
                                 <div class="small text-${b.level_color} mt-2">${b.tip}</div>
                             </div>
                         </div>
@@ -1017,19 +1018,19 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                             <div class="col-md-5">
                                 <div class="small text-muted">Recommended plan</div>
                                 <div class="fw-bold mb-1">${g.description}</div>
-                                <div class="small text-muted">Monthly electricity consumption: ${g.monthly_usage.toLocaleString()} kWh</div>
-                                <div class="small text-success">Estimated monthly cost: ¥${g.estimated_cost_per_month.toLocaleString()}</div>
-                                <div class="small text-info">Carbon reduction: ${g.carbon_reduction_per_month.toLocaleString()} tons/month</div>
+                                <div class="small text-muted"><span>Monthly electricity consumption:</span> ${g.monthly_usage.toLocaleString()} kWh</div>
+                                <div class="small text-success"><span>Estimated monthly cost:</span> ¥${g.estimated_cost_per_month.toLocaleString()}</div>
+                                <div class="small text-info"><span>Carbon reduction:</span> ${g.carbon_reduction_per_month.toLocaleString()} <span>tons/month</span></div>
                                 <div class="small text-primary mt-1">💰 ${g.price_info}</div>
                             </div>
                             <div class="col-md-4">
-                                <div class="small text-muted">Official Purchase Platforms</div>
+                                <div class="small text-muted"><span>Official Purchase Platforms</span></div>
                                 <div class="mt-1">${platformButtons}</div>
-                                ${g.certificates_needed ? `<div class="small text-muted mt-2">Recommended to purchase: ${g.certificates_needed} green certificates/month</div>` : ''}
+                                ${g.certificates_needed ? `<div class="small text-muted mt-2"><span>Recommended to purchase:</span> ${g.certificates_needed} <span>green certificates/month</span></div>` : ''}
                             </div>
                         </div>
                         <div class="mt-2 p-2 bg-light rounded">
-                            <div class="small fw-bold">📋 Implementation Steps</div>
+                            <div class="small fw-bold">📋 <span>Implementation Steps</span></div>
                             <div class="small">${g.steps.join(' → ')}</div>
                             <div class="small text-muted mt-1">📌 ${g.policy_note}</div>
                         </div>
