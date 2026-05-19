@@ -1271,6 +1271,11 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         const showFps = localStorage.getItem('showFps') === 'true';
         document.getElementById('showFpsToggle').checked = showFps;
         
+        // Load current language
+        const currentLang = localStorage.getItem('lang') || 'en';
+        const langRadio = document.getElementById(currentLang === 'zh' ? 'langZh' : 'langEn');
+        if (langRadio) langRadio.checked = true;
+        
         modal.show();
     };
     
@@ -1413,6 +1418,12 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     window.saveSettings = function() {
         const uiMode = document.querySelector('input[name="uiMode"]:checked').value;
         const showFps = document.getElementById('showFpsToggle').checked;
+        
+        // Save language
+        const langChoice = document.querySelector('input[name="langChoice"]:checked');
+        if (langChoice) {
+            I18N.setLang(langChoice.value);
+        }
         
         // Save to localStorage
         localStorage.setItem('uiMode', uiMode);

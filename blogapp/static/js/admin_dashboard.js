@@ -81,6 +81,11 @@ window.openSettings = function() {
     const showFps = localStorage.getItem('showFps') === 'true';
     document.getElementById('showFpsToggle').checked = showFps;
     
+    // Load current language
+    const currentLang = localStorage.getItem('lang') || 'en';
+    const langRadio = document.getElementById(currentLang === 'zh' ? 'langZh' : 'langEn');
+    if (langRadio) langRadio.checked = true;
+    
     modal.show();
 };
 
@@ -175,6 +180,12 @@ function updateFpsDisplay() {
 window.saveSettings = function() {
     const uiMode = document.querySelector('input[name="uiMode"]:checked').value;
     const showFps = document.getElementById('showFpsToggle').checked;
+    
+    // Save language
+    const langChoice = document.querySelector('input[name="langChoice"]:checked');
+    if (langChoice) {
+        I18N.setLang(langChoice.value);
+    }
     
     localStorage.setItem('uiMode', uiMode);
     localStorage.setItem('showFps', showFps);
