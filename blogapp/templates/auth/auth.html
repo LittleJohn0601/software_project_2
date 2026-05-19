@@ -1399,44 +1399,46 @@
                     fetch('{{ url_for("auth.login") }}', {
                         method: 'POST',
                         body: formData,
-                        credentials: 'same-origin'  // Ensure cookies are sent
+                        credentials: 'same-origin',
+                        redirect: 'follow'
                     })
-                    .then(response => response.text())
+                    .then(response => {
+                        // If redirected to a non-auth page, login was successful
+                        if (response.redirected && !response.url.includes('/auth')) {
+                            window.location.href = response.url;
+                            return null;
+                        }
+                        // If URL still contains /auth, login failed
+                        return response.text();
+                    })
                     .then(html => {
-                        // Check if login successful (by checking for dashboard keyword in response)
-                        if (html.includes('dashboard') || html.includes('Factory management')) {
-                            // Login successful, redirect to dashboard
-                            window.location.href = '{{ url_for("main.dashboard") }}';
-                        } else {
-                            // Login failed, parse error message
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(html, 'text/html');
-                            const flashMessages = doc.querySelectorAll('.flash-message');
-                            
-                            let errorMsg = 'Invalid username or password';  // Default error message
-                            
-                            if (flashMessages.length > 0) {
-                                const message = flashMessages[0].querySelector('.flash-text');
-                                if (message) {
-                                    const text = message.textContent.trim();
-                                    // Uniformly display as "Invalid username or password", do not expose specific information
-                                    if (text.includes('Invalid') || text.includes('password') || text.includes('username')) {
-                                        errorMsg = 'Invalid username or password';
-                                    } else if (text.includes('banned') || text.includes('BANNED')) {
-                                        errorMsg = text;  // Keep ban information
-                                    } else {
-                                        errorMsg = text;
-                                    }
+                        if (html === null) return; // Already redirecting
+                        
+                        // Login failed - show error
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const flashMessages = doc.querySelectorAll('.flash-message');
+                        
+                        let errorMsg = typeof I18N !== 'undefined' && I18N.currentLang === 'zh' 
+                            ? '用户名或密码错误' 
+                            : 'Invalid username or password';
+                        
+                        if (flashMessages.length > 0) {
+                            const message = flashMessages[0].querySelector('.flash-text');
+                            if (message) {
+                                const text = message.textContent.trim();
+                                if (text.includes('banned') || text.includes('BANNED')) {
+                                    errorMsg = text;
                                 }
                             }
-                            
-                            errorMessage.textContent = errorMsg;
-                            errorMessage.classList.remove('d-none');
-                            
-                            // Restore button
-                            loginBtn.disabled = false;
-                            loginBtn.textContent = 'Log in';
                         }
+                        
+                        errorMessage.textContent = errorMsg;
+                        errorMessage.classList.remove('d-none');
+                        
+                        // Restore button
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = typeof I18N !== 'undefined' && I18N.currentLang === 'zh' ? '登录' : 'Log in';
                     })
                     .catch(error => {
                         console.error('Error:', error);
