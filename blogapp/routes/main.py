@@ -765,28 +765,3 @@ def internal_error(error):
     """500 error handler"""
     db.session.rollback()
     return jsonify({'error': 'Internal server error'}), 500
-
-@bp.route('/api/encryption-test')
-@login_required
-def encryption_test():
-    """加密测试API - 返回数据库中的密文示例（供安全测试使用）"""
-    from blogapp.models import User
-    
-    # 获取当前登录用户
-    user = User.query.get(current_user.id)
-    
-    # 获取数据库中实际存储的密文（需要访问私有字段）
-    if hasattr(user, '_username'):
-        stored_username = user._username
-    else:
-        stored_username = "无法获取"
-    
-    return jsonify({
-        'success': True,
-        'test_result': {
-            'plaintext_username': user.username,      # 解密后的明文
-            'ciphertext_stored': stored_username,     # 数据库中的密文
-            'encryption_status': 'ENCRYPTED' if stored_username != user.username else 'PLAINTEXT',
-            'verification_method': '登录后访问此API，比较plaintext_username和ciphertext_stored。如果两者不同且ciphertext_stored是base64格式，则加密生效。'
-        }
-    })
