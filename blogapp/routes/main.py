@@ -8,6 +8,7 @@ import json
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
 from blogapp import db, csrf
+from blogapp.decorators import admin_required
 from blogapp.models import User, Factory
 
 # Create blueprint
@@ -77,14 +78,26 @@ def get_factories():
 @csrf.exempt
 def get_deleted_factory_notifications():
     """API: get notifications about admin-deleted factories for current user"""
+    from datetime import timezone, timedelta
+    beijing_tz = timezone(timedelta(hours=8))
+    
     deleted = Factory.query.filter_by(user_id=current_user.id, is_deleted=True).all()
-    return jsonify({
-        'success': True,
-        'notifications': [{
+    notifications = []
+    for f in deleted:
+        deleted_at_str = None
+        if f.deleted_at:
+            # Stored as UTC; convert to Beijing time for display
+            beijing_time = f.deleted_at.replace(tzinfo=timezone.utc).astimezone(beijing_tz)
+            deleted_at_str = beijing_time.strftime('%Y-%m-%d %H:%M:%S') + ' (Beijing Time)'
+        notifications.append({
             'id': f.id,
             'name': f.name,
-            'deleted_at': f.deleted_at.strftime('%Y-%m-%d %H:%M:%S') + ' (Beijing Time)' if f.deleted_at else None,
-        } for f in deleted]
+            'deleted_at': deleted_at_str,
+        })
+    
+    return jsonify({
+        'success': True,
+        'notifications': notifications
     })
 
 
@@ -708,6 +721,8 @@ def api_efficiency_benchmark(factory_id):
     from blogapp.services.efficiency_benchmark import get_efficiency_benchmark
     
     factory = Factory.query.get_or_404(factory_id)
+    if factory.is_deleted:
+        return jsonify({'success': False, 'error': 'Factory not found'}), 404
     if factory.user_id != current_user.id and not current_user.is_admin:
         return jsonify({'success': False, 'error': 'Access denied'}), 403
     
@@ -722,6 +737,8 @@ def api_green_power_guide(factory_id):
     from blogapp.services.green_power import get_green_power_recommendation
     
     factory = Factory.query.get_or_404(factory_id)
+    if factory.is_deleted:
+        return jsonify({'success': False, 'error': 'Factory not found'}), 404
     if factory.user_id != current_user.id and not current_user.is_admin:
         return jsonify({'success': False, 'error': 'Access denied'}), 403
     
@@ -739,6 +756,8 @@ def api_equipment_recommendations(factory_id):
     from blogapp.services.equipment_recommendation import get_equipment_recommendations
     
     factory = Factory.query.get_or_404(factory_id)
+    if factory.is_deleted:
+        return jsonify({'success': False, 'error': 'Factory not found'}), 404
     if factory.user_id != current_user.id and not current_user.is_admin:
         return jsonify({'success': False, 'error': 'Access denied'}), 403
     
@@ -781,3 +800,41 @@ def internal_error(error):
     """500 error handler"""
     db.session.rollback()
     return jsonify({'error': 'Internal server error'}), 500
+
+
+# ========== Encryption Test API (for security testing purposes) ==========
+@bp.route('/api/encryption-test')
+@login_required
+@admin_required
+def encryption_test():
+    """Encryption test API - returns encrypted text examples from the database (for security testing purposes)"""
+    from blogapp.models import User
+
+    # Get the currently logged-in user
+    user = User.query.get(current_user.id)
+
+    # Obtain the ciphertext actually stored in the database (requires access to private fields)
+    if hasattr(user, '_username'):
+        stored_username = user._username
+    else:
+        stored_username = "Unable to retrieve (field not encrypted or not a private field)"
+
+    # Get the encryption status
+    if stored_username and stored_username != user.username:
+        encryption_status = "ENCRYPTED"
+        verification_note = "✅ Encryption effective: The database stores the ciphertext, and the application displays the plaintext"
+    else:
+        encryption_status = "PLAINTEXT"
+        verification_note = "❌ Encryption not effective: The database stores the plaintext"
+
+    return jsonify({
+        'success': True,
+        'message': 'Encryption test API - Used to verify whether database field encryption is effective',
+        'test_result': {
+            'plaintext_username': user.username,
+            'ciphertext_stored': stored_username,
+            'encryption_status': encryption_status,
+            'verification_note': verification_note,
+            'test_method': 'Compare plaintext_username and ciphertext_stored. If they are different and ciphertext_stored is in base64 format (e.g., gAAAAAB...), then encryption is effective.'
+        }
+    })

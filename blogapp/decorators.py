@@ -2,15 +2,6 @@ from functools import wraps
 from flask import abort
 from flask_login import current_user
 
-def student_required(f):
-    """Decorator to restrict access to students only"""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        # Check if user is authenticated and is a student
-        if not current_user.is_authenticated or current_user.user_type != 'student':
-            abort(403)  # Forbidden access
-        return f(*args, **kwargs)
-    return decorated_function
 
 def staff_required(f):
     """Decorator to restrict access to staff and admin only"""

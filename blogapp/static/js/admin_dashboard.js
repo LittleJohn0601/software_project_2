@@ -274,7 +274,7 @@ async function loadUsers() {
                     <td style="padding: 0.75rem; text-align: left; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${escapeHtml(user.email)}</td>
                     <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${user.created_at}</td>
                     <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">
-                        <button class="btn btn-sm btn-outline-primary" onclick="viewUserFactories(${user.id}, '${escapeHtml(user.username)}')">
+                        <button class="btn btn-sm btn-outline-primary" data-action="view-factories" data-user-id="${user.id}" data-username="${escapeHtml(user.username)}">
                             <span class="badge bg-primary">${user.factory_count}</span>
                             <span> View</span>
                         </button>
@@ -288,8 +288,8 @@ async function loadUsers() {
                     </td>
                     <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">
                         ${user.is_banned 
-                            ? `<button class="btn btn-sm btn-success" onclick="unbanUser(${user.id}, '${escapeHtml(user.username)}')"><i class="bi bi-unlock"></i> Unban</button>`
-                            : `<button class="btn btn-sm btn-warning" onclick="banUser(${user.id}, '${escapeHtml(user.username)}')"><i class="bi bi-slash-circle"></i> Ban</button>`}
+                            ? `<button class="btn btn-sm btn-success" data-action="unban-user" data-user-id="${user.id}" data-username="${escapeHtml(user.username)}"><i class="bi bi-unlock"></i> Unban</button>`
+                            : `<button class="btn btn-sm btn-warning" data-action="ban-user" data-user-id="${user.id}" data-username="${escapeHtml(user.username)}"><i class="bi bi-slash-circle"></i> Ban</button>`}
                     </td>
                 </tr>
             `).join('');
@@ -345,7 +345,7 @@ async function loadFactories() {
                         ` : '-'}
                     </td>
                     <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">
-                        <button class="btn btn-sm btn-danger" onclick="deleteFactoryAdmin(${factory.id}, '${escapeHtml(factory.name)}')">
+                        <button class="btn btn-sm btn-danger" data-action="delete-factory" data-factory-id="${factory.id}" data-factory-name="${escapeHtml(factory.name)}">
                             <i class="bi bi-trash"></i> Delete
                         </button>
                     </td>
@@ -509,7 +509,7 @@ window.viewUserFactories = async function(userId, username) {
                         <td>${escapeHtml(f.industry_type || '-')}</td>
                         <td>${f.monthly_usage.toLocaleString()} kWh</td>
                         <td>
-                            <button class="btn btn-sm btn-danger" onclick="deleteFactoryFromModal(${f.id}, '${escapeHtml(f.name)}', ${userId}, '${escapeHtml(username)}')">
+                            <button class="btn btn-sm btn-danger" data-action="delete-factory-modal" data-factory-id="${f.id}" data-factory-name="${escapeHtml(f.name)}" data-user-id="${userId}" data-username="${escapeHtml(username)}">
                                 <i class="bi bi-trash"></i> ${tr('Delete', '删除')}
                             </button>
                         </td>
@@ -574,3 +574,30 @@ window.deleteFactoryFromModal = async function(factoryId, factoryName, userId, u
         alert(tr('Network error: ', '网络错误：') + e.message);
     }
 };
+
+// ========================================
+// Delegated event handlers (replaces inline onclick to prevent injection)
+// ========================================
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    
+    const action = btn.dataset.action;
+    
+    if (action === 'view-factories') {
+        viewUserFactories(parseInt(btn.dataset.userId), btn.dataset.username);
+    } else if (action === 'ban-user') {
+        banUser(parseInt(btn.dataset.userId), btn.dataset.username);
+    } else if (action === 'unban-user') {
+        unbanUser(parseInt(btn.dataset.userId), btn.dataset.username);
+    } else if (action === 'delete-factory') {
+        deleteFactoryAdmin(parseInt(btn.dataset.factoryId), btn.dataset.factoryName);
+    } else if (action === 'delete-factory-modal') {
+        deleteFactoryFromModal(
+            parseInt(btn.dataset.factoryId),
+            btn.dataset.factoryName,
+            parseInt(btn.dataset.userId),
+            btn.dataset.username
+        );
+    }
+});

@@ -12,7 +12,11 @@ bp = Blueprint('auth', __name__)
 @login_manager.user_loader
 def load_user(user_id):
     """Load user by ID for Flask-Login"""
-    return User.query.get(int(user_id))
+    user = User.query.get(int(user_id))
+    # If user is banned, force logout (returns None invalidates the session)
+    if user and user.is_banned:
+        return None
+    return user
 
 
 @bp.route('/', methods=['GET'])
