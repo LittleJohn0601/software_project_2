@@ -51,8 +51,8 @@ def dashboard():
 @login_required
 @csrf.exempt
 def get_factories():
-    """API: fetch user factory list"""
-    factories = Factory.query.filter_by(user_id=current_user.id).all()
+    """API: fetch user factory list (excluding deleted ones)"""
+    factories = Factory.query.filter_by(user_id=current_user.id, is_deleted=False).all()
     return jsonify({
         'success': True,
         'factories': [{
@@ -69,6 +69,22 @@ def get_factories():
             'work_periods': f.work_periods,
             'created_at': f.created_at.strftime('%Y-%m-%d')
         } for f in factories]
+    })
+
+
+@bp.route('/api/factories/deleted-notifications', methods=['GET'])
+@login_required
+@csrf.exempt
+def get_deleted_factory_notifications():
+    """API: get notifications about admin-deleted factories for current user"""
+    deleted = Factory.query.filter_by(user_id=current_user.id, is_deleted=True).all()
+    return jsonify({
+        'success': True,
+        'notifications': [{
+            'id': f.id,
+            'name': f.name,
+            'deleted_at': f.deleted_at.strftime('%Y-%m-%d %H:%M:%S') + ' (Beijing Time)' if f.deleted_at else None,
+        } for f in deleted]
     })
 
 
@@ -225,7 +241,7 @@ def create_factory():
 @csrf.exempt
 def delete_factory(factory_id):
     """API: Delete factory"""
-    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id).first()
+    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id, is_deleted=False).first()
     
     if not factory:
         return jsonify({
@@ -254,7 +270,7 @@ def delete_factory(factory_id):
 @csrf.exempt
 def update_factory(factory_id):
     """API: Update factory"""
-    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id).first()
+    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id, is_deleted=False).first()
     
     if not factory:
         return jsonify({
@@ -408,7 +424,7 @@ def get_factory_details(factory_id):
     from blogapp.services.electricity_cost import ElectricityCostCalculator
     from blogapp.models import HourlyElectricityPrice, GridElectricityPrice, TimeOfUsePeriod
     
-    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id).first()
+    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id, is_deleted=False).first()
     
     if not factory:
         return jsonify({
@@ -496,7 +512,7 @@ def get_optimization(factory_id):
     from blogapp.services.supplier_optimizer import SupplierOptimizer
     from blogapp.models import HourlyElectricityPrice, GridElectricityPrice, TimeOfUsePeriod
     
-    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id).first()
+    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id, is_deleted=False).first()
     
     if not factory:
         return jsonify({
@@ -555,7 +571,7 @@ def get_suggestions(factory_id):
     from blogapp.services.supplier_optimizer import SupplierOptimizer
     from blogapp.models import HourlyElectricityPrice, GridElectricityPrice, TimeOfUsePeriod
     
-    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id).first()
+    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id, is_deleted=False).first()
     
     if not factory:
         return jsonify({
@@ -603,7 +619,7 @@ def get_suggestions(factory_id):
 @csrf.exempt
 def get_factory_pv_carbon_savings(factory_id):
     """API: Fetch carbon savings if all generation is converted to photovoltaic"""
-    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id).first()
+    factory = Factory.query.filter_by(id=factory_id, user_id=current_user.id, is_deleted=False).first()
     if not factory:
         return jsonify({
             'success': False,
