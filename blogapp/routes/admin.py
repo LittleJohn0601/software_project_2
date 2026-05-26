@@ -126,3 +126,33 @@ def get_all_factories():
             'success': False,
             'message': str(e)
         }), 500
+
+
+@bp.route('/api/admin/user/delete/<int:user_id>', methods=['DELETE'])
+@login_required
+@admin_required
+def delete_user(user_id):
+    """Delete a user (admin only)"""
+    try:
+        # cannot delete self
+        if user_id == current_user.id:
+            return jsonify({'success': False, 'message': 'cannot delete your own account'}), 400
+        
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'success': False, 'message': 'user does not exist'}), 404
+        
+        # record username for logging
+        username = user.username
+        
+        # delete user (cascading delete will delete their factories)
+        db.session.delete(user)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'User deleted: {username}'
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
