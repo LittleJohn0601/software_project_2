@@ -65,6 +65,12 @@
                         <span id="fpsValue">--</span> FPS
                     </div>
                     
+                    <!-- Admin notifications (deleted factories) -->
+                    <button id="adminNotifBtn" class="btn btn-outline-light btn-sm position-relative" onclick="showDeletedNotifications()" title="Notifications" style="display: none;">
+                        <i class="bi bi-exclamation-circle-fill" style="color: #ef4444;"></i>
+                        <span id="adminNotifCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">0</span>
+                    </button>
+                    
                     <!-- Settings button -->
                     <button class="btn btn-outline-light btn-sm" onclick="openSettings()" title="Settings">
                         <i class="bi bi-gear-fill"></i>
@@ -697,6 +703,29 @@
         });
     </script>
     
+    <!-- Deleted Factories Notification Modal -->
+    <div class="modal fade" id="deletedNotifModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-exclamation-triangle-fill me-2" style="color: #ef4444;"></i>
+                        Admin Notifications
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="deletedNotifList">
+                        <p class="text-muted text-center">No notifications</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- i18n -->
     <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
     

@@ -1463,6 +1463,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         // Load factory list
         loadFactories();
         
+        // Load admin notifications (deleted factories)
+        loadDeletedNotifications();
+        
         // Load saved settings
         const savedMode = localStorage.getItem('uiMode') || 'full';
         applyUIMode(savedMode);
@@ -1476,6 +1479,53 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         console.log('✅ Dashboard initialization complete');
     }
+    
+    // ========================================
+    // Admin notifications (deleted factories)
+    // ========================================
+    async function loadDeletedNotifications() {
+        try {
+            const resp = await fetch('/api/factories/deleted-notifications');
+            const data = await resp.json();
+            
+            if (data.success && data.notifications.length > 0) {
+                const btn = document.getElementById('adminNotifBtn');
+                const countBadge = document.getElementById('adminNotifCount');
+                if (btn) btn.style.display = 'inline-block';
+                if (countBadge) countBadge.textContent = data.notifications.length;
+                
+                // Store for modal display
+                window._deletedNotifications = data.notifications;
+            }
+        } catch (e) {
+            console.error('Failed to load deleted notifications:', e);
+        }
+    }
+    
+    window.showDeletedNotifications = function() {
+        const list = document.getElementById('deletedNotifList');
+        const notifs = window._deletedNotifications || [];
+        const isZh = typeof I18N !== 'undefined' && I18N.currentLang === 'zh';
+        
+        if (notifs.length === 0) {
+            list.innerHTML = `<p class="text-muted text-center">${isZh ? '暂无通知' : 'No notifications'}</p>`;
+        } else {
+            list.innerHTML = notifs.map(n => {
+                const msg = isZh
+                    ? `工厂 <strong>${escapeHtml(n.name)}</strong> 已于 <strong>${n.deleted_at || '-'}</strong> 被管理员删除`
+                    : `Factory <strong>${escapeHtml(n.name)}</strong> was deleted by admin at <strong>${n.deleted_at || '-'}</strong>`;
+                return `
+                    <div class="alert alert-warning d-flex align-items-start" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2 mt-1" style="color: #ef4444;"></i>
+                        <div>${msg}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        const modal = new bootstrap.Modal(document.getElementById('deletedNotifModal'));
+        modal.show();
+    };
     
     // Initialize after DOM loaded
     if (document.readyState === 'loading') {

@@ -24,6 +24,30 @@ with app.app_context():
     print("✅ Database tables initialized!")
     
     # ========================================
+    # Schema migration: add new columns if missing (for upgraded DBs)
+    # ========================================
+    from sqlalchemy import text, inspect
+    inspector = inspect(db.engine)
+    
+    def add_column_if_missing(table, column_name, column_type, default=None):
+        existing = [c['name'] for c in inspector.get_columns(table)]
+        if column_name not in existing:
+            with db.engine.begin() as conn:
+                default_clause = f" DEFAULT {default}" if default is not None else ""
+                conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column_name} {column_type}{default_clause}"))
+            print(f"✅ Added column {table}.{column_name}")
+    
+    # User ban fields
+    add_column_if_missing('user', 'is_banned', 'BOOLEAN', '0')
+    add_column_if_missing('user', 'banned_at', 'DATETIME')
+    add_column_if_missing('user', 'banned_by', 'INTEGER')
+    
+    # Factory soft-delete fields
+    add_column_if_missing('factory', 'is_deleted', 'BOOLEAN', '0')
+    add_column_if_missing('factory', 'deleted_at', 'DATETIME')
+    add_column_if_missing('factory', 'deleted_by_admin_id', 'INTEGER')
+    
+    # ========================================
     # 1. Import supplier electricity price data
     # ========================================
     try:

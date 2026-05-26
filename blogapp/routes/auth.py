@@ -12,7 +12,11 @@ bp = Blueprint('auth', __name__)
 @login_manager.user_loader
 def load_user(user_id):
     """Load user by ID for Flask-Login"""
-    return User.query.get(int(user_id))
+    user = User.query.get(int(user_id))
+    # If user is banned, force logout (returns None invalidates the session)
+    if user and user.is_banned:
+        return None
+    return user
 
 
 @bp.route('/', methods=['GET'])
@@ -120,30 +124,16 @@ def login():
         # First check username + password
         if user and user.check_password(password):
 
-            # ⭐ First check if the user is in banned period
-            if hasattr(user, 'is_banned') and user.is_banned:
-                now = datetime.now()
-                remaining = user.ban_until - now
-                days = remaining.days
-                hours = remaining.seconds // 3600
-                minutes = (remaining.seconds % 3600) // 60
-
-                ban_msg = (
-                    "Your account is currently BANNED.\n"
-                    f"Reason: {user.ban_reason or 'No reason provided'}\n"
-                    f"Ban will be lifted at: {user.ban_until.strftime('%Y-%m-%d %H:%M UTC')}\n"
-                    f"Time left: {days} day(s) {hours} hour(s) {minutes} minute(s)."
-                )
-
+            # Check if user is banned (permanent ban, no time limit)
+            if user.is_banned:
+                ban_msg = 'Your account has been banned. Please contact the administrator.'
                 current_app.logger.warning(
-                    "Banned user '%s' attempted to log in. Reason=%s, until=%s",
-                    user.username, user.ban_reason, user.ban_until
+                    "Banned user '%s' attempted to log in.", user.username
                 )
-
                 flash(ban_msg, 'danger')
                 return redirect(url_for('auth.auth_page'))
 
-            # ⭐ Normal login
+            # Normal login
             login_user(user)
             current_app.logger.info("User '%s' logged in successfully.", user.username)
             flash('Login successful!', 'success')

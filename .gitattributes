@@ -1,0 +1,12 @@
+# Force LF line endings for all text files (prevents CRLF issues on Windows)
+* text=auto eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mp3 binary
+*.xlsx binary
+*.db binary

@@ -21,6 +21,11 @@ class User(UserMixin, db.Model):
     user_type = db.Column(db.String(20), default='user')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
+    # Ban fields
+    is_banned = db.Column(db.Boolean, default=False, nullable=False)
+    banned_at = db.Column(db.DateTime, nullable=True)
+    banned_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    
     @property
     def username(self):
         if not self._username:
@@ -83,6 +88,11 @@ class Factory(db.Model):
     working_days_per_month = db.Column(db.Integer, default=26)  # Working days per month
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Soft-delete fields (for admin deletions)
+    is_deleted = db.Column(db.Boolean, default=False, nullable=False)
+    deleted_at = db.Column(db.DateTime, nullable=True)
+    deleted_by_admin_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     
     @property
     def name(self):

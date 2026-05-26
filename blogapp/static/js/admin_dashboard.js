@@ -274,17 +274,30 @@ async function loadUsers() {
                     <td style="padding: 0.75rem; text-align: left; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${escapeHtml(user.email)}</td>
                     <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${user.created_at}</td>
                     <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">
-                        <span class="badge bg-primary">${user.factory_count}</span>
+                        <button class="btn btn-sm btn-outline-primary" data-action="view-factories" data-user-id="${user.id}" data-username="${escapeHtml(user.username)}">
+                            <span class="badge bg-primary">${user.factory_count}</span>
+                            <span> View</span>
+                        </button>
                     </td>
                     <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${user.total_usage.toLocaleString()}</td>
                     <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${user.total_carbon.toLocaleString()}</td>
+                    <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">
+                        ${user.is_banned 
+                            ? '<span class="badge bg-danger">Banned</span>' 
+                            : '<span class="badge bg-success">Active</span>'}
+                    </td>
+                    <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">
+                        ${user.is_banned 
+                            ? `<button class="btn btn-sm btn-success" data-action="unban-user" data-user-id="${user.id}" data-username="${escapeHtml(user.username)}"><i class="bi bi-unlock"></i> Unban</button>`
+                            : `<button class="btn btn-sm btn-warning" data-action="ban-user" data-user-id="${user.id}" data-username="${escapeHtml(user.username)}"><i class="bi bi-slash-circle"></i> Ban</button>`}
+                    </td>
                 </tr>
             `).join('');
             console.log(`✅ Loaded ${data.users.length} users`);
         } else {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="7" class="text-center text-muted">
+                    <td colspan="9" class="text-center text-muted">
                         <i class="bi bi-inbox me-2"></i>
                         No user data available
                     </td>
@@ -295,7 +308,7 @@ async function loadUsers() {
         console.error('Error loading users:', error);
         document.getElementById('usersTableBody').innerHTML = `
             <tr>
-                <td colspan="7" class="text-center text-danger">
+                <td colspan="9" class="text-center text-danger">
                     <i class="bi bi-exclamation-triangle me-2"></i>
                     Failed to load: ${error.message}
                 </td>
@@ -331,13 +344,18 @@ async function loadFactories() {
                             ${escapeHtml(factory.user.username)}
                         ` : '-'}
                     </td>
+                    <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">
+                        <button class="btn btn-sm btn-danger" data-action="delete-factory" data-factory-id="${factory.id}" data-factory-name="${escapeHtml(factory.name)}">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    </td>
                 </tr>
             `).join('');
             console.log(`✅ Loaded ${data.factories.length} factories`);
         } else {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="8" class="text-center text-muted">
+                    <td colspan="9" class="text-center text-muted">
                         <i class="bi bi-inbox me-2"></i>
                         No factory data available
                     </td>
@@ -348,7 +366,7 @@ async function loadFactories() {
         console.error('Error loading factories:', error);
         document.getElementById('factoriesTableBody').innerHTML = `
             <tr>
-                <td colspan="8" class="text-center text-danger">
+                <td colspan="9" class="text-center text-danger">
                     <i class="bi bi-exclamation-triangle me-2"></i>
                     Failed to load: ${error.message}
                 </td>
@@ -356,3 +374,230 @@ async function loadFactories() {
         `;
     }
 }
+
+
+// ========================================
+// Admin Actions
+// ========================================
+
+function tr(en, zh) {
+    return (typeof I18N !== 'undefined' && I18N.currentLang === 'zh') ? zh : en;
+}
+
+// Delete factory (admin)
+window.deleteFactoryAdmin = async function(factoryId, factoryName) {
+    const confirmMsg = tr(
+        `Delete factory "${factoryName}"? The owner will see a notification.`,
+        `确定删除工厂"${factoryName}"？工厂所属用户将收到提示。`
+    );
+    if (!confirm(confirmMsg)) return;
+    
+    try {
+        const resp = await fetch(`/api/admin/factory/${factoryId}/delete`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+        const data = await resp.json();
+        
+        if (data.success) {
+            alert(tr('Factory deleted successfully', '工厂删除成功'));
+            await loadFactories();
+            await loadAdminStats();
+            await loadUsers();
+        } else {
+            alert(tr('Failed: ', '失败：') + (data.message || 'Unknown error'));
+        }
+    } catch (e) {
+        alert(tr('Network error: ', '网络错误：') + e.message);
+    }
+};
+
+// Ban user
+window.banUser = async function(userId, username) {
+    const confirmMsg = tr(
+        `Ban user "${username}"? They will not be able to log in.`,
+        `确定封禁用户"${username}"？该用户将无法登录。`
+    );
+    if (!confirm(confirmMsg)) return;
+    
+    try {
+        const resp = await fetch(`/api/admin/user/${userId}/ban`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+        const data = await resp.json();
+        
+        if (data.success) {
+            alert(tr('User banned', '用户已封禁'));
+            await loadUsers();
+        } else {
+            alert(tr('Failed: ', '失败：') + (data.message || 'Unknown error'));
+        }
+    } catch (e) {
+        alert(tr('Network error: ', '网络错误：') + e.message);
+    }
+};
+
+// Unban user
+window.unbanUser = async function(userId, username) {
+    const confirmMsg = tr(
+        `Unban user "${username}"?`,
+        `确定解封用户"${username}"？`
+    );
+    if (!confirm(confirmMsg)) return;
+    
+    try {
+        const resp = await fetch(`/api/admin/user/${userId}/unban`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+        const data = await resp.json();
+        
+        if (data.success) {
+            alert(tr('User unbanned', '用户已解封'));
+            await loadUsers();
+        } else {
+            alert(tr('Failed: ', '失败：') + (data.message || 'Unknown error'));
+        }
+    } catch (e) {
+        alert(tr('Network error: ', '网络错误：') + e.message);
+    }
+};
+
+// View user's factories in a modal
+window.viewUserFactories = async function(userId, username) {
+    try {
+        const resp = await fetch(`/api/admin/users/${userId}/factories`);
+        const data = await resp.json();
+        
+        if (!data.success) {
+            alert(tr('Failed to load: ', '加载失败：') + (data.message || ''));
+            return;
+        }
+        
+        // Build modal HTML
+        let modalHtml = `
+            <div class="modal fade" id="userFactoriesModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="bi bi-person-circle me-2"></i>
+                                ${tr('Factories of', '用户工厂：')} ${escapeHtml(username)}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+        `;
+        
+        if (data.factories.length === 0) {
+            modalHtml += `<p class="text-muted text-center py-3">${tr('No factories', '暂无工厂')}</p>`;
+        } else {
+            modalHtml += '<table class="table table-sm"><thead><tr>';
+            modalHtml += `<th>${tr('Name', '名称')}</th>`;
+            modalHtml += `<th>${tr('Location', '位置')}</th>`;
+            modalHtml += `<th>${tr('Industry', '行业')}</th>`;
+            modalHtml += `<th>${tr('Monthly Usage', '月用电量')}</th>`;
+            modalHtml += `<th>${tr('Actions', '操作')}</th>`;
+            modalHtml += '</tr></thead><tbody>';
+            
+            for (const f of data.factories) {
+                modalHtml += `
+                    <tr>
+                        <td>${escapeHtml(f.name)}</td>
+                        <td>${escapeHtml(f.location || '-')}</td>
+                        <td>${escapeHtml(f.industry_type || '-')}</td>
+                        <td>${f.monthly_usage.toLocaleString()} kWh</td>
+                        <td>
+                            <button class="btn btn-sm btn-danger" data-action="delete-factory-modal" data-factory-id="${f.id}" data-factory-name="${escapeHtml(f.name)}" data-user-id="${userId}" data-username="${escapeHtml(username)}">
+                                <i class="bi bi-trash"></i> ${tr('Delete', '删除')}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
+            modalHtml += '</tbody></table>';
+        }
+        
+        modalHtml += `
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${tr('Close', '关闭')}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Remove existing modal
+        const existing = document.getElementById('userFactoriesModal');
+        if (existing) existing.remove();
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        const modal = new bootstrap.Modal(document.getElementById('userFactoriesModal'));
+        modal.show();
+    } catch (e) {
+        alert(tr('Error: ', '错误：') + e.message);
+    }
+};
+
+// Delete factory from within the user-factories modal, then refresh modal
+window.deleteFactoryFromModal = async function(factoryId, factoryName, userId, username) {
+    const confirmMsg = tr(
+        `Delete factory "${factoryName}"?`,
+        `确定删除工厂"${factoryName}"？`
+    );
+    if (!confirm(confirmMsg)) return;
+    
+    try {
+        const resp = await fetch(`/api/admin/factory/${factoryId}/delete`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'}
+        });
+        const data = await resp.json();
+        
+        if (data.success) {
+            // Close current modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('userFactoriesModal'));
+            if (modal) modal.hide();
+            
+            await loadAdminStats();
+            await loadUsers();
+            await loadFactories();
+            
+            // Reopen the user factories modal with updated data
+            setTimeout(() => viewUserFactories(userId, username), 300);
+        } else {
+            alert(tr('Failed: ', '失败：') + (data.message || ''));
+        }
+    } catch (e) {
+        alert(tr('Network error: ', '网络错误：') + e.message);
+    }
+};
+
+// ========================================
+// Delegated event handlers (replaces inline onclick to prevent injection)
+// ========================================
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    
+    const action = btn.dataset.action;
+    
+    if (action === 'view-factories') {
+        viewUserFactories(parseInt(btn.dataset.userId), btn.dataset.username);
+    } else if (action === 'ban-user') {
+        banUser(parseInt(btn.dataset.userId), btn.dataset.username);
+    } else if (action === 'unban-user') {
+        unbanUser(parseInt(btn.dataset.userId), btn.dataset.username);
+    } else if (action === 'delete-factory') {
+        deleteFactoryAdmin(parseInt(btn.dataset.factoryId), btn.dataset.factoryName);
+    } else if (action === 'delete-factory-modal') {
+        deleteFactoryFromModal(
+            parseInt(btn.dataset.factoryId),
+            btn.dataset.factoryName,
+            parseInt(btn.dataset.userId),
+            btn.dataset.username
+        );
+    }
+});

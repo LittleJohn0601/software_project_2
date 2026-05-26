@@ -1,11 +1,11 @@
 # blogapp/routes/admin.py
 """Admin routes for system management"""
 
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, current_app
 from flask_login import login_required, current_user
 from blogapp.decorators import admin_required
 from blogapp.models import User, Factory, HourlyElectricityPrice, GridElectricityPrice, TimeOfUsePeriod
-from blogapp import db
+from blogapp import db, csrf
 
 bp = Blueprint('admin', __name__)
 
@@ -54,9 +54,10 @@ def get_admin_stats():
             } for u in recent_users]
         })
     except Exception as e:
+        current_app.logger.error(f"Failed to load admin stats: {e}")
         return jsonify({
             'success': False,
-            'message': str(e)
+            'message': 'Failed to load stats'
         }), 500
 
 
@@ -70,7 +71,7 @@ def get_all_users():
         
         user_list = []
         for user in users:
-            factories = Factory.query.filter_by(user_id=user.id).all()
+            factories = Factory.query.filter_by(user_id=user.id, is_deleted=False).all()
             user_list.append({
                 'id': user.id,
                 'username': user.username,
@@ -78,7 +79,8 @@ def get_all_users():
                 'created_at': user.created_at.strftime('%Y-%m-%d %H:%M'),
                 'factory_count': len(factories),
                 'total_usage': sum(f.monthly_usage for f in factories),
-                'total_carbon': sum(f.carbon_emission for f in factories)
+                'total_carbon': sum(f.carbon_emission for f in factories),
+                'is_banned': user.is_banned,
             })
         
         return jsonify({
@@ -86,9 +88,10 @@ def get_all_users():
             'users': user_list
         })
     except Exception as e:
+        current_app.logger.error(f"Failed to load users: {e}")
         return jsonify({
             'success': False,
-            'message': str(e)
+            'message': 'Failed to load users'
         }), 500
 
 
@@ -96,9 +99,9 @@ def get_all_users():
 @login_required
 @admin_required
 def get_all_factories():
-    """Get all factories for admin"""
+    """Get all factories for admin (excluding deleted ones)"""
     try:
-        factories = Factory.query.all()
+        factories = Factory.query.filter_by(is_deleted=False).all()
         
         factory_list = []
         for factory in factories:
@@ -122,37 +125,143 @@ def get_all_factories():
             'factories': factory_list
         })
     except Exception as e:
+        current_app.logger.error(f"Failed to load factories: {e}")
         return jsonify({
             'success': False,
-            'message': str(e)
+            'message': 'Failed to load factories'
         }), 500
 
 
-@bp.route('/api/admin/user/delete/<int:user_id>', methods=['DELETE'])
+@bp.route('/api/admin/users/<int:user_id>/factories')
 @login_required
 @admin_required
-def delete_user(user_id):
-    """Delete a user (admin only)"""
+def get_user_factories(user_id):
+    """Get all factories for a specific user"""
     try:
-        # cannot delete self
-        if user_id == current_user.id:
-            return jsonify({'success': False, 'message': 'cannot delete your own account'}), 400
-        
-        user = User.query.get(user_id)
-        if not user:
-            return jsonify({'success': False, 'message': 'user does not exist'}), 404
-        
-        # record username for logging
-        username = user.username
-        
-        # delete user (cascading delete will delete their factories)
-        db.session.delete(user)
-        db.session.commit()
+        user = User.query.get_or_404(user_id)
+        factories = Factory.query.filter_by(user_id=user_id, is_deleted=False).all()
         
         return jsonify({
             'success': True,
-            'message': f'User deleted: {username}'
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'is_banned': user.is_banned,
+            },
+            'factories': [{
+                'id': f.id,
+                'name': f.name,
+                'location': f.location,
+                'industry_type': f.industry_type,
+                'voltage_level': f.voltage_level,
+                'transformer_capacity': f.transformer_capacity,
+                'monthly_usage': f.monthly_usage,
+                'carbon_emission': f.carbon_emission,
+                'created_at': f.created_at.strftime('%Y-%m-%d %H:%M'),
+            } for f in factories]
+        })
+    except Exception as e:
+        current_app.logger.error(f"Failed to load user factories: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Failed to load factories'
+        }), 500
+
+
+@bp.route('/api/admin/factory/<int:factory_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+@csrf.exempt
+def admin_delete_factory(factory_id):
+    """Soft-delete a factory (admin action)"""
+    try:
+        factory = Factory.query.get_or_404(factory_id)
+        if factory.is_deleted:
+            return jsonify({'success': False, 'message': 'Factory already deleted'}), 400
+        
+        from datetime import datetime
+        factory.is_deleted = True
+        factory.deleted_at = datetime.utcnow()
+        factory.deleted_by_admin_id = current_user.id
+        db.session.commit()
+        
+        current_app.logger.info(
+            f"Admin '{current_user.username}' deleted factory '{factory.name}' (id={factory.id})"
+        )
+        
+        return jsonify({
+            'success': True,
+            'message': f'Factory "{factory.name}" deleted',
         })
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)}), 500
+        current_app.logger.error(f"Failed to delete factory {factory_id}: {e}")
+        return jsonify({'success': False, 'message': 'Operation failed'}), 500
+
+
+@bp.route('/api/admin/user/<int:user_id>/ban', methods=['POST'])
+@login_required
+@admin_required
+@csrf.exempt
+def admin_ban_user(user_id):
+    """Ban a user"""
+    try:
+        user = User.query.get_or_404(user_id)
+        
+        if user.is_admin:
+            return jsonify({'success': False, 'message': 'Cannot ban admin users'}), 400
+        if user.id == current_user.id:
+            return jsonify({'success': False, 'message': 'Cannot ban yourself'}), 400
+        if user.is_banned:
+            return jsonify({'success': False, 'message': 'User already banned'}), 400
+        
+        from datetime import datetime
+        user.is_banned = True
+        user.banned_at = datetime.utcnow()
+        user.banned_by = current_user.id
+        db.session.commit()
+        
+        current_app.logger.info(
+            f"Admin '{current_user.username}' banned user '{user.username}'"
+        )
+        
+        return jsonify({
+            'success': True,
+            'message': f'User "{user.username}" banned'
+        })
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Failed to ban user {user_id}: {e}")
+        return jsonify({'success': False, 'message': 'Operation failed'}), 500
+
+
+@bp.route('/api/admin/user/<int:user_id>/unban', methods=['POST'])
+@login_required
+@admin_required
+@csrf.exempt
+def admin_unban_user(user_id):
+    """Unban a user"""
+    try:
+        user = User.query.get_or_404(user_id)
+        
+        if not user.is_banned:
+            return jsonify({'success': False, 'message': 'User is not banned'}), 400
+        
+        user.is_banned = False
+        user.banned_at = None
+        user.banned_by = None
+        db.session.commit()
+        
+        current_app.logger.info(
+            f"Admin '{current_user.username}' unbanned user '{user.username}'"
+        )
+        
+        return jsonify({
+            'success': True,
+            'message': f'User "{user.username}" unbanned'
+        })
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Failed to unban user {user_id}: {e}")
+        return jsonify({'success': False, 'message': 'Operation failed'}), 500

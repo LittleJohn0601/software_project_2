@@ -400,6 +400,19 @@ const I18N = {
         'According to the policy of June 2025, incremental projects put into operation after 1 June 2025 will have their mechanism prices determined through bidding': '根据2025年6月政策，2025年6月1日后投运的增量项目通过竞价确定机制电价',
         'Mechanism electricity price for existing projects': '存量项目机制电价',
 
+        // ===== Admin actions / notifications =====
+        'Admin Notifications': '管理员通知',
+        'No notifications': '暂无通知',
+        'Status': '状态',
+        'Actions': '操作',
+        'Active': '正常',
+        'Banned': '已封禁',
+        'Ban': '封禁',
+        'Unban': '解封',
+        'Delete': '删除',
+        'View': '查看',
+        'Your account has been banned. Please contact the administrator.': '您的账号已被封禁，请联系管理员。',
+
         // ===== Misc missing =====
         'Outperforms': '优于',
         'of industry peers': '的同行',

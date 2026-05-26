@@ -309,3 +309,201 @@ class TestEncryptionIntegration:
             assert len(user._username) > len('testuser')
             # But the property should return plaintext
             assert user.username == 'testuser'
+
+
+# ===========================================================
+# Admin Action Tests (ban/unban user, delete factory)
+# ===========================================================
+
+class TestAdminBanUnban:
+    """Test admin ban/unban functionality"""
+    
+    def test_admin_can_ban_user(self, app, client, init_db):
+        """Admin can ban a regular user"""
+        with app.app_context():
+            user_id = User.query.filter_by(user_type='user').first().id
+            login(client, 'admin', 'admin123')
+            
+            resp = client.post(f'/api/admin/user/{user_id}/ban')
+            data = resp.get_json()
+            
+            assert data['success'] is True
+            user = User.query.get(user_id)
+            assert user.is_banned is True
+            assert user.banned_at is not None
+    
+    def test_admin_can_unban_user(self, app, client, init_db):
+        """Admin can unban a previously banned user"""
+        with app.app_context():
+            user = User.query.filter_by(user_type='user').first()
+            user.is_banned = True
+            db.session.commit()
+            user_id = user.id
+            
+            login(client, 'admin', 'admin123')
+            resp = client.post(f'/api/admin/user/{user_id}/unban')
+            data = resp.get_json()
+            
+            assert data['success'] is True
+            user = User.query.get(user_id)
+            assert user.is_banned is False
+    
+    def test_cannot_ban_admin_users(self, app, client, init_db):
+        """Admin users cannot be banned"""
+        with app.app_context():
+            admin_user = User.query.filter_by(user_type='admin').first()
+            login(client, 'admin', 'admin123')
+            
+            resp = client.post(f'/api/admin/user/{admin_user.id}/ban')
+            data = resp.get_json()
+            
+            assert data['success'] is False
+    
+    def test_cannot_ban_self(self, app, client, init_db):
+        """Admin cannot ban themselves"""
+        with app.app_context():
+            admin_user = User.query.filter_by(user_type='admin').first()
+            login(client, 'admin', 'admin123')
+            
+            resp = client.post(f'/api/admin/user/{admin_user.id}/ban')
+            data = resp.get_json()
+            
+            assert data['success'] is False
+    
+    def test_regular_user_cannot_ban(self, app, client, init_db):
+        """Regular users cannot ban anyone"""
+        with app.app_context():
+            target_id = User.query.filter_by(user_type='user').first().id
+            login(client, 'testuser', 'password123')
+            
+            resp = client.post(f'/api/admin/user/{target_id}/ban')
+            assert resp.status_code in [302, 401, 403]
+    
+    def test_banned_user_cannot_login(self, app, client, init_db):
+        """Banned users cannot log in"""
+        with app.app_context():
+            user = User.query.filter_by(user_type='user').first()
+            user.is_banned = True
+            db.session.commit()
+        
+        # Logout admin first
+        client.get('/auth/logout')
+        
+        # Try to log in as banned user
+        with app.app_context():
+            resp = client.post('/auth/login', data={
+                'username': 'testuser',
+                'password': 'password123'
+            }, follow_redirects=False)
+            
+            # Should be redirected back to auth page (not dashboard)
+            assert resp.status_code == 302
+            assert '/dashboard' not in resp.location
+
+
+class TestAdminDeleteFactory:
+    """Test admin factory deletion"""
+    
+    def test_admin_can_soft_delete_factory(self, app, client, init_db):
+        """Admin can soft-delete a factory"""
+        with app.app_context():
+            login(client, 'testuser', 'password123')
+            resp = create_factory(client, {
+                'name': 'To Delete Factory',
+                'industry_type': 'Steel',
+                'voltage_level': 10,
+                'transformer_capacity': 500,
+                'daily_usage': 1000,
+                'working_days_per_month': 22,
+                'work_periods': json.dumps([{'start': 8, 'end': 18}])
+            })
+            factory_id = resp.get_json()['factory']['id']
+            
+            client.get('/auth/logout')
+            login(client, 'admin', 'admin123')
+            
+            resp = client.post(f'/api/admin/factory/{factory_id}/delete')
+            data = resp.get_json()
+            
+            assert data['success'] is True
+            factory = Factory.query.get(factory_id)
+            assert factory.is_deleted is True
+            assert factory.deleted_at is not None
+            assert factory.deleted_by_admin_id is not None
+    
+    def test_user_cannot_see_deleted_factory(self, app, client, init_db):
+        """User does not see soft-deleted factories in their list"""
+        with app.app_context():
+            login(client, 'testuser', 'password123')
+            resp = create_factory(client, {
+                'name': 'Hidden Factory',
+                'industry_type': 'Steel',
+                'voltage_level': 10,
+                'transformer_capacity': 500,
+                'daily_usage': 1000,
+                'working_days_per_month': 22,
+                'work_periods': json.dumps([{'start': 8, 'end': 18}])
+            })
+            factory_id = resp.get_json()['factory']['id']
+            
+            # Soft delete via direct DB
+            from datetime import datetime
+            f = Factory.query.get(factory_id)
+            f.is_deleted = True
+            f.deleted_at = datetime.utcnow()
+            db.session.commit()
+            
+            # User factory list should not include it
+            resp = client.get('/api/factories')
+            data = resp.get_json()
+            ids = [fac['id'] for fac in data['factories']]
+            assert factory_id not in ids
+    
+    def test_user_sees_deletion_notification(self, app, client, init_db):
+        """User can fetch notifications about admin-deleted factories"""
+        with app.app_context():
+            login(client, 'testuser', 'password123')
+            resp = create_factory(client, {
+                'name': 'Notif Factory',
+                'industry_type': 'Steel',
+                'voltage_level': 10,
+                'transformer_capacity': 500,
+                'daily_usage': 1000,
+                'working_days_per_month': 22,
+                'work_periods': json.dumps([{'start': 8, 'end': 18}])
+            })
+            factory_id = resp.get_json()['factory']['id']
+            
+            from datetime import datetime
+            f = Factory.query.get(factory_id)
+            f.is_deleted = True
+            f.deleted_at = datetime.utcnow()
+            db.session.commit()
+            
+            resp = client.get('/api/factories/deleted-notifications')
+            data = resp.get_json()
+            
+            assert data['success'] is True
+            assert len(data['notifications']) >= 1
+            assert any(n['name'] == 'Notif Factory' for n in data['notifications'])
+            assert any('Beijing Time' in (n['deleted_at'] or '') for n in data['notifications'])
+
+
+class TestEncryptionTestApiSecurity:
+    """Test that encryption-test API requires admin"""
+    
+    def test_regular_user_cannot_access_encryption_test(self, app, client, init_db):
+        """Regular user is forbidden from /api/encryption-test"""
+        with app.app_context():
+            login(client, 'testuser', 'password123')
+            resp = client.get('/api/encryption-test')
+            assert resp.status_code in [302, 401, 403]
+    
+    def test_admin_can_access_encryption_test(self, app, client, init_db):
+        """Admin can access /api/encryption-test"""
+        with app.app_context():
+            login(client, 'admin', 'admin123')
+            resp = client.get('/api/encryption-test')
+            assert resp.status_code == 200
+            data = resp.get_json()
+            assert data['success'] is True
