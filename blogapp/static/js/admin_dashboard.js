@@ -274,9 +274,9 @@ async function loadUsers() {
                     <td style="padding: 0.75rem; text-align: left; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${escapeHtml(user.email)}</td>
                     <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${user.created_at}</td>
                     <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">
-                        <button class="btn btn-sm btn-outline-primary" data-action="view-factories" data-user-id="${user.id}" data-username="${escapeHtml(user.username)}">
+                        <button class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1" data-action="view-factories" data-user-id="${user.id}" data-username="${escapeHtml(user.username)}">
                             <span class="badge bg-primary">${user.factory_count}</span>
-                            <span> View</span>
+                            <span>View</span>
                         </button>
                     </td>
                     <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${user.total_usage.toLocaleString()}</td>
@@ -493,22 +493,23 @@ window.viewUserFactories = async function(userId, username) {
         if (data.factories.length === 0) {
             modalHtml += `<p class="text-muted text-center py-3">${tr('No factories', '暂无工厂')}</p>`;
         } else {
-            modalHtml += '<table class="table table-sm"><thead><tr>';
-            modalHtml += `<th>${tr('Name', '名称')}</th>`;
-            modalHtml += `<th>${tr('Location', '位置')}</th>`;
-            modalHtml += `<th>${tr('Industry', '行业')}</th>`;
-            modalHtml += `<th>${tr('Monthly Usage', '月用电量')}</th>`;
-            modalHtml += `<th>${tr('Actions', '操作')}</th>`;
-            modalHtml += '</tr></thead><tbody>';
+            modalHtml += `<div class="table-responsive"><table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">`;
+            modalHtml += `<thead><tr style="background: transparent;">`;
+            modalHtml += `<th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">${tr('Name', '名称')}</th>`;
+            modalHtml += `<th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">${tr('Location', '位置')}</th>`;
+            modalHtml += `<th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">${tr('Industry', '行业')}</th>`;
+            modalHtml += `<th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">${tr('Monthly Usage', '月用电量')}</th>`;
+            modalHtml += `<th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">${tr('Actions', '操作')}</th>`;
+            modalHtml += `</tr></thead><tbody>`;
             
             for (const f of data.factories) {
                 modalHtml += `
-                    <tr>
-                        <td>${escapeHtml(f.name)}</td>
-                        <td>${escapeHtml(f.location || '-')}</td>
-                        <td>${escapeHtml(f.industry_type || '-')}</td>
-                        <td>${f.monthly_usage.toLocaleString()} kWh</td>
-                        <td>
+                    <tr style="background: transparent;">
+                        <td style="padding: 0.75rem; text-align: left; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${escapeHtml(f.name)}</td>
+                        <td style="padding: 0.75rem; text-align: left; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${escapeHtml(f.location || '-')}</td>
+                        <td style="padding: 0.75rem; text-align: left; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${escapeHtml(f.industry_type || '-')}</td>
+                        <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${f.monthly_usage.toLocaleString()} kWh</td>
+                        <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">
                             <button class="btn btn-sm btn-danger" data-action="delete-factory-modal" data-factory-id="${f.id}" data-factory-name="${escapeHtml(f.name)}" data-user-id="${userId}" data-username="${escapeHtml(username)}">
                                 <i class="bi bi-trash"></i> ${tr('Delete', '删除')}
                             </button>
@@ -516,7 +517,7 @@ window.viewUserFactories = async function(userId, username) {
                     </tr>
                 `;
             }
-            modalHtml += '</tbody></table>';
+            modalHtml += '</tbody></table></div>';
         }
         
         modalHtml += `
