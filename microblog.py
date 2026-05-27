@@ -234,6 +234,19 @@ with app.app_context():
     # ========================================
     from blogapp.models import User
     
+    total_users = User.query.count()
+    
+    # Safety check: if DB file existed but user table is empty, warn loudly
+    if db_exists and total_users == 0:
+        print("\n" + "⚠️ " * 20)
+        print("⚠️  WARNING: Database file existed but user table is EMPTY!")
+        print("⚠️  This likely means the database was corrupted or replaced.")
+        print("⚠️  If you had existing accounts, they are GONE.")
+        print("⚠️  The database file may have been overwritten during docker rebuild.")
+        print("⚠️  To prevent this: avoid 'docker-compose down' + 'up --build'.")
+        print("⚠️  Instead use 'docker restart peakshift-app' for code updates.")
+        print("⚠️ " * 20 + "\n")
+    
     admin_exists = False
     for u in User.query.all():
         try:
@@ -251,7 +264,7 @@ with app.app_context():
         db.session.commit()
         print("✅ Default admin created (admin / admin123)")
     else:
-        print("✅ Admin account already exists")
+        print(f"✅ Admin account already exists (total users: {total_users})")
 
 if __name__ == '__main__':
     # Use 0.0.0.0 to allow external access (required for Docker)
