@@ -42,7 +42,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     async function loadFactories() {
         try {
             // Add timestamp to prevent caching
-            const response = await fetch(`/api/factories?t=${Date.now()}`);
+            const response = await fetch(`/api/factories?t=${Date.now()}`, {
+                credentials: 'same-origin'
+            });
             const data = await response.json();
             
             if (data.success) {
@@ -340,6 +342,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         try {
             const response = await fetch('/api/factory/create', {
+                credentials: 'same-origin',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -396,6 +399,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         try {
             const response = await fetch(`/api/factory/${editingFactoryId}`, {
+                credentials: 'same-origin',
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -437,7 +441,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     window.viewFactoryDetails = async function(factoryId) {
         try {
             // Add timestamp to prevent caching
-            const response = await fetch(`/api/factory/${factoryId}/details?t=${Date.now()}`);
+            const response = await fetch(`/api/factory/${factoryId}/details?t=${Date.now()}`, {
+                credentials: 'same-origin'
+            });
             const data = await response.json();
             
             if (data.success) {
@@ -513,7 +519,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         const container = document.getElementById('optimizationContent');
         
         try {
-            const response = await fetch(`/api/factory/${factoryId}/suggestions?t=${Date.now()}`);
+            const response = await fetch(`/api/factory/${factoryId}/suggestions?t=${Date.now()}`, {
+                credentials: 'same-origin'
+            });
             const data = await response.json();
             
             if (data.success && data.suggestions && data.suggestions.length > 0) {
@@ -624,7 +632,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         try {
             // Call backend API to get optimization data
-            const response = await fetch(`/api/factory/${factoryId}/optimization?mode=${mode}&t=${Date.now()}`);
+            const response = await fetch(`/api/factory/${factoryId}/optimization?mode=${mode}&t=${Date.now()}`, {
+                credentials: 'same-origin'
+            });
             const data = await response.json();
             
             const valueElement = document.getElementById('statSavingPotential');
@@ -940,7 +950,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     function loadEfficiencyBenchmark(factoryId) {
         const card = document.getElementById('efficiencyBenchmarkCard');
     
-        fetch(`/api/factory/${factoryId}/efficiency-benchmark`)
+        fetch(`/api/factory/${factoryId}/efficiency-benchmark`, {
+            credentials: 'same-origin'
+        })
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.data) {
@@ -996,7 +1008,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         const card = document.getElementById('greenPowerCard');
         if (!card) return;
     
-        fetch(`/api/factory/${factoryId}/green-power-guide?project_type=existing`)
+        fetch(`/api/factory/${factoryId}/green-power-guide?project_type=existing`, {
+            credentials: 'same-origin'
+        })
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.data) {
@@ -1051,7 +1065,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         const card = document.getElementById('equipmentCard');
         if (!card) return;
     
-        fetch(`/api/factory/${factoryId}/equipment-recommendations`)
+        fetch(`/api/factory/${factoryId}/equipment-recommendations`, {
+            credentials: 'same-origin'
+        })
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.data && data.data.length > 0) {
@@ -1095,6 +1111,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         try {
             const response = await fetch(`/api/factory/${factoryId}`, {
+                credentials: 'same-origin',
                 method: 'DELETE'
             });
             
@@ -1485,7 +1502,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     // ========================================
     async function loadDeletedNotifications() {
         try {
-            const resp = await fetch('/api/factories/deleted-notifications');
+            const resp = await fetch('/api/factories/deleted-notifications', {
+                credentials: 'same-origin'
+            });
             const data = await resp.json();
             
             if (data.success && data.notifications.length > 0) {

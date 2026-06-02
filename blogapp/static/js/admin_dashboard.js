@@ -238,7 +238,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // Load admin statistics
 async function loadAdminStats() {
     try {
-        const response = await fetch('/api/admin/stats');
+        const response = await fetch('/api/admin/stats', {
+            credentials: 'same-origin'
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -258,7 +260,9 @@ async function loadAdminStats() {
 // Load users list
 async function loadUsers() {
     try {
-        const response = await fetch('/api/admin/users');
+        const response = await fetch('/api/admin/users', {
+            credentials: 'same-origin'
+        });
         const data = await response.json();
         
         const tbody = document.getElementById('usersTableBody');
@@ -320,7 +324,9 @@ async function loadUsers() {
 // Load factories list
 async function loadFactories() {
     try {
-        const response = await fetch('/api/admin/factories');
+        const response = await fetch('/api/admin/factories', {
+            credentials: 'same-origin'
+        });
         const data = await response.json();
         
         const tbody = document.getElementById('factoriesTableBody');
@@ -394,6 +400,7 @@ window.deleteFactoryAdmin = async function(factoryId, factoryName) {
     
     try {
         const resp = await fetch(`/api/admin/factory/${factoryId}/delete`, {
+            credentials: 'same-origin',
             method: 'POST',
             headers: {'Content-Type': 'application/json'}
         });
@@ -422,6 +429,7 @@ window.banUser = async function(userId, username) {
     
     try {
         const resp = await fetch(`/api/admin/user/${userId}/ban`, {
+            credentials: 'same-origin',
             method: 'POST',
             headers: {'Content-Type': 'application/json'}
         });
@@ -448,6 +456,7 @@ window.unbanUser = async function(userId, username) {
     
     try {
         const resp = await fetch(`/api/admin/user/${userId}/unban`, {
+            credentials: 'same-origin',
             method: 'POST',
             headers: {'Content-Type': 'application/json'}
         });
@@ -467,7 +476,9 @@ window.unbanUser = async function(userId, username) {
 // View user's factories in a modal
 window.viewUserFactories = async function(userId, username) {
     try {
-        const resp = await fetch(`/api/admin/users/${userId}/factories`);
+        const resp = await fetch(`/api/admin/users/${userId}/factories`, {
+            credentials: 'same-origin'
+        });
         const data = await resp.json();
         
         if (!data.success) {
@@ -552,6 +563,7 @@ window.deleteFactoryFromModal = async function(factoryId, factoryName, userId, u
     
     try {
         const resp = await fetch(`/api/admin/factory/${factoryId}/delete`, {
+            credentials: 'same-origin',
             method: 'POST',
             headers: {'Content-Type': 'application/json'}
         });

@@ -69,8 +69,16 @@ def create_app() -> Flask:
 
     app.config['DEBUG'] = os.environ.get('DEBUG', 'False').lower() == 'true'
 
+    # Session configuration
     app.config['SESSION_COOKIE_SECURE'] = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Allow same-site requests
+    app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 hours
+    
+    # Remember me cookie configuration
     app.config['REMEMBER_COOKIE_SECURE'] = os.environ.get('REMEMBER_COOKIE_SECURE', 'False').lower() == 'true'
+    app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+    app.config['REMEMBER_COOKIE_DURATION'] = 86400  # 24 hours
     
     # ---------- Bind extensions ----------
     db.init_app(app)
@@ -79,7 +87,7 @@ def create_app() -> Flask:
     
     # Login manager defaults
     login_manager.login_view = 'auth.login'
-    login_manager.session_protection = 'strong'
+    login_manager.session_protection = 'basic'  # Changed from 'strong' to 'basic' to avoid session clearing on minor changes
     
     # ---------- Logging ----------
     log_dir = os.path.join(app.root_path, '..', 'logs')
