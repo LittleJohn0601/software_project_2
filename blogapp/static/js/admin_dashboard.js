@@ -592,7 +592,7 @@ window.viewUserFactories = async function(userId, username) {
     }
 };
 
-// Delete factory from within the user-factories modal, then refresh modal
+// Delete factory from within the user-factories modal, then refresh admin data.
 window.deleteFactoryFromModal = async function(factoryId, factoryName, userId, username) {
     const confirmMsg = tr(
         `Delete factory "${factoryName}"?`,
@@ -610,16 +610,13 @@ window.deleteFactoryFromModal = async function(factoryId, factoryName, userId, u
         const data = await resp.json();
         
         if (data.success) {
-            // Close current modal
+            // Close the modal after the confirmed delete.
             const modal = bootstrap.Modal.getInstance(document.getElementById('userFactoriesModal'));
             if (modal) modal.hide();
             
             await loadAdminStats();
             await loadUsers();
             await loadFactories();
-            
-            // Reopen the user factories modal with updated data
-            setTimeout(() => viewUserFactories(userId, username), 300);
         } else {
             alert(tr('Failed: ', '失败：') + (data.message || ''));
         }
