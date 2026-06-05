@@ -14,8 +14,17 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     const AppState = {
         currentView: 'factoryManagement',
         factories: [],
-        currentFactory: null
+        currentFactory: null,
+        lastBenchmark: null
     };
+
+    function tr(en, zh) {
+        return (typeof I18N !== 'undefined' && I18N.currentLang === 'zh') ? zh : en;
+    }
+
+    function translateText(text) {
+        return (typeof I18N !== 'undefined') ? I18N.t(text) : text;
+    }
     
     // ========================================
     // View switching
@@ -42,7 +51,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     async function loadFactories() {
         try {
             // Add timestamp to prevent caching
-            const response = await fetch(`/api/factories?t=${Date.now()}`);
+            const response = await fetch(`/api/factories?t=${Date.now()}`, {
+                credentials: 'same-origin'
+            });
             const data = await response.json();
             
             if (data.success) {
@@ -340,6 +351,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         try {
             const response = await fetch('/api/factory/create', {
+                credentials: 'same-origin',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -396,6 +408,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         try {
             const response = await fetch(`/api/factory/${editingFactoryId}`, {
+                credentials: 'same-origin',
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -437,7 +450,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     window.viewFactoryDetails = async function(factoryId) {
         try {
             // Add timestamp to prevent caching
-            const response = await fetch(`/api/factory/${factoryId}/details?t=${Date.now()}`);
+            const response = await fetch(`/api/factory/${factoryId}/details?t=${Date.now()}`, {
+                credentials: 'same-origin'
+            });
             const data = await response.json();
             
             if (data.success) {
@@ -472,6 +487,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     function renderFactoryDetails(data) {
         const factory = data.factory;
         const costAnalysis = data.cost_analysis;
+        AppState.currentFactory = data;
         
         // Basic information
         document.getElementById('detailFactoryName').textContent = factory.name;
@@ -513,7 +529,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         const container = document.getElementById('optimizationContent');
         
         try {
-            const response = await fetch(`/api/factory/${factoryId}/suggestions?t=${Date.now()}`);
+            const response = await fetch(`/api/factory/${factoryId}/suggestions?t=${Date.now()}`, {
+                credentials: 'same-origin'
+            });
             const data = await response.json();
             
             if (data.success && data.suggestions && data.suggestions.length > 0) {
@@ -624,7 +642,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         try {
             // Call backend API to get optimization data
-            const response = await fetch(`/api/factory/${factoryId}/optimization?mode=${mode}&t=${Date.now()}`);
+            const response = await fetch(`/api/factory/${factoryId}/optimization?mode=${mode}&t=${Date.now()}`, {
+                credentials: 'same-origin'
+            });
             const data = await response.json();
             
             const valueElement = document.getElementById('statSavingPotential');
@@ -917,7 +937,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                         <td style="padding: 0.75rem; text-align: center;">${totalEnergyCost > 0 ? ((valleyCost / totalEnergyCost) * 100).toFixed(1) : '0.0'}%</td>
                     </tr>
                     <tr style="background: transparent;">
-                        <td colspan="3" style="padding: 0.75rem; text-align: left; font-weight: bold;">Capacity fee</td>
+                        <td style="padding: 0.75rem; text-align: center; font-weight: bold;">Capacity fee</td>
+                        <td style="padding: 0.75rem; text-align: center;">-</td>
+                        <td style="padding: 0.75rem; text-align: center;">-</td>
                         <td style="padding: 0.75rem; text-align: center; font-weight: bold;">¥${formatNumber(costAnalysis.capacity_fee)}</td>
                         <td style="padding: 0.75rem; text-align: center;">-</td>
                     </tr>
@@ -940,7 +962,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     function loadEfficiencyBenchmark(factoryId) {
         const card = document.getElementById('efficiencyBenchmarkCard');
     
-        fetch(`/api/factory/${factoryId}/efficiency-benchmark`)
+        fetch(`/api/factory/${factoryId}/efficiency-benchmark`, {
+            credentials: 'same-origin'
+        })
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.data) {
@@ -979,7 +1003,7 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                                 <div class="fw-bold">${b.monthly_usage.toLocaleString()} kWh</div>
                                 <div class="small text-muted mt-2">💰 <span>Estimated Monthly Output</span></div>
                                 <div class="fw-bold">${b.estimated_output*10} <span>thousand yuan</span></div>
-                                <div class="small text-${b.level_color} mt-2">${b.tip}</div>
+                                <div class="small text-${b.level_color} mt-2">${translateText(b.tip)}</div>
                             </div>
                         </div>
                     `;
@@ -996,34 +1020,38 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         const card = document.getElementById('greenPowerCard');
         if (!card) return;
     
-        fetch(`/api/factory/${factoryId}/green-power-guide?project_type=existing`)
+        fetch(`/api/factory/${factoryId}/green-power-guide?project_type=existing`, {
+            credentials: 'same-origin'
+        })
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.data) {
                     card.style.display = 'block';
                     const g = data.data;
                 
-                    // Generate platform buttons
-                    let platformButtons = '';
+                    // Generate stable platform links; fixed block sizing prevents
+                    // language changes from shifting the whole guide layout.
+                    let platformButtons = '<div class="green-platform-list">';
                     g.platforms.forEach(platform => {
-                        platformButtons += `<a href="${platform.url}" target="_blank" class="btn btn-sm btn-outline-success me-2 mb-2">${platform.name}</a>`;
+                        platformButtons += `<a href="${platform.url}" target="_blank" class="green-platform-link">${translateText(platform.name)}</a>`;
                     });
+                    platformButtons += '</div>';
                 
                     document.getElementById('greenPowerContent').innerHTML = `
-                        <div class="row align-items-center">
-                            <div class="col-md-3 text-center">
+                        <div class="green-power-layout">
+                            <div class="green-power-tier text-center">
                                 <div style="font-size: 2rem;">🌱</div>
-                                <span class="badge bg-success mt-1">${g.tier_name}</span>
+                                <span class="badge bg-success mt-1">${translateText(g.tier_name)}</span>
                             </div>
-                            <div class="col-md-5">
+                            <div class="green-power-plan">
                                 <div class="small text-muted">Recommended plan</div>
-                                <div class="fw-bold mb-1">${g.description}</div>
+                                <div class="fw-bold mb-1">${translateText(g.description)}</div>
                                 <div class="small text-muted"><span>Monthly electricity consumption:</span> ${g.monthly_usage.toLocaleString()} kWh</div>
                                 <div class="small text-success"><span>Estimated monthly cost:</span> ¥${g.estimated_cost_per_month.toLocaleString()}</div>
                                 <div class="small text-info"><span>Carbon reduction:</span> ${g.carbon_reduction_per_month.toLocaleString()} <span>tons/month</span></div>
-                                <div class="small text-primary mt-1">💰 ${g.price_info}</div>
+                                <div class="small text-primary mt-1">💰 ${translateText(g.price_info)}</div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="green-power-platforms">
                                 <div class="small text-muted"><span>Official Purchase Platforms</span></div>
                                 <div class="mt-1">${platformButtons}</div>
                                 ${g.certificates_needed ? `<div class="small text-muted mt-2"><span>Recommended to purchase:</span> ${g.certificates_needed} <span>green certificates/month</span></div>` : ''}
@@ -1031,8 +1059,8 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                         </div>
                         <div class="mt-2 p-2 bg-light rounded">
                             <div class="small fw-bold">📋 <span>Implementation Steps</span></div>
-                            <div class="small">${g.steps.join(' → ')}</div>
-                            <div class="small text-muted mt-1">📌 ${g.policy_note}</div>
+                            <div class="small">${g.steps.map(step => translateText(step)).join(' → ')}</div>
+                            <div class="small text-muted mt-1">📌 ${translateText(g.policy_note)}</div>
                         </div>
                     </div>
                 `;
@@ -1051,7 +1079,9 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         const card = document.getElementById('equipmentCard');
         if (!card) return;
     
-        fetch(`/api/factory/${factoryId}/equipment-recommendations`)
+        fetch(`/api/factory/${factoryId}/equipment-recommendations`, {
+            credentials: 'same-origin'
+        })
             .then(res => res.json())
             .then(data => {
                 if (data.success && data.data && data.data.length > 0) {
@@ -1089,12 +1119,17 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
 
     // Delete factory
     window.deleteFactory = async function(factoryId, factoryName) {
-        if (!confirm(`Are you sure you want to delete factory "${factoryName}"? This action cannot be undone.`)) {
+        const confirmMsg = tr(
+            `Are you sure you want to delete factory "${factoryName}"? This action cannot be undone.`,
+            `确定要删除工厂"${factoryName}"吗？此操作不可撤销。`
+        );
+        if (!confirm(confirmMsg)) {
             return;
         }
         
         try {
             const response = await fetch(`/api/factory/${factoryId}`, {
+                credentials: 'same-origin',
                 method: 'DELETE'
             });
             
@@ -1281,14 +1316,52 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     };
     
     // Run benchmark
+    function getBenchmarkRecommendation(minFps) {
+        if (minFps >= 50) {
+            return {
+                key: 'excellent',
+                alertClass: 'alert-success',
+                en: 'Excellent device performance; full UI is recommended',
+                zh: '设备性能优秀，推荐使用完整模式'
+            };
+        }
+        if (minFps >= 30) {
+            return {
+                key: 'moderate',
+                alertClass: 'alert-warning',
+                en: 'Device performance is moderate; full UI is usable but may feel slightly laggy',
+                zh: '设备性能中等，完整模式可用但可能略有卡顿'
+            };
+        }
+        return {
+            key: 'low',
+            alertClass: 'alert-danger',
+            en: 'Device performance is low; lightweight UI is strongly recommended',
+            zh: '设备性能较低，强烈建议使用轻量模式'
+        };
+    }
+
+    function renderBenchmarkResult() {
+        if (!AppState.lastBenchmark) return;
+
+        const { avgFps, minFps } = AppState.lastBenchmark;
+        const rec = getBenchmarkRecommendation(minFps);
+        const icon = rec.key === 'excellent' ? '✅ ' : (rec.key === 'moderate' ? '⚠️ ' : '❌ ');
+
+        document.getElementById('avgFps').textContent = avgFps;
+        document.getElementById('minFps').textContent = minFps;
+        document.getElementById('recommendation').textContent = icon + tr(rec.en, rec.zh);
+        document.getElementById('benchmarkAlert').className = 'alert ' + rec.alertClass;
+        document.getElementById('benchmarkResult').style.display = 'block';
+    }
+
     window.runBenchmark = async function() {
         const btn = document.getElementById('benchmarkBtn');
         const resultDiv = document.getElementById('benchmarkResult');
-        const alertDiv = document.getElementById('benchmarkAlert');
         
         // Disable button
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Testing...';
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>${tr('Testing...', '测试中...')}`;
         
         // Hide previous results
         resultDiv.style.display = 'none';
@@ -1361,33 +1434,12 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         const avgFps = FPSMonitor.getAverageFPS();
         const minFps = FPSMonitor.getMinFPS();
         
-        // Show results
-        document.getElementById('avgFps').textContent = avgFps;
-        document.getElementById('minFps').textContent = minFps;
-        
-        let recommendation = '';
-        let alertClass = '';
-        
-        // Determine performance based on minimum FPS (worst-case)
-        if (minFps >= 50) {
-            recommendation = '✅ Excellent device performance; full UI is recommended';
-            alertClass = 'alert-success';
-        } else if (minFps >= 30) {
-            recommendation = '⚠️ Device performance is moderate; full UI is usable but may feel slightly laggy';
-            alertClass = 'alert-warning';
-        } else {
-            recommendation = '❌ Device performance is low; lightweight UI is strongly recommended';
-            alertClass = 'alert-danger';
-        }
-        
-        document.getElementById('recommendation').textContent = recommendation;
-        alertDiv.className = 'alert ' + alertClass;
-        
-        resultDiv.style.display = 'block';
+        AppState.lastBenchmark = { avgFps, minFps };
+        renderBenchmarkResult();
         
         // Restore button
         btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-play-circle me-1"></i>Retest';
+        btn.innerHTML = `<i class="bi bi-play-circle me-1"></i>${tr('Retest', '重新测试')}`;
     };
     
     // Toggle FPS display
@@ -1479,13 +1531,23 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
         
         console.log('✅ Dashboard initialization complete');
     }
+
+    window.addEventListener('peakshift:languageChanged', () => {
+        renderBenchmarkResult();
+        if (AppState.currentView === 'factoryDetails' && AppState.currentFactory?.factory?.id) {
+            renderFactoryDetails(AppState.currentFactory);
+        }
+        renderFactories();
+    });
     
     // ========================================
     // Admin notifications (deleted factories)
     // ========================================
     async function loadDeletedNotifications() {
         try {
-            const resp = await fetch('/api/factories/deleted-notifications');
+            const resp = await fetch('/api/factories/deleted-notifications', {
+                credentials: 'same-origin'
+            });
             const data = await resp.json();
             
             if (data.success && data.notifications.length > 0) {
@@ -1515,8 +1577,8 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                     ? `工厂 <strong>${escapeHtml(n.name)}</strong> 已于 <strong>${n.deleted_at || '-'}</strong> 被管理员删除`
                     : `Factory <strong>${escapeHtml(n.name)}</strong> was deleted by admin at <strong>${n.deleted_at || '-'}</strong>`;
                 return `
-                    <div class="alert alert-warning d-flex align-items-start" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill me-2 mt-1" style="color: #ef4444;"></i>
+                    <div class="deleted-notif-card" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
                         <div>${msg}</div>
                     </div>
                 `;

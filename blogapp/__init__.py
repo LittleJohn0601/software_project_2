@@ -69,8 +69,16 @@ def create_app() -> Flask:
 
     app.config['DEBUG'] = os.environ.get('DEBUG', 'False').lower() == 'true'
 
+    # Session configuration
     app.config['SESSION_COOKIE_SECURE'] = os.environ.get('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Allow same-site requests
+    app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 hours
+    
+    # Remember me cookie configuration
     app.config['REMEMBER_COOKIE_SECURE'] = os.environ.get('REMEMBER_COOKIE_SECURE', 'False').lower() == 'true'
+    app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+    app.config['REMEMBER_COOKIE_DURATION'] = 86400  # 24 hours
     
     # ---------- Bind extensions ----------
     db.init_app(app)
@@ -79,7 +87,20 @@ def create_app() -> Flask:
     
     # Login manager defaults
     login_manager.login_view = 'auth.login'
-    login_manager.session_protection = 'strong'
+    # Remote lab/proxy access can send concurrent browser requests through
+    # different source IPs. Flask-Login's session fingerprint treats that as a
+    # changed client and can invalidate admin AJAX requests mid-page.
+    login_manager.session_protection = None
+
+    @login_manager.unauthorized_handler
+    def handle_login_required():
+        from flask import jsonify, redirect, request, url_for
+        if request.path.startswith('/api/'):
+            return jsonify({
+                'success': False,
+                'message': 'Authentication required'
+            }), 401
+        return redirect(url_for('auth.auth_page', next=request.path))
     
     # ---------- Logging ----------
     log_dir = os.path.join(app.root_path, '..', 'logs')
@@ -145,6 +166,13 @@ def create_app() -> Flask:
     @app.errorhandler(403)
     def forbidden(e):
         """Handle 403 Forbidden errors"""
+        from flask import jsonify, request
+        if request.path.startswith('/api/'):
+            return jsonify({
+                'success': False,
+                'message': 'Forbidden'
+            }), 403
+
         from flask import render_template_string
         return render_template_string('''
             <!DOCTYPE html>
@@ -178,7 +206,13 @@ def create_app() -> Flask:
     @app.errorhandler(401)
     def unauthorized(e):
         """Handle 401 Unauthorized errors"""
-        from flask import redirect, url_for, request
+        from flask import jsonify, redirect, url_for, request
+        if request.path.startswith('/api/'):
+            return jsonify({
+                'success': False,
+                'message': 'Authentication required'
+            }), 401
+
         return redirect(url_for('auth.auth_page', next=request.path))
     
     # ---------- Register blueprints ----------

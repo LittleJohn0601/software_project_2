@@ -156,6 +156,13 @@ const I18N = {
         'Average FPS:': '平均帧率：',
         'Minimum FPS:': '最低帧率：',
         'Settings saved': '设置已保存',
+        'Excellent device performance; full UI is recommended': '设备性能优秀，推荐使用完整模式',
+        'Device performance is moderate; full UI is usable but may feel slightly laggy': '设备性能中等，完整模式可用但可能略有卡顿',
+        'Device performance is low; lightweight UI is strongly recommended': '设备性能较低，强烈建议使用轻量模式',
+        'Excellent performance! Full mode recommended.': '性能优秀，推荐使用完整模式。',
+        'Good performance. Full mode works well.': '性能良好，完整模式运行顺畅。',
+        'Moderate performance. Consider Lite mode.': '性能中等，可考虑使用轻量模式。',
+        'Low performance detected. Lite mode strongly recommended.': '检测到性能较低，强烈建议使用轻量模式。',
 
         // ===== Admin Dashboard =====
         'PeakShift Admin Console': 'PeakShift 管理员控制台',
@@ -182,9 +189,15 @@ const I18N = {
         'No user data available': '暂无用户数据',
         'No factory data available': '暂无工厂数据',
         'System Data Management': '系统数据管理',
+        'System data (electricity prices, carbon factors, etc.) is automatically synced from Excel files. To modify, edit the relevant files in the': '系统数据（电价、碳因子等）通过 Excel 文件自动同步。如需修改，请编辑',
+        'directory. The system will detect and update on startup.': '目录下的相关文件，系统将在启动时自动检测并更新。',
         'System data (electricity prices, carbon factors, etc.) is automatically synced from Excel files. To modify, edit the relevant files in the data/ directory. The system will detect and update on startup.': '系统数据（电价、碳因子等）通过 Excel 文件自动同步。如需修改，请编辑 data/ 目录下的相关文件，系统将在启动时自动检测并更新。',
         'Electricity Price Data': '电价数据',
+        'File path': '文件路径',
         'Carbon Emission Factors': '碳排放因子',
+        'Grid carbon factor': '电网碳排放因子',
+        'PV carbon factor': '光伏碳排放因子',
+        'carbon factor': '碳排放因子',
         'Contains 24-hour time-of-use pricing and grid selling prices': '包含24小时分时电价和电网售卖价格数据',
         'Defined in': '定义于',
 
@@ -416,6 +429,7 @@ const I18N = {
         // ===== Misc missing =====
         'Outperforms': '优于',
         'of industry peers': '的同行',
+        'Outperforms 7% of industry peers': '优于 7% 的同行',
         'less than': '低于',
         'greater than': '大于',
     },
@@ -470,12 +484,17 @@ const I18N = {
             // English: reverse lookup in case text is Chinese
             const rev = this.getReverseDict();
             if (rev[trimmed]) return rev[trimmed];
+
+            const peerMatch = trimmed.match(/^优于\s*([0-9]+(?:\.[0-9]+)?)%\s*的同行$/);
+            if (peerMatch) {
+                return `Outperforms ${peerMatch[1]}% of industry peers`;
+            }
             
             // Partial reverse match
             let result = trimmed;
             const revKeys = Object.keys(rev).sort((a, b) => b.length - a.length);
             for (const key of revKeys) {
-                if (key.length >= 4 && result.includes(key)) {
+                if ((key.length >= 4 || key === '优于' || key === '的同行') && result.includes(key)) {
                     result = result.replace(key, rev[key]);
                 }
             }
@@ -558,6 +577,7 @@ const I18N = {
     apply() {
         // Do full page text node scan
         this.translatePage();
+        document.documentElement.classList.remove('i18n-preload');
     },
 
     /**
@@ -565,18 +585,20 @@ const I18N = {
      */
     setLang(lang) {
         if (lang !== 'en' && lang !== 'zh') return;
-        // If switching to same language, still re-apply (for newly rendered content)
         this.currentLang = lang;
         localStorage.setItem('lang', lang);
-        // Reload page to ensure clean translation (avoids partial state)
-        window.location.reload();
+        this.apply();
+        window.dispatchEvent(new CustomEvent('peakshift:languageChanged', {
+            detail: { lang }
+        }));
     },
 
     /**
      * Initialize on page load
      */
     init() {
-        // Apply translations after a short delay to let dynamic content render
+        this.apply();
+        // Re-apply translations after a short delay to let dynamic content render
         setTimeout(() => this.apply(), 100);
 
         // Also observe DOM changes to translate dynamically added content

@@ -88,7 +88,7 @@ def get_deleted_factory_notifications():
         if f.deleted_at:
             # Stored as UTC; convert to Beijing time for display
             beijing_time = f.deleted_at.replace(tzinfo=timezone.utc).astimezone(beijing_tz)
-            deleted_at_str = beijing_time.strftime('%Y-%m-%d %H:%M:%S') + ' (Beijing Time)'
+            deleted_at_str = beijing_time.strftime('%Y-%m-%d %H:%M:%S')
         notifications.append({
             'id': f.id,
             'name': f.name,
