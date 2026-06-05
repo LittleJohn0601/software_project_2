@@ -571,11 +571,12 @@ const I18N = {
      */
     setLang(lang) {
         if (lang !== 'en' && lang !== 'zh') return;
-        // If switching to same language, still re-apply (for newly rendered content)
         this.currentLang = lang;
         localStorage.setItem('lang', lang);
-        // Reload page to ensure clean translation (avoids partial state)
-        window.location.reload();
+        this.apply();
+        window.dispatchEvent(new CustomEvent('peakshift:languageChanged', {
+            detail: { lang }
+        }));
     },
 
     /**

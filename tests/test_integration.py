@@ -273,6 +273,37 @@ class TestAdminIntegration:
             assert data['success'] is True
             assert len(data['users']) >= 1  # At least one user exists
 
+    def test_admin_api_survives_proxy_ip_change(self, app, client, init_db):
+        """Admin AJAX requests remain authenticated when proxy source IP changes"""
+        with app.app_context():
+            client.post('/auth/login', data={
+                'username': 'admin',
+                'password': 'admin123'
+            }, environ_base={'REMOTE_ADDR': '66.235.111.6'})
+
+            users_resp = client.get(
+                '/api/admin/users',
+                environ_base={'REMOTE_ADDR': '66.235.111.7'}
+            )
+            factories_resp = client.get(
+                '/api/admin/factories',
+                environ_base={'REMOTE_ADDR': '66.235.111.7'}
+            )
+
+            assert users_resp.status_code == 200
+            assert users_resp.get_json()['success'] is True
+            assert factories_resp.status_code == 200
+            assert factories_resp.get_json()['success'] is True
+
+    def test_admin_api_unauthenticated_returns_json(self, app, client, init_db):
+        """Unauthenticated admin API requests do not return HTML redirects"""
+        with app.app_context():
+            resp = client.get('/api/admin/users')
+
+            assert resp.status_code == 401
+            assert resp.content_type.startswith('application/json')
+            assert resp.get_json()['success'] is False
+
     def test_regular_user_cannot_access_admin(self, app, client, init_db):
         """Regular user cannot access admin endpoints"""
         with app.app_context():
