@@ -440,7 +440,8 @@ window.deleteFactoryAdmin = async function(factoryId, factoryName) {
         const resp = await fetch(`/api/admin/factory/${factoryId}/delete`, {
             credentials: 'same-origin',
             method: 'POST',
-            headers: {'Content-Type': 'application/json'}
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ deleted_at_client: new Date().toISOString() })
         });
         const data = await resp.json();
         
@@ -603,7 +604,8 @@ window.deleteFactoryFromModal = async function(factoryId, factoryName, userId, u
         const resp = await fetch(`/api/admin/factory/${factoryId}/delete`, {
             credentials: 'same-origin',
             method: 'POST',
-            headers: {'Content-Type': 'application/json'}
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ deleted_at_client: new Date().toISOString() })
         });
         const data = await resp.json();
         

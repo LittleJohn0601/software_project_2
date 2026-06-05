@@ -180,9 +180,20 @@ def admin_delete_factory(factory_id):
         if factory.is_deleted:
             return jsonify({'success': False, 'message': 'Factory already deleted'}), 400
         
-        from datetime import datetime
+        from datetime import datetime, timezone
+        data = request.get_json(silent=True) or {}
+        deleted_at = None
+        client_deleted_at = data.get('deleted_at_client')
+        if client_deleted_at:
+            try:
+                parsed = datetime.fromisoformat(client_deleted_at.replace('Z', '+00:00'))
+                if parsed.tzinfo is not None:
+                    deleted_at = parsed.astimezone(timezone.utc).replace(tzinfo=None)
+            except ValueError:
+                current_app.logger.warning("Invalid client deletion timestamp: %s", client_deleted_at)
+
         factory.is_deleted = True
-        factory.deleted_at = datetime.utcnow()
+        factory.deleted_at = deleted_at or datetime.utcnow()
         factory.deleted_by_admin_id = current_user.id
         db.session.commit()
         
