@@ -396,6 +396,18 @@
             }
         }
     </style>
+    <style>
+        html.i18n-preload body {
+            visibility: hidden;
+        }
+    </style>
+    <script>
+        try {
+            if (localStorage.getItem('lang') === 'zh') {
+                document.documentElement.classList.add('i18n-preload');
+            }
+        } catch (e) {}
+    </script>
 </head>
 <body data-playlist="playlist-auth">
     {% set initial_mode = request.args.get('mode') %}

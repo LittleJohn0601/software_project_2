@@ -577,6 +577,7 @@ const I18N = {
     apply() {
         // Do full page text node scan
         this.translatePage();
+        document.documentElement.classList.remove('i18n-preload');
     },
 
     /**
@@ -596,7 +597,8 @@ const I18N = {
      * Initialize on page load
      */
     init() {
-        // Apply translations after a short delay to let dynamic content render
+        this.apply();
+        // Re-apply translations after a short delay to let dynamic content render
         setTimeout(() => this.apply(), 100);
 
         // Also observe DOM changes to translate dynamically added content

@@ -1577,8 +1577,8 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                     ? `工厂 <strong>${escapeHtml(n.name)}</strong> 已于 <strong>${n.deleted_at || '-'}</strong> 被管理员删除`
                     : `Factory <strong>${escapeHtml(n.name)}</strong> was deleted by admin at <strong>${n.deleted_at || '-'}</strong>`;
                 return `
-                    <div class="alert alert-warning d-flex align-items-start" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill me-2 mt-1" style="color: #ef4444;"></i>
+                    <div class="deleted-notif-card" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
                         <div>${msg}</div>
                     </div>
                 `;

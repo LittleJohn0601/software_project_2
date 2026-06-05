@@ -137,7 +137,7 @@ window.openSettings = function() {
 };
 
 // Run benchmark test
-window.runBenchmark = function() {
+window.runBenchmark = async function() {
     const btn = document.getElementById('benchmarkBtn');
     const resultDiv = document.getElementById('benchmarkResult');
     
@@ -145,6 +145,13 @@ window.runBenchmark = function() {
     btn.innerHTML = `<i class="bi bi-hourglass-split me-1"></i>${tr('Testing...', '测试中...')} <span id="countdown">10</span>s`;
     
     resultDiv.style.display = 'none';
+
+    const wasLiteMode = document.body.classList.contains('ui-lite');
+    if (wasLiteMode) {
+        document.body.classList.remove('ui-lite');
+        document.body.classList.add('ui-full');
+    }
+    await new Promise(resolve => setTimeout(resolve, 100));
     
     FPSMonitor.start();
     
@@ -163,6 +170,10 @@ window.runBenchmark = function() {
     
     setTimeout(() => {
         FPSMonitor.stop();
+        if (wasLiteMode) {
+            document.body.classList.remove('ui-full');
+            document.body.classList.add('ui-lite');
+        }
         
         const avgFps = FPSMonitor.getAverageFPS();
         const minFps = FPSMonitor.getMinFPS();
@@ -515,8 +526,8 @@ window.viewUserFactories = async function(userId, username) {
         
         // Build modal HTML
         let modalHtml = `
-            <div class="modal fade user-factories-modal" id="userFactoriesModal" tabindex="-1">
-                <div class="modal-dialog modal-lg">
+            <div class="modal fade glass-data-modal user-factories-modal" id="userFactoriesModal" tabindex="-1">
+                <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">
@@ -531,7 +542,7 @@ window.viewUserFactories = async function(userId, username) {
         if (data.factories.length === 0) {
             modalHtml += `<p class="text-muted text-center py-3">${tr('No factories', '暂无工厂')}</p>`;
         } else {
-            modalHtml += `<div class="table-responsive"><table class="user-factories-table">`;
+            modalHtml += `<div class="admin-modal-table-card"><div class="table-responsive"><table class="user-factories-table">`;
             modalHtml += `<thead><tr>`;
             modalHtml += `<th class="text-start">${tr('Name', '名称')}</th>`;
             modalHtml += `<th class="text-start">${tr('Location', '位置')}</th>`;
@@ -548,14 +559,14 @@ window.viewUserFactories = async function(userId, username) {
                         <td class="text-start">${escapeHtml(f.industry_type || '-')}</td>
                         <td class="text-end">${f.monthly_usage.toLocaleString()} kWh</td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-danger" data-action="delete-factory-modal" data-factory-id="${f.id}" data-factory-name="${escapeHtml(f.name)}" data-user-id="${userId}" data-username="${escapeHtml(username)}">
+                            <button class="btn btn-sm btn-danger admin-table-danger-btn" data-action="delete-factory-modal" data-factory-id="${f.id}" data-factory-name="${escapeHtml(f.name)}" data-user-id="${userId}" data-username="${escapeHtml(username)}">
                                 <i class="bi bi-trash"></i> ${tr('Delete', '删除')}
                             </button>
                         </td>
                     </tr>
                 `;
             }
-            modalHtml += '</tbody></table></div>';
+            modalHtml += '</tbody></table></div></div>';
         }
         
         modalHtml += `
