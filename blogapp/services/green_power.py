@@ -17,7 +17,7 @@ class GreenPowerService:
         },
         {
             'name': 'Electric Power Medium and Long-term Trading Platform',
-            'url': 'https://pmos.sx.sgcc.com.cn',
+            'url': 'https://pmos.sx.sgcc.com.cn/pxf-phbsx-shop/',
             'description': 'Multi-year, annual, monthly green power contracts',
             'price_info': 'Market-based pricing',
             'type': 'exchange'
