@@ -398,9 +398,11 @@
     </style>
 </head>
 <body data-playlist="playlist-auth">
-    
+    {% set initial_mode = request.args.get('mode') %}
+    {% set show_auth_initial = initial_mode in ['login', 'register'] or request.args.get('next') %}
+
     <!-- Welcome Section (Landing Page) -->
-    <div id="welcomeSection" style="display: none;">
+    <div id="welcomeSection" style="display: {{ 'none' if show_auth_initial else 'block' }};">
         <!-- Navigation Bar -->
         <nav class="welcome-navbar" id="welcomeNavbar">
             <div class="container">
@@ -654,7 +656,7 @@
     </div>
     
     <!-- Auth Container (Login/Register) -->
-    <div class="container-fluid" id="authContainer">
+    <div class="container-fluid" id="authContainer" style="display: {{ 'block' if show_auth_initial else 'none' }};">
         <!-- Global clouds -->
         <div class="cloud cloud-1"></div>
         <div class="cloud cloud-2"></div>
@@ -818,7 +820,7 @@
                     </script>
 
                     <!-- Login Form -->
-                    <div id="loginSection">
+                    <div id="loginSection" style="display: {{ 'none' if initial_mode == 'register' else 'block' }};">
                         <div class="text-center mb-4">
                             <h1 class="login-title">Welcome back!</h1>
                             <p class="login-subtitle">Please enter your details</p>
@@ -881,7 +883,7 @@
                     </div>
 
                     <!-- Register Form (Hidden by default) -->
-                    <div id="registerSection" style="display: none;">
+                    <div id="registerSection" style="display: {{ 'block' if initial_mode == 'register' else 'none' }};">
                         <div class="text-center mb-4">
                             <h1 class="login-title">Create an account</h1>
                             <p class="login-subtitle">Join PeakShift to optimize your energy costs</p>

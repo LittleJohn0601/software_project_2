@@ -2580,3 +2580,38 @@ body.ui-lite {
 .ui-lite .btn:hover {
     transform: none !important;
 }
+
+/* Final modal overrides: keep admin user-factory modal in sync with global UI modes. */
+body:not(.ui-lite) .user-factories-modal .modal-content {
+    background: linear-gradient(135deg,
+        rgba(219, 234, 254, 0.72),
+        rgba(209, 250, 229, 0.62),
+        rgba(254, 243, 199, 0.46)) !important;
+    backdrop-filter: blur(30px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(190%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.72) !important;
+    border-radius: var(--radius-xl) !important;
+    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.26), 0 0 0 1px rgba(255, 255, 255, 0.35) !important;
+}
+
+body:not(.ui-lite) .user-factories-modal .modal-header,
+body:not(.ui-lite) .user-factories-modal .modal-footer {
+    background: rgba(255, 255, 255, 0.34) !important;
+    border-color: rgba(255, 255, 255, 0.45) !important;
+}
+
+body:not(.ui-lite) .user-factories-table tbody tr {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+body:not(.ui-lite) .user-factories-table tbody tr:hover {
+    background: rgba(240, 249, 255, 0.5);
+}
+
+body.ui-lite .user-factories-modal .modal-content,
+body.ui-lite .user-factories-modal .modal-header,
+body.ui-lite .user-factories-modal .modal-footer {
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
