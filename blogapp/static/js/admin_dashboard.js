@@ -70,6 +70,53 @@ const FPSMonitor = {
 // Settings Functions
 // ========================================
 
+let lastBenchmarkResult = null;
+
+function getBenchmarkRecommendation(avgFps) {
+    if (avgFps >= 55) {
+        return {
+            key: 'excellent',
+            alertClass: 'alert-success',
+            en: 'Excellent performance! Full mode recommended.',
+            zh: '性能优秀，推荐使用完整模式。'
+        };
+    }
+    if (avgFps >= 40) {
+        return {
+            key: 'good',
+            alertClass: 'alert-info',
+            en: 'Good performance. Full mode works well.',
+            zh: '性能良好，完整模式运行顺畅。'
+        };
+    }
+    if (avgFps >= 25) {
+        return {
+            key: 'moderate',
+            alertClass: 'alert-warning',
+            en: 'Moderate performance. Consider Lite mode.',
+            zh: '性能中等，可考虑使用轻量模式。'
+        };
+    }
+    return {
+        key: 'low',
+        alertClass: 'alert-danger',
+        en: 'Low performance detected. Lite mode strongly recommended.',
+        zh: '检测到性能较低，强烈建议使用轻量模式。'
+    };
+}
+
+function renderBenchmarkResult() {
+    if (!lastBenchmarkResult) return;
+    const { avgFps, minFps } = lastBenchmarkResult;
+    const rec = getBenchmarkRecommendation(avgFps);
+
+    document.getElementById('avgFps').textContent = avgFps;
+    document.getElementById('minFps').textContent = minFps;
+    document.getElementById('recommendation').textContent = tr(rec.en, rec.zh);
+    document.getElementById('benchmarkAlert').className = 'alert ' + rec.alertClass;
+    document.getElementById('benchmarkResult').style.display = 'block';
+}
+
 // Open settings modal
 window.openSettings = function() {
     const modal = new bootstrap.Modal(document.getElementById('settingsModal'));
@@ -93,10 +140,9 @@ window.openSettings = function() {
 window.runBenchmark = function() {
     const btn = document.getElementById('benchmarkBtn');
     const resultDiv = document.getElementById('benchmarkResult');
-    const alertDiv = document.getElementById('benchmarkAlert');
     
     btn.disabled = true;
-    btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Testing... <span id="countdown">10</span>s';
+    btn.innerHTML = `<i class="bi bi-hourglass-split me-1"></i>${tr('Testing...', '测试中...')} <span id="countdown">10</span>s`;
     
     resultDiv.style.display = 'none';
     
@@ -124,30 +170,11 @@ window.runBenchmark = function() {
         document.getElementById('avgFps').textContent = avgFps;
         document.getElementById('minFps').textContent = minFps;
         
-        let recommendation = '';
-        let alertClass = '';
-        
-        if (avgFps >= 55) {
-            recommendation = 'Excellent performance! Full mode recommended.';
-            alertClass = 'alert-success';
-        } else if (avgFps >= 40) {
-            recommendation = 'Good performance. Full mode works well.';
-            alertClass = 'alert-info';
-        } else if (avgFps >= 25) {
-            recommendation = 'Moderate performance. Consider Lite mode.';
-            alertClass = 'alert-warning';
-        } else {
-            recommendation = 'Low performance detected. Lite mode strongly recommended.';
-            alertClass = 'alert-danger';
-        }
-        
-        document.getElementById('recommendation').textContent = recommendation;
-        alertDiv.className = 'alert ' + alertClass;
-        
-        resultDiv.style.display = 'block';
+        lastBenchmarkResult = { avgFps, minFps };
+        renderBenchmarkResult();
         
         btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-play-circle me-1"></i>Retest';
+        btn.innerHTML = `<i class="bi bi-play-circle me-1"></i>${tr('Retest', '重新测试')}`;
     }, 10000);
 };
 
@@ -488,7 +515,7 @@ window.viewUserFactories = async function(userId, username) {
         
         // Build modal HTML
         let modalHtml = `
-            <div class="modal fade" id="userFactoriesModal" tabindex="-1">
+            <div class="modal fade user-factories-modal" id="userFactoriesModal" tabindex="-1">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -504,23 +531,23 @@ window.viewUserFactories = async function(userId, username) {
         if (data.factories.length === 0) {
             modalHtml += `<p class="text-muted text-center py-3">${tr('No factories', '暂无工厂')}</p>`;
         } else {
-            modalHtml += `<div class="table-responsive"><table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">`;
-            modalHtml += `<thead><tr style="background: transparent;">`;
-            modalHtml += `<th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">${tr('Name', '名称')}</th>`;
-            modalHtml += `<th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">${tr('Location', '位置')}</th>`;
-            modalHtml += `<th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">${tr('Industry', '行业')}</th>`;
-            modalHtml += `<th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">${tr('Monthly Usage', '月用电量')}</th>`;
-            modalHtml += `<th style="padding: 0.75rem; text-align: center; border-bottom: 2px solid rgba(14, 165, 233, 0.2);">${tr('Actions', '操作')}</th>`;
+            modalHtml += `<div class="table-responsive"><table class="user-factories-table">`;
+            modalHtml += `<thead><tr>`;
+            modalHtml += `<th class="text-start">${tr('Name', '名称')}</th>`;
+            modalHtml += `<th class="text-start">${tr('Location', '位置')}</th>`;
+            modalHtml += `<th class="text-start">${tr('Industry', '行业')}</th>`;
+            modalHtml += `<th class="text-end">${tr('Monthly Usage', '月用电量')}</th>`;
+            modalHtml += `<th class="text-center">${tr('Actions', '操作')}</th>`;
             modalHtml += `</tr></thead><tbody>`;
             
             for (const f of data.factories) {
                 modalHtml += `
-                    <tr style="background: transparent;">
-                        <td style="padding: 0.75rem; text-align: left; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${escapeHtml(f.name)}</td>
-                        <td style="padding: 0.75rem; text-align: left; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${escapeHtml(f.location || '-')}</td>
-                        <td style="padding: 0.75rem; text-align: left; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${escapeHtml(f.industry_type || '-')}</td>
-                        <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${f.monthly_usage.toLocaleString()} kWh</td>
-                        <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">
+                    <tr>
+                        <td class="text-start">${escapeHtml(f.name)}</td>
+                        <td class="text-start">${escapeHtml(f.location || '-')}</td>
+                        <td class="text-start">${escapeHtml(f.industry_type || '-')}</td>
+                        <td class="text-end">${f.monthly_usage.toLocaleString()} kWh</td>
+                        <td class="text-center">
                             <button class="btn btn-sm btn-danger" data-action="delete-factory-modal" data-factory-id="${f.id}" data-factory-name="${escapeHtml(f.name)}" data-user-id="${userId}" data-username="${escapeHtml(username)}">
                                 <i class="bi bi-trash"></i> ${tr('Delete', '删除')}
                             </button>
@@ -613,4 +640,8 @@ document.addEventListener('click', function(e) {
             btn.dataset.username
         );
     }
+});
+
+window.addEventListener('peakshift:languageChanged', () => {
+    renderBenchmarkResult();
 });

@@ -157,5 +157,4 @@ def logout():
     """Handle user logout"""
     current_app.logger.info("User '%s' logged out.", current_user.username)
     logout_user()
-    flash('Successfully logged out', 'success')
-    return redirect(url_for('main.index'))
+    return redirect(url_for('auth.auth_page'))

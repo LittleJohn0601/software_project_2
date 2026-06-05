@@ -156,6 +156,13 @@ const I18N = {
         'Average FPS:': '平均帧率：',
         'Minimum FPS:': '最低帧率：',
         'Settings saved': '设置已保存',
+        'Excellent device performance; full UI is recommended': '设备性能优秀，推荐使用完整模式',
+        'Device performance is moderate; full UI is usable but may feel slightly laggy': '设备性能中等，完整模式可用但可能略有卡顿',
+        'Device performance is low; lightweight UI is strongly recommended': '设备性能较低，强烈建议使用轻量模式',
+        'Excellent performance! Full mode recommended.': '性能优秀，推荐使用完整模式。',
+        'Good performance. Full mode works well.': '性能良好，完整模式运行顺畅。',
+        'Moderate performance. Consider Lite mode.': '性能中等，可考虑使用轻量模式。',
+        'Low performance detected. Lite mode strongly recommended.': '检测到性能较低，强烈建议使用轻量模式。',
 
         // ===== Admin Dashboard =====
         'PeakShift Admin Console': 'PeakShift 管理员控制台',
@@ -422,6 +429,7 @@ const I18N = {
         // ===== Misc missing =====
         'Outperforms': '优于',
         'of industry peers': '的同行',
+        'Outperforms 7% of industry peers': '优于 7% 的同行',
         'less than': '低于',
         'greater than': '大于',
     },
@@ -476,12 +484,17 @@ const I18N = {
             // English: reverse lookup in case text is Chinese
             const rev = this.getReverseDict();
             if (rev[trimmed]) return rev[trimmed];
+
+            const peerMatch = trimmed.match(/^优于\s*([0-9]+(?:\.[0-9]+)?)%\s*的同行$/);
+            if (peerMatch) {
+                return `Outperforms ${peerMatch[1]}% of industry peers`;
+            }
             
             // Partial reverse match
             let result = trimmed;
             const revKeys = Object.keys(rev).sort((a, b) => b.length - a.length);
             for (const key of revKeys) {
-                if (key.length >= 4 && result.includes(key)) {
+                if ((key.length >= 4 || key === '优于' || key === '的同行') && result.includes(key)) {
                     result = result.replace(key, rev[key]);
                 }
             }

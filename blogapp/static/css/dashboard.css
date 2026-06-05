@@ -1154,6 +1154,79 @@ body::after {
     background: rgba(240, 249, 255, 0.5);
 }
 
+.green-power-layout {
+    display: grid;
+    grid-template-columns: minmax(140px, 0.9fr) minmax(280px, 1.5fr) minmax(260px, 1fr);
+    gap: 1.25rem;
+    align-items: center;
+}
+
+.green-power-platforms {
+    min-width: 0;
+}
+
+.green-platform-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.green-platform-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    background: rgba(255, 255, 255, 0.38);
+    color: #047857;
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: center;
+    text-decoration: none;
+}
+
+.green-platform-link:hover {
+    background: rgba(16, 185, 129, 0.12);
+    color: #065f46;
+}
+
+.user-factories-modal .modal-content {
+    background: rgba(255, 255, 255, 0.58) !important;
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
+}
+
+.user-factories-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.user-factories-table th,
+.user-factories-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    vertical-align: middle;
+}
+
+.user-factories-table th {
+    border-bottom: 2px solid rgba(14, 165, 233, 0.2);
+    font-weight: 800;
+}
+
+.ui-lite .green-platform-link,
+.ui-lite .user-factories-modal .modal-content {
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
 .table-light {
     background: linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.95)) !important;
 }
@@ -1523,6 +1596,13 @@ body::after {
     
     .factory-card {
         margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .green-power-layout {
+        grid-template-columns: 1fr;
+        text-align: center;
     }
 }
 

@@ -807,6 +807,10 @@
                                     message.style.transform = 'translateY(-20px)';
                                     setTimeout(function() {
                                         message.remove();
+                                        const container = document.getElementById('flashMessages');
+                                        if (container && !container.querySelector('.flash-message')) {
+                                            container.remove();
+                                        }
                                     }, 300);
                                 }, 5000);
                             });
@@ -1113,7 +1117,28 @@
                 }
             }
         });
-        
+
+        function clearInlineAuthMessages() {
+            ['errorMessage', 'registerErrorMessage'].forEach(function(id) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (el._hideTimer) clearTimeout(el._hideTimer);
+                el.textContent = '';
+                el.classList.add('d-none');
+            });
+        }
+
+        function showInlineAuthMessage(el, message) {
+            if (!el) return;
+            if (el._hideTimer) clearTimeout(el._hideTimer);
+            el.textContent = message;
+            el.classList.remove('d-none');
+            el._hideTimer = setTimeout(function() {
+                el.classList.add('d-none');
+                el.textContent = '';
+            }, 5000);
+        }
+
         // ========================================
         // Switch to registration form
         // ========================================
@@ -1130,6 +1155,7 @@
             if (flashMessages) {
                 flashMessages.remove();
             }
+            clearInlineAuthMessages();
             
             // Reset state
             if (window.state) {
@@ -1159,6 +1185,7 @@
             if (flashMessages) {
                 flashMessages.remove();
             }
+            clearInlineAuthMessages();
             
             // Reset state
             if (window.state) {
@@ -1367,6 +1394,24 @@
         });
         
         document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('#loginForm input').forEach(function(input) {
+                input.addEventListener('input', function() {
+                    const errorMessage = document.getElementById('errorMessage');
+                    if (errorMessage && !errorMessage.classList.contains('d-none')) {
+                        clearInlineAuthMessages();
+                    }
+                });
+            });
+
+            document.querySelectorAll('#registerForm input, #registerForm select').forEach(function(input) {
+                input.addEventListener('input', function() {
+                    const errorMessage = document.getElementById('registerErrorMessage');
+                    if (errorMessage && !errorMessage.classList.contains('d-none')) {
+                        clearInlineAuthMessages();
+                    }
+                });
+            });
+
             // Login form AJAX submission
             const loginForm = document.getElementById('loginForm');
             if (loginForm) {
@@ -1381,8 +1426,7 @@
                     const csrfToken = this.querySelector('input[name="csrf_token"]');
                     if (!csrfToken || !csrfToken.value) {
                         console.error('CSRF token not found or empty');
-                        errorMessage.textContent = 'Page not fully loaded, please try again later';
-                        errorMessage.classList.remove('d-none');
+                        showInlineAuthMessage(errorMessage, 'Page not fully loaded, please try again later');
                         return;
                     }
                     
@@ -1433,8 +1477,7 @@
                             }
                         }
                         
-                        errorMessage.textContent = errorMsg;
-                        errorMessage.classList.remove('d-none');
+                        showInlineAuthMessage(errorMessage, errorMsg);
                         
                         // Restore button
                         loginBtn.disabled = false;
@@ -1442,8 +1485,7 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        errorMessage.textContent = 'Login failed, please try again later';
-                        errorMessage.classList.remove('d-none');
+                        showInlineAuthMessage(errorMessage, 'Login failed, please try again later');
                         loginBtn.disabled = false;
                         loginBtn.textContent = 'Log in';
                     });
@@ -1464,8 +1506,7 @@
                     const csrfToken = this.querySelector('input[name="csrf_token"]');
                     if (!csrfToken || !csrfToken.value) {
                         console.error('CSRF token not found or empty');
-                        errorMessage.textContent = 'Page not fully loaded, please try again later';
-                        errorMessage.classList.remove('d-none');
+                        showInlineAuthMessage(errorMessage, 'Page not fully loaded, please try again later');
                         return;
                     }
                     
@@ -1517,23 +1558,20 @@
                                     errorMsg = 'Registration failed, please check your input';
                                 }
                                 
-                                errorMessage.textContent = errorMsg;
-                                errorMessage.classList.remove('d-none');
+                                showInlineAuthMessage(errorMessage, errorMsg);
                                 registerBtn.disabled = false;
                                 registerBtn.textContent = 'Create Account';
                             }
                         } else {
                             // No flash message, may be other error
-                            errorMessage.textContent = 'Registration failed, please check your input';
-                            errorMessage.classList.remove('d-none');
+                            showInlineAuthMessage(errorMessage, 'Registration failed, please check your input');
                             registerBtn.disabled = false;
                             registerBtn.textContent = 'Create Account';
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        errorMessage.textContent = 'Registration failed, please try again later';
-                        errorMessage.classList.remove('d-none');
+                        showInlineAuthMessage(errorMessage, 'Registration failed, please try again later');
                         registerBtn.disabled = false;
                         registerBtn.textContent = 'Create Account';
                     });
