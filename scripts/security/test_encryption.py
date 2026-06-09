@@ -127,6 +127,7 @@ def test_database_persistence():
     
     app = create_app()
     with app.app_context():
+        db.create_all()
         # Create and save test user
         test_email = "persistence_test@example.com"
         test_username = "persistence_test_user"

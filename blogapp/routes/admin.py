@@ -70,10 +70,11 @@ def get_all_users():
         users = User.query.filter_by(user_type='user').all()
         
         user_list = []
-        for user in users:
+        for index, user in enumerate(users, start=1):
             factories = Factory.query.filter_by(user_id=user.id, is_deleted=False).all()
             user_list.append({
                 'id': user.id,
+                'display_id': index,
                 'username': user.username,
                 'email': user.email,
                 'created_at': user.created_at.strftime('%Y-%m-%d %H:%M'),

@@ -49,6 +49,29 @@ docker-compose up --build
 
 **首次启动需要 3-5 分钟构建镜像，数据库会自动初始化。**
 
+### 虚拟机手动 Docker 运行注意事项
+
+应用默认使用 SQLite 数据库，文件位于容器内 `/app/instance/greenlife.db`。如果使用 `docker rm` 删除旧容器后再直接 `docker run`，而没有挂载宿主机目录，用户、工厂等运行时数据会随旧容器一起丢失。
+
+在虚拟机上手动运行时，请固定挂载 `instance` 和 `logs`：
+
+```bash
+cd ~/software_project_2
+git pull
+mkdir -p instance logs
+sudo docker build --no-cache -t software_project_2-web:latest .
+sudo docker stop software_project_2 2>/dev/null || true
+sudo docker rm software_project_2 2>/dev/null || true
+sudo docker run -d \
+  -p 80:5001 \
+  --name software_project_2 \
+  -v "$PWD/instance:/app/instance" \
+  -v "$PWD/logs:/app/logs" \
+  software_project_2-web:latest
+```
+
+只要 `~/software_project_2/instance/greenlife.db` 不被删除，重建镜像、删除旧容器、启动新容器都不会清空数据库。
+
 ### 传统方式
 
 <details>

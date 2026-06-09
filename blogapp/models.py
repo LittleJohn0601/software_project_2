@@ -93,6 +93,7 @@ class Factory(db.Model):
     is_deleted = db.Column(db.Boolean, default=False, nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
     deleted_by_admin_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    deletion_notice_read_at = db.Column(db.DateTime, nullable=True)
     
     @property
     def name(self):

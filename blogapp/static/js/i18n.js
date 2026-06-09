@@ -40,6 +40,11 @@ const I18N = {
         'Already have an account?': '已有账号？',
         'Invalid username or password': '用户名或密码错误',
         'Registration successful! Please log in': '注册成功！请登录',
+        'Registration failed, please check your input': '注册失败，请检查输入内容',
+        'Registration failed, please try again later': '注册失败，请稍后重试',
+        'Username can only contain letters, numbers, underscores, and hyphens': '用户名只能包含字母、数字、下划线和连字符',
+        'Username already exists': '用户名已存在',
+        'Email already registered': '邮箱已注册',
         'Sign in': '登录',
         'Get started': '立即开始',
         'Login successful!': '登录成功！',
@@ -371,6 +376,9 @@ const I18N = {
 
         // ===== Equipment recommendations (backend generated) =====
         'Energy Storage': '储能设备',
+        'Commercial Storage System': '商用储能系统',
+        'Container Storage System': '集装箱储能系统',
+        'Standard VFD': '标准变频器',
         'Variable Frequency Drive': '变频器',
         'LED Lighting': 'LED照明',
         'Compact Storage Unit': '紧凑型储能单元',
@@ -416,6 +424,8 @@ const I18N = {
         // ===== Admin actions / notifications =====
         'Admin Notifications': '管理员通知',
         'No notifications': '暂无通知',
+        'Mark as read': '标记已读',
+        'Failed to mark notifications as read': '标记通知已读失败',
         'Status': '状态',
         'Actions': '操作',
         'Active': '正常',
@@ -587,10 +597,10 @@ const I18N = {
         if (lang !== 'en' && lang !== 'zh') return;
         this.currentLang = lang;
         localStorage.setItem('lang', lang);
-        this.apply();
         window.dispatchEvent(new CustomEvent('peakshift:languageChanged', {
             detail: { lang }
         }));
+        this.apply();
     },
 
     /**

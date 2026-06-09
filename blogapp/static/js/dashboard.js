@@ -981,21 +981,21 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                         <div class="row align-items-center" style="background: ${bgColor}; border-radius: 12px; padding: 12px;">
                             <div class="col-md-3 text-center">
                                 <div style="font-size: 2.5rem;">${b.level_icon}</div>
-                                <span class="badge bg-${b.level_color} mt-1">${b.level_text}</span>
+                                <span class="badge bg-${b.level_color} mt-1">${translateText(b.level_text)}</span>
                             </div>
                             <div class="col-md-5">
-                                <div class="small text-muted">${b.industry}</div>
+                                <div class="small text-muted">${translateText(b.industry)}</div>
                                 <div class="mb-2">
                                     <span class="fw-bold">${b.energy_intensity}</span>
                                     <span class="text-muted"> kWh/ten thousand yuan</span>
                                 </div>
                                 <div class="progress mb-2" style="height: 6px;">
-                                    <div class="progress-bar bg-${b.level_color}" style="width: ${Math.min(100, (b.energy_intensity / b.benchmark_poor) * 100)}%"></div>
+                                    <div class="progress-bar bg-${b.level_color}" style="width: ${Math.max(0, Math.min(100, b.efficiency_score || 0))}%"></div>
                                 </div>
                                 <div class="d-flex justify-content-between small text-muted">
-                                    <span><span>Excellent</span> ${b.benchmark_excellent}</span>
-                                    <span><span>Average</span> ${b.benchmark_avg}</span>
                                     <span><span>Poor</span> ${b.benchmark_poor}</span>
+                                    <span><span>Average</span> ${b.benchmark_avg}</span>
+                                    <span><span>Excellent</span> ${b.benchmark_excellent}</span>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -1094,8 +1094,8 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                             <div class="col-md-4">
                                 <div class="card h-100 text-center p-3" style="background: rgba(255,255,255,0.5);">
                                     <div style="font-size: 2.5rem;">${rec.icon}</div>
-                                    <h6 class="mt-2 fw-bold">${rec.category}</h6>
-                                    <div class="small fw-bold">${rec.recommended_device || rec.description}</div>
+                                    <h6 class="mt-2 fw-bold">${translateText(rec.category)}</h6>
+                                    <div class="small fw-bold">${translateText(rec.recommended_device || rec.description)}</div>
                                     <hr class="my-2">
                                     <div class="small text-muted">💰 Investment: ${rec.investment_formatted}</div>
                                     <div class="small text-success">💵 Annual Saving: ${rec.annual_saving_formatted}</div>
@@ -1550,14 +1550,17 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
             });
             const data = await resp.json();
             
-            if (data.success && data.notifications.length > 0) {
-                const btn = document.getElementById('adminNotifBtn');
-                const countBadge = document.getElementById('adminNotifCount');
+            const btn = document.getElementById('adminNotifBtn');
+            const countBadge = document.getElementById('adminNotifCount');
+            const notifications = data.success ? data.notifications : [];
+            window._deletedNotifications = notifications;
+
+            if (notifications.length > 0) {
                 if (btn) btn.style.display = 'inline-block';
-                if (countBadge) countBadge.textContent = data.notifications.length;
-                
-                // Store for modal display
-                window._deletedNotifications = data.notifications;
+                if (countBadge) countBadge.textContent = notifications.length;
+            } else {
+                if (btn) btn.style.display = 'none';
+                if (countBadge) countBadge.textContent = '0';
             }
         } catch (e) {
             console.error('Failed to load deleted notifications:', e);
@@ -1566,11 +1569,13 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
     
     window.showDeletedNotifications = function() {
         const list = document.getElementById('deletedNotifList');
+        const readBtn = document.getElementById('markDeletedNotifReadBtn');
         const notifs = window._deletedNotifications || [];
         const isZh = typeof I18N !== 'undefined' && I18N.currentLang === 'zh';
         
         if (notifs.length === 0) {
             list.innerHTML = `<p class="text-muted text-center">${isZh ? '暂无通知' : 'No notifications'}</p>`;
+            if (readBtn) readBtn.style.display = 'none';
         } else {
             list.innerHTML = notifs.map(n => {
                 const msg = isZh
@@ -1583,10 +1588,37 @@ console.log('Dashboard.js v2.0 loaded - Animation disabled');
                     </div>
                 `;
             }).join('');
+            if (readBtn) readBtn.style.display = 'inline-flex';
         }
         
         const modal = new bootstrap.Modal(document.getElementById('deletedNotifModal'));
         modal.show();
+    };
+
+    window.markDeletedNotificationsRead = async function() {
+        try {
+            const resp = await fetch('/api/factories/deleted-notifications/read', {
+                credentials: 'same-origin',
+                method: 'POST'
+            });
+            const data = await resp.json();
+            if (!data.success) {
+                showError('Failed to mark notifications as read');
+                return;
+            }
+
+            window._deletedNotifications = [];
+            const btn = document.getElementById('adminNotifBtn');
+            const countBadge = document.getElementById('adminNotifCount');
+            if (btn) btn.style.display = 'none';
+            if (countBadge) countBadge.textContent = '0';
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deletedNotifModal'));
+            if (modal) modal.hide();
+        } catch (e) {
+            console.error('Failed to mark notifications as read:', e);
+            showError('Failed to mark notifications as read');
+        }
     };
     
     // Initialize after DOM loaded

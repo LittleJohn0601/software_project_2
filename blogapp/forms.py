@@ -1,7 +1,7 @@
 # blogapp/forms.py
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SelectField, SubmitField, FloatField, TextAreaField, DateField, IntegerField
-from wtforms.validators import DataRequired, Email, Length, ValidationError, NumberRange
+from wtforms.validators import DataRequired, Email, Length, ValidationError, NumberRange, Regexp
 from blogapp.models import User
 from blogapp.utils.sensitive_word_filter import validate_text
 
@@ -36,6 +36,7 @@ class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[
         DataRequired(message='Username is required'),
         Length(min=3, max=32, message='Username must be between 3 and 32 characters'),
+        Regexp(r'^[A-Za-z0-9_-]+$', message='Username can only contain letters, numbers, underscores, and hyphens'),
         SensitiveWordValidator(field_name='Username')
     ])
     email = StringField('Email', validators=[

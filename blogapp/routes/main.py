@@ -81,7 +81,11 @@ def get_deleted_factory_notifications():
     from datetime import timezone, timedelta
     beijing_tz = timezone(timedelta(hours=8))
     
-    deleted = Factory.query.filter_by(user_id=current_user.id, is_deleted=True).all()
+    deleted = Factory.query.filter_by(
+        user_id=current_user.id,
+        is_deleted=True,
+        deletion_notice_read_at=None
+    ).all()
     notifications = []
     for f in deleted:
         deleted_at_str = None
@@ -98,6 +102,31 @@ def get_deleted_factory_notifications():
     return jsonify({
         'success': True,
         'notifications': notifications
+    })
+
+
+@bp.route('/api/factories/deleted-notifications/read', methods=['POST'])
+@login_required
+@csrf.exempt
+def mark_deleted_factory_notifications_read():
+    """API: mark all current user's admin-delete notifications as read"""
+    from datetime import datetime
+
+    deleted = Factory.query.filter_by(
+        user_id=current_user.id,
+        is_deleted=True,
+        deletion_notice_read_at=None
+    ).all()
+
+    read_at = datetime.utcnow()
+    for factory in deleted:
+        factory.deletion_notice_read_at = read_at
+
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'read_count': len(deleted)
     })
 
 

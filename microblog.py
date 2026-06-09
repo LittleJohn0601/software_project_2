@@ -46,6 +46,7 @@ with app.app_context():
     add_column_if_missing('factory', 'is_deleted', 'BOOLEAN', '0')
     add_column_if_missing('factory', 'deleted_at', 'DATETIME')
     add_column_if_missing('factory', 'deleted_by_admin_id', 'INTEGER')
+    add_column_if_missing('factory', 'deletion_notice_read_at', 'DATETIME')
     
     # ========================================
     # 1. Import supplier electricity price data
