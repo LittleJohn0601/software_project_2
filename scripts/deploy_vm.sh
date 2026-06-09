@@ -24,6 +24,11 @@ fi
 "${DOCKER[@]}" stop "$APP_NAME" 2>/dev/null || true
 "${DOCKER[@]}" rm "$APP_NAME" 2>/dev/null || true
 
+PORT_CONTAINERS=$("${DOCKER[@]}" ps -q --filter "publish=$HOST_PORT" || true)
+if [ -n "$PORT_CONTAINERS" ]; then
+  "${DOCKER[@]}" rm -f $PORT_CONTAINERS
+fi
+
 ENV_ARGS=()
 if [ -f .env ]; then
   ENV_ARGS=(--env-file .env)
