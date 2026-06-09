@@ -236,13 +236,14 @@ def create_app() -> Flask:
     with app.app_context():
         try:
             from blogapp.models import User
+            from blogapp.utils.encryption import decrypt_field, DecryptionError
             first_user = User.query.first()
             if first_user and first_user._username:
-                # Try to decrypt the first user's username
-                from blogapp.utils.encryption import decrypt_field
-                decrypted = decrypt_field(first_user._username)
-                # If decryption returns the ciphertext itself, the key is wrong
-                if decrypted == first_user._username and len(first_user._username) > 100:
+                # Try to decrypt the first user's username.
+                # decrypt_field 现在在密钥不匹配时会抛 DecryptionError。
+                try:
+                    decrypt_field(first_user._username)
+                except DecryptionError:
                     print("\n" + "=" * 60)
                     print("⚠️  警告：ENCRYPTION_MASTER_KEY 可能不正确！")
                     print("=" * 60)

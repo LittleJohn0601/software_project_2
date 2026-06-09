@@ -13,6 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 from microblog import app
 from blogapp import db
 from blogapp.models import User
+from blogapp.utils.encryption import DecryptionError
 import sys
 
 
@@ -22,9 +23,13 @@ def create_admin(username, email, password):
         # Check if user already exists (username is encrypted, need to check all users)
         existing_user = None
         for user in User.query.all():
-            if user.username == username:
-                existing_user = user
-                break
+            try:
+                if user.username == username:
+                    existing_user = user
+                    break
+            except DecryptionError:
+                # 该用户数据解密失败，跳过
+                continue
         
         if existing_user:
             print(f"⚠️  用户 '{username}' 已存在")

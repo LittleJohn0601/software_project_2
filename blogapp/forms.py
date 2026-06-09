@@ -3,6 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SelectField, SubmitField, FloatField, TextAreaField, DateField, IntegerField
 from wtforms.validators import DataRequired, Email, Length, ValidationError, NumberRange, Regexp
 from blogapp.models import User
+from blogapp.utils.encryption import DecryptionError
 from blogapp.utils.sensitive_word_filter import validate_text
 
 
@@ -63,14 +64,21 @@ class RegistrationForm(FlaskForm):
     def validate_username(self, username):
         """Check if username already exists (username is encrypted, need to check all users)"""
         for user in User.query.all():
-            if user.username == username.data:
-                raise ValidationError('Username already exists')
+            try:
+                if user.username == username.data:
+                    raise ValidationError('Username already exists')
+            except DecryptionError:
+                # 该用户数据解密失败（密钥不匹配/脏数据），跳过比对
+                continue
     
     def validate_email(self, email):
         """Check if email already exists (email is encrypted, need to check all users)"""
         for user in User.query.all():
-            if user.email == email.data:
-                raise ValidationError('Email already registered')
+            try:
+                if user.email == email.data:
+                    raise ValidationError('Email already registered')
+            except DecryptionError:
+                continue
 
 
 # TODO: Add your PeakShift forms here
