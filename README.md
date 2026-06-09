@@ -58,19 +58,19 @@ docker-compose up --build
 ```bash
 cd ~/software_project_2
 git pull
-mkdir -p instance logs
-sudo docker build --no-cache -t software_project_2-web:latest .
-sudo docker stop software_project_2 2>/dev/null || true
-sudo docker rm software_project_2 2>/dev/null || true
-sudo docker run -d \
-  -p 80:5001 \
-  --name software_project_2 \
-  -v "$PWD/instance:/app/instance" \
-  -v "$PWD/logs:/app/logs" \
-  software_project_2-web:latest
+chmod +x scripts/deploy_vm.sh
+./scripts/deploy_vm.sh
 ```
 
 只要 `~/software_project_2/instance/greenlife.db` 不被删除，重建镜像、删除旧容器、启动新容器都不会清空数据库。
+
+如需手动展开脚本，核心点是 `docker run` 必须包含：
+
+```bash
+-v "$PWD/instance:/app/instance" -v "$PWD/logs:/app/logs"
+```
+
+不要再使用不带 `-v "$PWD/instance:/app/instance"` 的裸 `docker run`，否则新容器会创建新的空数据库。
 
 ### 传统方式
 
