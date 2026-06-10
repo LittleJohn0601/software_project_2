@@ -705,7 +705,7 @@
     
     <!-- Deleted Factories Notification Modal -->
     <div class="modal fade glass-data-modal" id="deletedNotifModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
@@ -720,6 +720,10 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2" id="markDeletedNotifReadBtn" onclick="markDeletedNotificationsRead()" style="display: none;">
+                        <i class="bi bi-check2-circle"></i>
+                        <span>Mark as read</span>
+                    </button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>

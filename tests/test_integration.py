@@ -209,6 +209,7 @@ class TestFactoryAndBenchmarkIntegration:
             assert data['data'] is not None
             assert data['data']['industry'] == 'Steel'
             assert data['data']['level'] in ['excellent', 'good', 'average', 'poor']
+            assert 0 <= data['data']['efficiency_score'] <= 100
 
 
 class TestFactoryAndOptimizationIntegration:
@@ -517,7 +518,19 @@ class TestAdminDeleteFactory:
             assert data['success'] is True
             assert len(data['notifications']) >= 1
             assert any(n['name'] == 'Notif Factory' for n in data['notifications'])
-            assert any('Beijing Time' in (n['deleted_at'] or '') for n in data['notifications'])
+            assert all('Beijing Time' not in (n['deleted_at'] or '') for n in data['notifications'])
+
+            resp = client.post('/api/factories/deleted-notifications/read')
+            data = resp.get_json()
+
+            assert data['success'] is True
+            assert data['read_count'] >= 1
+
+            resp = client.get('/api/factories/deleted-notifications')
+            data = resp.get_json()
+
+            assert data['success'] is True
+            assert all(n['name'] != 'Notif Factory' for n in data['notifications'])
 
 
 class TestEncryptionTestApiSecurity:

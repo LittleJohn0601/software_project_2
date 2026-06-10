@@ -1160,6 +1160,11 @@
             showAuthContainer();
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('registerSection').style.display = 'block';
+            const registerBtn = document.querySelector('#registerForm button[type="submit"]');
+            if (registerBtn) {
+                registerBtn.disabled = false;
+                registerBtn.textContent = typeof I18N !== 'undefined' && I18N.currentLang === 'zh' ? '创建账号' : 'Create Account';
+            }
             
             // Update URL with state
             window.history.pushState({view: 'register'}, '', '{{ url_for("auth.login") }}?mode=register');
@@ -1537,57 +1542,34 @@
                     fetch('{{ url_for("auth.register") }}', {
                         method: 'POST',
                         body: formData,
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
                         credentials: 'same-origin'  // Ensure cookies are sent
                     })
-                    .then(response => response.text())
-                    .then(html => {
-                        // Check if registration successful
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-                        const flashMessages = doc.querySelectorAll('.flash-message');
-                        
-                        if (flashMessages.length > 0) {
-                            const message = flashMessages[0].querySelector('.flash-text');
-                            const messageText = message ? message.textContent.trim() : '';
-                            const isSuccess = flashMessages[0].classList.contains('flash-success');
-                            
-                            if (isSuccess) {
-                                // Registration successful, show success message and switch to login form
-                                showFlashMessage('Registration successful! Please log in', 'success');
-                                setTimeout(() => {
-                                    showLogin();
-                                    // Clear registration form
-                                    registerForm.reset();
-                                }, 1500);
-                            } else {
-                                // Registration failed, show specific error message
-                                let errorMsg = messageText;
-                                
-                                // Optimize error prompts
-                                if (messageText.includes('already exists') || messageText.includes('already exists')) {
-                                    errorMsg = 'This username is already registered';
-                                } else if (messageText.includes('already registered') || messageText.includes('already registered')) {
-                                    errorMsg = 'This email is already registered';
-                                } else if (!errorMsg) {
-                                    errorMsg = 'Registration failed, please check your input';
-                                }
-                                
-                                showInlineAuthMessage(errorMessage, errorMsg);
-                                registerBtn.disabled = false;
-                                registerBtn.textContent = 'Create Account';
-                            }
-                        } else {
-                            // No flash message, may be other error
-                            showInlineAuthMessage(errorMessage, 'Registration failed, please check your input');
-                            registerBtn.disabled = false;
-                            registerBtn.textContent = 'Create Account';
+                    .then(async response => {
+                        const payload = await response.json().catch(() => null);
+                        if (!response.ok || !payload || !payload.success) {
+                            throw new Error(payload?.message || 'Registration failed, please check your input');
                         }
+                        return payload;
+                    })
+                    .then(() => {
+                        registerBtn.disabled = false;
+                        registerBtn.textContent = typeof I18N !== 'undefined' && I18N.currentLang === 'zh' ? '创建账号' : 'Create Account';
+                        showFlashMessage('Registration successful! Please log in', 'success');
+                        registerForm.reset();
+                        setTimeout(() => {
+                            showLogin();
+                        }, 800);
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        showInlineAuthMessage(errorMessage, 'Registration failed, please try again later');
+                        const errorText = error.message || 'Registration failed, please try again later';
+                        showInlineAuthMessage(errorMessage, typeof I18N !== 'undefined' ? I18N.t(errorText) : errorText);
                         registerBtn.disabled = false;
-                        registerBtn.textContent = 'Create Account';
+                        registerBtn.textContent = typeof I18N !== 'undefined' && I18N.currentLang === 'zh' ? '创建账号' : 'Create Account';
                     });
                 });
             }

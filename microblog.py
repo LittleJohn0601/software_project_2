@@ -46,6 +46,7 @@ with app.app_context():
     add_column_if_missing('factory', 'is_deleted', 'BOOLEAN', '0')
     add_column_if_missing('factory', 'deleted_at', 'DATETIME')
     add_column_if_missing('factory', 'deleted_by_admin_id', 'INTEGER')
+    add_column_if_missing('factory', 'deletion_notice_read_at', 'DATETIME')
     
     # ========================================
     # 1. Import supplier electricity price data
@@ -234,14 +235,9 @@ with app.app_context():
     # ========================================
     from blogapp.models import User
     
-    admin_exists = False
-    for u in User.query.all():
-        try:
-            if u.username == 'admin':
-                admin_exists = True
-                break
-        except Exception:
-            continue
+    # 用未加密的 user_type 字段判断是否已存在管理员，
+    # 不依赖 username 解密（解密失败会导致误判并重复创建 admin）。
+    admin_exists = User.query.filter_by(user_type='admin').count() > 0
     
     if not admin_exists:
         print("👤 Creating default admin account...")

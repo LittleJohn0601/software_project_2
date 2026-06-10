@@ -7,6 +7,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+class DecryptionError(Exception):
+    """解密失败时抛出（密钥不匹配或数据损坏）。"""
+    pass
+
+
 class EncryptionManager:
     """数据库字段加密管理器，基于 Fernet 对称加密"""
     
@@ -58,18 +63,26 @@ class EncryptionManager:
     
     @classmethod
     def decrypt(cls, encrypted_text: str) -> str:
-        """解密文本"""
+        """解密文本
+
+        解密失败时抛出 DecryptionError，而不是静默返回密文。
+        静默返回密文会掩盖密钥不匹配/数据损坏等问题，并可能导致
+        上层逻辑（如 username 比对）误判，从而重复创建 admin 账号、
+        让原有用户看起来"消失"。
+        """
         if not encrypted_text:
             return encrypted_text
-        
+
         try:
             cipher = cls._get_cipher()
             decrypted_bytes = cipher.decrypt(encrypted_text.encode('utf-8'))
             return decrypted_bytes.decode('utf-8')
         except Exception as e:
-            logger.error(f"解密失败: {e}")
-            logger.warning("返回原始数据")
-            return encrypted_text
+            logger.error(f"解密失败（密钥不匹配或数据损坏）: {e}")
+            raise DecryptionError(
+                "字段解密失败，可能是 ENCRYPTION_MASTER_KEY 与数据不匹配，"
+                "或数据已损坏。"
+            ) from e
     
     @classmethod
     def generate_key(cls) -> str:

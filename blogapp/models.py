@@ -2,10 +2,13 @@
 # Define database models: users, factories, time-of-use prices, grid prices, etc., including basic algorithms and property calculation logic such as monthly usage and carbon emissions!
 
 from datetime import datetime
+import logging
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from blogapp import db
-from blogapp.utils.encryption import encrypt_field, decrypt_field
+from blogapp.utils.encryption import encrypt_field, decrypt_field, DecryptionError
+
+logger = logging.getLogger(__name__)
 
 # Carbon emission factors
 DEFAULT_GRID_CARBON_FACTOR = 0.6634  # kg CO₂/kWh
@@ -32,8 +35,12 @@ class User(UserMixin, db.Model):
             return self._username
         try:
             return decrypt_field(self._username)
-        except:
-            return self._username
+        except DecryptionError:
+            logger.error(
+                "User.id=%s 的 username 解密失败，可能是 ENCRYPTION_MASTER_KEY "
+                "与数据不匹配。", self.id
+            )
+            return '[解密失败]'
     
     @username.setter
     def username(self, value):
@@ -48,8 +55,12 @@ class User(UserMixin, db.Model):
             return self._email
         try:
             return decrypt_field(self._email)
-        except:
-            return self._email
+        except DecryptionError:
+            logger.error(
+                "User.id=%s 的 email 解密失败，可能是 ENCRYPTION_MASTER_KEY "
+                "与数据不匹配。", self.id
+            )
+            return '[解密失败]'
     
     @email.setter
     def email(self, value):
@@ -93,6 +104,7 @@ class Factory(db.Model):
     is_deleted = db.Column(db.Boolean, default=False, nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
     deleted_by_admin_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    deletion_notice_read_at = db.Column(db.DateTime, nullable=True)
     
     @property
     def name(self):
@@ -101,8 +113,9 @@ class Factory(db.Model):
             return self._name
         try:
             return decrypt_field(self._name)
-        except:
-            return self._name  # Return as-is if decryption fails (legacy data)
+        except DecryptionError:
+            logger.error("Factory.id=%s 的 name 解密失败", self.id)
+            return '[解密失败]'
     
     @name.setter
     def name(self, value):
@@ -119,8 +132,9 @@ class Factory(db.Model):
             return self._location
         try:
             return decrypt_field(self._location)
-        except:
-            return self._location  # Return as-is if decryption fails (legacy data)
+        except DecryptionError:
+            logger.error("Factory.id=%s 的 location 解密失败", self.id)
+            return '[解密失败]'
     
     @location.setter
     def location(self, value):
@@ -137,8 +151,9 @@ class Factory(db.Model):
             return self._industry_type
         try:
             return decrypt_field(self._industry_type)
-        except:
-            return self._industry_type  # Return as-is if decryption fails (legacy data)
+        except DecryptionError:
+            logger.error("Factory.id=%s 的 industry_type 解密失败", self.id)
+            return '[解密失败]'
     
     @industry_type.setter
     def industry_type(self, value):

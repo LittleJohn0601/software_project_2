@@ -8,6 +8,23 @@ from blogapp.models import IndustryBenchmark, Factory
 
 class EfficiencyBenchmarkService:
     """Efficiency benchmark service"""
+
+    @staticmethod
+    def _calculate_efficiency_score(energy_intensity, excellent_intensity, avg_intensity, poor_intensity):
+        """Return a 0-100 score where higher means better efficiency."""
+        if energy_intensity <= 0:
+            return 0
+        if energy_intensity <= excellent_intensity:
+            bonus = (excellent_intensity - energy_intensity) / excellent_intensity
+            return round(min(99, 90 + bonus * 10))
+        if energy_intensity <= avg_intensity:
+            span = max(avg_intensity - excellent_intensity, 1)
+            return round(60 + ((avg_intensity - energy_intensity) / span) * 30)
+        if energy_intensity <= poor_intensity:
+            span = max(poor_intensity - avg_intensity, 1)
+            return round(20 + ((poor_intensity - energy_intensity) / span) * 40)
+        overrun = min((energy_intensity - poor_intensity) / max(poor_intensity, 1), 1)
+        return round(max(1, 20 - overrun * 19))
     
     @classmethod
     def get_benchmark(cls, industry_type, monthly_usage):
@@ -38,13 +55,20 @@ class EfficiencyBenchmarkService:
             monthly_usage / estimated_output, 2
         ) if estimated_output > 0 else 0
         
+        efficiency_score = cls._calculate_efficiency_score(
+            energy_intensity,
+            benchmark_data.excellent_intensity,
+            benchmark_data.avg_intensity,
+            benchmark_data.poor_intensity
+        )
+
         # Determine level
         if energy_intensity <= benchmark_data.excellent_intensity:
             level = 'excellent'
             level_text = 'Excellent'
             level_color = 'success'
             level_icon = '🏆'
-            tip = f'Outperforms {round((1 - energy_intensity/benchmark_data.excellent_intensity)*100)}% of industry peers'
+            tip = f'Outperforms {efficiency_score}% of industry peers'
         elif energy_intensity <= benchmark_data.avg_intensity:
             level = 'good'
             level_text = 'Good'
@@ -81,6 +105,7 @@ class EfficiencyBenchmarkService:
             'benchmark_excellent': benchmark_data.excellent_intensity,
             'benchmark_poor': benchmark_data.poor_intensity,
             'output_per_kwh': benchmark_data.output_per_kwh,
+            'efficiency_score': efficiency_score,
             'level': level,
             'level_text': level_text,
             'level_color': level_color,

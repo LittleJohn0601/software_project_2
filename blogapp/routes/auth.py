@@ -1,5 +1,5 @@
 # blogapp/routes/auth.py
-from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from blogapp import db, login_manager
 from blogapp.models import User
@@ -7,6 +7,21 @@ from blogapp.forms import LoginForm, RegistrationForm
 from datetime import datetime
 
 bp = Blueprint('auth', __name__)
+
+
+def wants_json_response():
+    """Return JSON for AJAX form submissions while keeping browser redirects."""
+    return (
+        request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        or request.accept_mimetypes['application/json'] >= request.accept_mimetypes['text/html']
+    )
+
+
+def jsonify_success(success, message):
+    return jsonify({
+        'success': success,
+        'message': message
+    })
 
 
 @login_manager.user_loader
@@ -55,6 +70,8 @@ def register():
         for u in User.query.all():
             try:
                 if u.username == username:
+                    if wants_json_response():
+                        return jsonify_success(False, 'Username already exists'), 400
                     flash('Username already exists', 'danger')
                     return redirect(url_for('auth.auth_page') + '?mode=register')
             except Exception:
@@ -64,6 +81,8 @@ def register():
         for u in User.query.all():
             try:
                 if u.email == email:
+                    if wants_json_response():
+                        return jsonify_success(False, 'Email already registered'), 400
                     flash('Email already exists', 'danger')
                     return redirect(url_for('auth.auth_page') + '?mode=register')
             except Exception:
@@ -81,10 +100,17 @@ def register():
         db.session.commit()
         
         current_app.logger.info(f"New user registered: {username}")
+        if wants_json_response():
+            return jsonify_success(True, 'Registration successful! Please log in.')
         flash('Registration successful! Please log in.', 'success')
         return redirect(url_for('auth.auth_page'))
     
     # Form validation failed, return to registration page
+    if wants_json_response():
+        errors = []
+        for field_errors in form.errors.values():
+            errors.extend(field_errors)
+        return jsonify_success(False, errors[0] if errors else 'Registration failed, please check your input'), 400
     return redirect(url_for('auth.auth_page') + '?mode=register')
 
 

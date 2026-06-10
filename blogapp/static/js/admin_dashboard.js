@@ -308,7 +308,7 @@ async function loadUsers() {
         if (data.success && data.users.length > 0) {
             tbody.innerHTML = data.users.map(user => `
                 <tr style="background: transparent;">
-                    <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${user.id}</td>
+                    <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">${user.display_id || user.id}</td>
                     <td style="padding: 0.75rem; text-align: left; border-bottom: 1px solid rgba(226, 232, 240, 0.5);">
                         <i class="bi bi-person-circle me-1"></i>
                         ${escapeHtml(user.username)}
