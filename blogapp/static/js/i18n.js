@@ -276,7 +276,7 @@ const I18N = {
         'Monthly Electricity Consumption': '月用电量',
         'Estimated Monthly Output': '预估月产值',
         'kWh/ten thousand yuan': 'kWh/万元',
-        'thousand yuan': '万元',
+        'thousand yuan': '千元',
 
         // ===== Green Power (JS generated) =====
         'Recommended plan': '推荐方案',
