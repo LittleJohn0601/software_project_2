@@ -7,6 +7,7 @@ cost calculation, and optimization services.
 
 import sys
 import json
+from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -273,6 +274,21 @@ class TestAdminIntegration:
 
             assert data['success'] is True
             assert len(data['users']) >= 1  # At least one user exists
+
+    def test_admin_user_registration_time_uses_beijing_time(self, app, client, init_db):
+        """Admin user list displays registration timestamps in Beijing time."""
+        with app.app_context():
+            user = User.query.filter_by(user_type='user').first()
+            user.created_at = datetime(2026, 6, 10, 5, 39)
+            db.session.commit()
+
+            login(client, 'admin', 'admin123')
+
+            resp = client.get('/api/admin/users')
+            data = resp.get_json()
+            displayed_user = next(u for u in data['users'] if u['id'] == user.id)
+
+            assert displayed_user['created_at'] == '2026-06-10 13:39'
 
     def test_admin_api_survives_proxy_ip_change(self, app, client, init_db):
         """Admin AJAX requests remain authenticated when proxy source IP changes"""

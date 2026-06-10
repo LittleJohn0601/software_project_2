@@ -1,6 +1,7 @@
 # blogapp/routes/admin.py
 """Admin routes for system management"""
 
+from datetime import timezone, timedelta
 from flask import Blueprint, render_template, jsonify, request, current_app
 from flask_login import login_required, current_user
 from blogapp.decorators import admin_required
@@ -8,6 +9,14 @@ from blogapp.models import User, Factory, HourlyElectricityPrice, GridElectricit
 from blogapp import db, csrf
 
 bp = Blueprint('admin', __name__)
+BEIJING_TZ = timezone(timedelta(hours=8))
+
+
+def format_beijing_datetime(value, fmt='%Y-%m-%d %H:%M'):
+    """Format DB UTC datetimes for admin display in Beijing time."""
+    if not value:
+        return None
+    return value.replace(tzinfo=timezone.utc).astimezone(BEIJING_TZ).strftime(fmt)
 
 
 @bp.route('/admin')
@@ -50,7 +59,7 @@ def get_admin_stats():
                 'id': u.id,
                 'username': u.username,
                 'email': u.email,
-                'created_at': u.created_at.strftime('%Y-%m-%d %H:%M')
+                'created_at': format_beijing_datetime(u.created_at)
             } for u in recent_users]
         })
     except Exception as e:
@@ -77,7 +86,7 @@ def get_all_users():
                 'display_id': index,
                 'username': user.username,
                 'email': user.email,
-                'created_at': user.created_at.strftime('%Y-%m-%d %H:%M'),
+                'created_at': format_beijing_datetime(user.created_at),
                 'factory_count': len(factories),
                 'total_usage': sum(f.monthly_usage for f in factories),
                 'total_carbon': sum(f.carbon_emission for f in factories),
