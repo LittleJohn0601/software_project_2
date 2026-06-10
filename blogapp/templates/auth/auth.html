@@ -1538,7 +1538,8 @@
                     if (!formData.has('csrf_token')) {
                         formData.append('csrf_token', csrfToken.value);
                     }
-                    
+                    formData.set('registered_at_client', new Date().toISOString());
+
                     fetch('{{ url_for("auth.register") }}', {
                         method: 'POST',
                         body: formData,

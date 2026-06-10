@@ -4,7 +4,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from blogapp import db, login_manager
 from blogapp.models import User
 from blogapp.forms import LoginForm, RegistrationForm
-from datetime import datetime
+from datetime import datetime, timezone
 
 bp = Blueprint('auth', __name__)
 
@@ -22,6 +22,20 @@ def jsonify_success(success, message):
         'success': success,
         'message': message
     })
+
+
+def parse_client_utc_timestamp(value):
+    """Parse a browser ISO timestamp and store it as naive UTC."""
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.replace('Z', '+00:00'))
+    except ValueError:
+        current_app.logger.warning("Invalid client timestamp: %s", value)
+        return None
+    if parsed.tzinfo is None:
+        return None
+    return parsed.astimezone(timezone.utc).replace(tzinfo=None)
 
 
 @login_manager.user_loader
@@ -92,7 +106,8 @@ def register():
         user = User(
             username=username,
             email=email,  # The setter in User model will encrypt it
-            user_type=user_type
+            user_type=user_type,
+            created_at=parse_client_utc_timestamp(request.form.get('registered_at_client')) or datetime.utcnow()
         )
         user.set_password(password)
         

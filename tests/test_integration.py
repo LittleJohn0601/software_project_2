@@ -349,6 +349,22 @@ class TestEncryptionIntegration:
             resp = login(client, 'newuser', 'secure123')
             assert resp.status_code == 200
 
+    def test_register_uses_client_timestamp(self, app, client, init_db):
+        """Registration stores the browser timestamp instead of relying on VM clock."""
+        with app.app_context():
+            resp = client.post('/auth/register', data={
+                'username': 'timeuser',
+                'email': 'timeuser@test.com',
+                'password': 'secure123',
+                'user_type': 'user',
+                'registered_at_client': '2026-06-10T11:19:30.000Z',
+            }, headers={'X-Requested-With': 'XMLHttpRequest'})
+
+            user = next(u for u in User.query.all() if u.username == 'timeuser')
+
+            assert resp.status_code == 200
+            assert user.created_at == datetime(2026, 6, 10, 11, 19, 30)
+
     def test_encrypted_username_stored_differently(self, app, client, init_db):
         """Encrypted username in DB differs from plaintext"""
         with app.app_context():
